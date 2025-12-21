@@ -14,7 +14,6 @@ const CREATORS = [
   },
 ];
 
-
 export default function Creators() {
   const [liveMap, setLiveMap] = useState({}); // { mewtzu: true/false }
 
@@ -23,23 +22,36 @@ export default function Creators() {
 
     async function loadLive() {
       try {
-        // Calls your own backend endpoint (you will add it below)
-        const params = new URLSearchParams({
-          logins: CREATORS.map((c) => c.twitchLogin).join(","),
-        });
+        // Fetch live status for each creator using your existing function:
+        // /.netlify/functions/twitch-live?user=<login>
+        const results = await Promise.all(
+          CREATORS.map(async (c) => {
+            try {
+              const res = await fetch(
+                `/.netlify/functions/twitch-live?user=${encodeURIComponent(c.twitchLogin)}`
+              );
+              if (!res.ok) return [c.twitchLogin, false];
 
-        const res = await fetch(`/api/twitch/live?${params.toString()}`);
-        if (!res.ok) return;
-        const data = await res.json(); // { live: { mewtzu: true } }
+              const data = await res.json(); // { isLive: true/false, ... }
+              return [c.twitchLogin, !!data?.isLive];
+            } catch {
+              return [c.twitchLogin, false];
+            }
+          })
+        );
 
-        if (!cancelled) setLiveMap(data?.live || {});
+        if (cancelled) return;
+
+        const next = {};
+        for (const [login, isLive] of results) next[login] = isLive;
+        setLiveMap(next);
       } catch {
-        // silently ignore (no badge)
+        // ignore
       }
     }
 
     loadLive();
-    const t = setInterval(loadLive, 60_000); // refresh every minute
+    const t = setInterval(loadLive, 60_000);
     return () => {
       cancelled = true;
       clearInterval(t);
@@ -71,8 +83,8 @@ export default function Creators() {
 
           <div className="creatorsGrid">
             {CREATORS.map((c) => {
-              const isLive = true; // 🔥 TEMP: force live for testing
-
+              // ✅ real status
+              const isLive = !!liveMap[c.twitchLogin];
 
               return (
                 <a
@@ -84,19 +96,23 @@ export default function Creators() {
                   aria-label={`Visit ${c.name} on Twitch`}
                 >
                   <div
-  className="creatorImg creatorImgWithOverlay"
-  style={{ backgroundImage: `url(${c.image})` }}
->
+                    className="creatorImg creatorImgWithOverlay"
+                    style={{ backgroundImage: `url(${c.image})` }}
+                  >
                     {/* Twitch icon overlay */}
                     <div className="twitchOverlayIcon" aria-hidden="true">
                       <FaTwitch />
                     </div>
 
-                    {/* Live badge */}
-                    {isLive && (
+                    {/* ✅ LIVE / OFFLINE badge */}
+                    {isLive ? (
                       <div className="liveBadge" aria-label="Live now">
                         <span className="liveDot" />
                         LIVE
+                      </div>
+                    ) : (
+                      <div className="offlineBadge" aria-label="Offline">
+                        OFFLINE
                       </div>
                     )}
                   </div>

@@ -1,39 +1,68 @@
-export async function handler(event) {
-  const logins = event.queryStringParameters.logins?.split(",") || [];
+exports.handler = async (event) => {
+  try {
+    const username = event.queryStringParameters?.user;
+    if (!username) {
+      return { statusCode: 400, body: "Missing ?user=" };
+    }
 
-  const tokenRes = await fetch("https://id.twitch.tv/oauth2/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: process.env.TWITCH_CLIENT_ID,
-      client_secret: process.env.TWITCH_CLIENT_SECRET,
-      grant_type: "client_credentials",
-    }),
-  });
+    const clientId = process.env.TWITCH_CLIENT_ID;
+    const token = process.env.TWITCH_APP_TOKEN;
 
-  const tokenData = await tokenRes.json();
-  const accessToken = tokenData.access_token;
+    if (!clientId || !token) {
+      return { statusCode: 500, body: "Missing TWITCH_CLIENT_ID or TWITCH_APP_TOKEN env vars" };
+    }
 
-  const url =
-    "https://api.twitch.tv/helix/streams?" +
-    logins.map((l) => `user_login=${l}`).join("&");
+    // 1) Get user id from login name
+    const userRes = await fetch(`https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`, {
+      headers: {
+        "Client-Id": clientId,
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  const liveRes = await fetch(url, {
-    headers: {
-      "Client-ID": process.env.TWITCH_CLIENT_ID,
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+    if (!userRes.ok) {
+      const t = await userRes.text().catch(() => "");
+      return { statusCode: 502, body: `Twitch users lookup failed: ${userRes.status} ${t}` };
+    }
 
-  const data = await liveRes.json();
+    const userJson = await userRes.json();
+    const userId = userJson?.data?.[0]?.id;
 
-  const live = {};
-  data.data.forEach((s) => {
-    live[s.user_login] = true;
-  });
+    if (!userId) {
+      return { statusCode: 200, body: JSON.stringify({ user: username, isLive: false }) };
+    }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ live }),
-  };
-}
+    // 2) Check if user has an active stream
+    const streamRes = await fetch(`https://api.twitch.tv/helix/streams?user_id=${userId}`, {
+      headers: {
+        "Client-Id": clientId,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!streamRes.ok) {
+      const t = await streamRes.text().catch(() => "");
+      return { statusCode: 502, body: `Twitch streams lookup failed: ${streamRes.status} ${t}` };
+    }
+
+    const streamJson = await streamRes.json();
+    const stream = streamJson?.data?.[0];
+
+    const out = {
+      user: username,
+      isLive: Boolean(stream),
+      title: stream?.title || "",
+      game: stream?.game_name || "",
+      viewerCount: stream?.viewer_count || 0,
+      startedAt: stream?.started_at || "",
+    };
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=30" },
+      body: JSON.stringify(out),
+    };
+  } catch (err) {
+    return { statusCode: 500, body: `Function error: ${err?.message || err}` };
+  }
+};
