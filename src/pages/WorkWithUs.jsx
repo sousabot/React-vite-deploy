@@ -7,42 +7,40 @@ function encodeForm(data) {
 }
 
 export default function WorkWithUs() {
-  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-async function onSubmit(e) {
-  e.preventDefault();
-  setError("");
+  async function onSubmit(e) {
+    e.preventDefault();
+    setError("");
 
-  const form = e.currentTarget;
-  const formData = new FormData(form);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
 
-  const payloadObj = {
-    "form-name": "work-with-us",
-    ...Object.fromEntries(formData.entries()),
-  };
+    const payloadObj = {
+      "form-name": "work-with-us",
+      ...Object.fromEntries(formData.entries()),
+    };
 
-  try {
-    // 1) Send to Discord first
-    const discordRes = await fetch("/.netlify/functions/form-to-discord", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: encodeForm(payloadObj),
-    });
+    try {
+      // 1) Send to Discord via Netlify Function
+      const discordRes = await fetch("/.netlify/functions/form-to-discord", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encodeForm(payloadObj),
+      });
 
-    if (!discordRes.ok) {
-      const msg = await discordRes.text().catch(() => "");
-      throw new Error(`Discord failed (${discordRes.status}) ${msg}`.trim());
+      if (!discordRes.ok) {
+        const msg = await discordRes.text().catch(() => "");
+        throw new Error(`Discord failed (${discordRes.status}) ${msg}`.trim());
+      }
+
+      // 2) Submit to Netlify Forms normally (Netlify will redirect to "/")
+      form.submit();
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Something went wrong. Please try again.");
     }
-
-    // 2) Now submit to Netlify Forms (native submit)
-    // This will POST to /success.html (a real file) and Netlify will store the form submission.
-    form.submit();
-  } catch (err) {
-    console.error(err);
-    setError(err?.message || "Something went wrong. Please try again.");
   }
-}
 
   return (
     <PageMotion>
@@ -52,115 +50,99 @@ async function onSubmit(e) {
           Apply for collaborations, competitive teams, or staff roles at GD Esports.
         </p>
 
-        {!submitted ? (
-      <motion.form
-  name="work-with-us"
-  method="POST"
-  action="/success.html"
-  data-netlify="true"
-  data-netlify-honeypot="bot-field"
-  onSubmit={onSubmit}
->
-            {/* Required for Netlify */}
-            <input type="hidden" name="form-name" value="work-with-us" />
+        <motion.form
+          className="workForm"
+          name="work-with-us"
+          method="POST"
+          action="/"
+          data-netlify="true"
+          data-netlify-honeypot="bot-field"
+          onSubmit={onSubmit}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Required for Netlify */}
+          <input type="hidden" name="form-name" value="work-with-us" />
 
-            {/* Honeypot (anti-spam) */}
-            <input type="hidden" name="bot-field" />
+          {/* Honeypot (anti-spam) */}
+          <input type="hidden" name="bot-field" />
 
-            {/* Name */}
-            <div className="formRow">
-              <input
-                name="firstName"
-                className="input"
-                placeholder="First Name"
-                autoComplete="given-name"
-                required
-              />
-              <input
-                name="lastName"
-                className="input"
-                placeholder="Last Name"
-                autoComplete="family-name"
-                required
-              />
-            </div>
+          {/* ✅ Redirect to home page after successful submit */}
+          <input type="hidden" name="redirect" value="/" />
 
-            {/* Age */}
-            <div className="formRow">
-              <input
-                name="age"
-                className="input"
-                type="number"
-                placeholder="Age"
-                min="13"
-                required
-              />
-            </div>
+          {/* Name */}
+          <div className="formRow">
+            <input
+              name="firstName"
+              className="input"
+              placeholder="First Name"
+              autoComplete="given-name"
+              required
+            />
+            <input
+              name="lastName"
+              className="input"
+              placeholder="Last Name"
+              autoComplete="family-name"
+              required
+            />
+          </div>
 
-            {/* About */}
-            <div className="formRow">
-              <textarea
-                name="about"
-                className="input textarea"
-                placeholder="Tell us about yourself"
-                rows={4}
-                required
-              />
-            </div>
+          {/* Age */}
+          <div className="formRow">
+            <input
+              name="age"
+              className="input"
+              type="number"
+              placeholder="Age"
+              min="13"
+              required
+            />
+          </div>
 
-            {/* Tournaments */}
-            <div className="formRow">
-              <textarea
-                name="tournaments"
-                className="input textarea"
-                placeholder="Tournaments you have played in"
-                rows={3}
-              />
-            </div>
+          {/* About */}
+          <div className="formRow">
+            <textarea
+              name="about"
+              className="input textarea"
+              placeholder="Tell us about yourself"
+              rows={4}
+              required
+            />
+          </div>
 
-            {/* Discord */}
-            <div className="formRow">
-              <input
-                name="discord"
-                className="input"
-                placeholder="Discord username (e.g. user#1234)"
-                required
-              />
-            </div>
+          {/* Tournaments */}
+          <div className="formRow">
+            <textarea
+              name="tournaments"
+              className="input textarea"
+              placeholder="Tournaments you have played in"
+              rows={3}
+            />
+          </div>
 
-            {error && <div className="formError">{error}</div>}
+          {/* Discord */}
+          <div className="formRow">
+            <input
+              name="discord"
+              className="input"
+              placeholder="Discord username (e.g. user#1234)"
+              required
+            />
+          </div>
 
-            <motion.button
-              className="btnPrimary"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              type="submit"
-            >
-              Submit Application
-            </motion.button>
-          </motion.form>
-        ) : (
-          <motion.div
-            className="formSuccess"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+          {error && <div className="formError">{error}</div>}
+
+          <motion.button
+            className="btnPrimary"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            type="submit"
           >
-            <h3>Application submitted ✅</h3>
-            <p className="muted">Thanks — we’ll review it and get back to you.</p>
-
-            <motion.button
-              className="btnGhost"
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                setSubmitted(false);
-                setError("");
-              }}
-            >
-              Submit another
-            </motion.button>
-          </motion.div>
-        )}
+            Submit Application
+          </motion.button>
+        </motion.form>
       </div>
     </PageMotion>
   );
