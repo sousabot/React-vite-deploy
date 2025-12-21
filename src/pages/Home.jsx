@@ -54,9 +54,9 @@ export default function Home() {
               </h1>
 
               <p className="heroDesc">
-                GD Esports is a competitive organization built on discipline, clean
-                communication, and clutch decision-making. We compete to win — nothing
-                less.
+                GD Esports is a competitive organization built on discipline,
+                clean communication, and clutch decision-making.
+                We compete to win — nothing less.
               </p>
 
               <div className="heroCTA">
@@ -94,7 +94,7 @@ export default function Home() {
           <div className="heroDivider" />
         </section>
 
-        {/* FEATURED COLLECTION / CTA SECTION */}
+        {/* CREATOR CTA */}
         <section className="sectionPro shopCtaSection">
           <motion.div
             variants={fadeUp}
