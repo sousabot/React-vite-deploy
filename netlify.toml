@@ -1,0 +1,10 @@
+[build]
+  functions = "netlify/functions"
+
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
+[[redirects]]
+  from = "/.netlify/functions/form-to-discord"
+  to = "/.netlify/functions/form-to-discord"
+  status = 200
