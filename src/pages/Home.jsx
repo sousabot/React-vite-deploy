@@ -28,13 +28,15 @@ export default function Home() {
   function onLeave() {
     setTilt({ x: 0, y: 0 });
   }
-  <div style={{ opacity: 0.35, fontSize: 12, padding: "6px 0" }}>
-  HOME DEPLOY CHECK: 2a88ed4
-</div>
 
   return (
     <PageMotion>
       <div className="homePro">
+        {/* DEPLOY MARKER (TEST) */}
+        <div style={{ opacity: 0.35, fontSize: 12, padding: "6px 0" }}>
+          HOME DEPLOY CHECK: 2a88ed4
+        </div>
+
         {/* HERO */}
         <section className="heroPro" onMouseMove={onMove} onMouseLeave={onLeave}>
           <motion.div
@@ -57,9 +59,9 @@ export default function Home() {
               </h1>
 
               <p className="heroDesc">
-                GD Esports is a competitive organization built on discipline,
-                clean communication, and clutch decision-making.
-                We compete to win — nothing less.
+                GD Esports is a competitive organization built on discipline, clean
+                communication, and clutch decision-making. We compete to win — nothing
+                less.
               </p>
 
               <div className="heroCTA">
@@ -73,13 +75,25 @@ export default function Home() {
                 </motion.button>
 
                 <div className="socialRow">
-                  <a className="socialChip" href="#" onClick={(e) => e.preventDefault()}>
+                  <a
+                    className="socialChip"
+                    href="#"
+                    onClick={(e) => e.preventDefault()}
+                  >
                     Discord
                   </a>
-                  <a className="socialChip" href="#" onClick={(e) => e.preventDefault()}>
+                  <a
+                    className="socialChip"
+                    href="#"
+                    onClick={(e) => e.preventDefault()}
+                  >
                     Twitch
                   </a>
-                  <a className="socialChip" href="#" onClick={(e) => e.preventDefault()}>
+                  <a
+                    className="socialChip"
+                    href="#"
+                    onClick={(e) => e.preventDefault()}
+                  >
                     X
                   </a>
                 </div>
@@ -95,6 +109,31 @@ export default function Home() {
           </motion.div>
 
           <div className="heroDivider" />
+        </section>
+
+        {/* ✅ NEW FEATURE (TEST): LIVE UPDATE CARD */}
+        <section className="sectionPro">
+          <motion.div
+            className="updateCard"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+          >
+            <div className="updateTop">
+              <span className="updateBadge">
+                <span className="pulseDot" /> LIVE UPDATE
+              </span>
+              <span className="updateSmall">Home feature test</span>
+            </div>
+
+            <div className="updateTitle">Deploy test feature added ✅</div>
+            <div className="updateDesc">
+              If you can see this card on Netlify, your auto-deploy pipeline is working
+              perfectly.
+            </div>
+          </motion.div>
         </section>
 
         {/* CREATOR CTA */}
