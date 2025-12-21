@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
-import fetch from "node-fetch";
 
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
