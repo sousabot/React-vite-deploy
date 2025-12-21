@@ -17,23 +17,25 @@ export default function WorkWithUs() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-const payloadObj = {
-  "form-name": "work-with-us",
-  ...Object.fromEntries(formData.entries()),
-};
-
+    // Always include form-name for Netlify
+    const payloadObj = {
+      "form-name": "work-with-us",
+      ...Object.fromEntries(formData.entries()),
+    };
 
     try {
-      // 1) Save into Netlify Forms (works when form is detected at build time)
-   const netlifyRes = await fetch("/netlify-forms.html", {
-  method: "POST",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: encodeForm(payloadObj),
-});
+      // 1) Submit to Netlify Forms
+      const netlifyRes = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encodeForm(payloadObj),
+      });
 
-      // Some setups return 200/302; treat any non-ok as fail
       if (!netlifyRes.ok) {
-        throw new Error(`Netlify form submit failed (${netlifyRes.status})`);
+        const txt = await netlifyRes.text().catch(() => "");
+        throw new Error(
+          `Netlify form submit failed (${netlifyRes.status}) ${txt}`.trim()
+        );
       }
 
       // 2) Send to Discord via Netlify Function
@@ -45,15 +47,17 @@ const payloadObj = {
 
       if (!discordRes.ok) {
         const msg = await discordRes.text().catch(() => "");
-        throw new Error(`Discord webhook function failed (${discordRes.status}) ${msg}`);
+        throw new Error(
+          `Discord submission failed (${discordRes.status}) ${msg}`.trim()
+        );
       }
 
       setSubmitted(true);
       form.reset();
-   } catch (err) {
-  console.error(err);
-  setError(err?.message || "Something went wrong. Please try again.");
-}
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "Something went wrong. Please try again.");
+    }
   }
 
   return (
@@ -69,7 +73,7 @@ const payloadObj = {
             className="workForm"
             name="work-with-us"
             method="POST"
-            action="/netlify-forms.html"
+            action="/"
             data-netlify="true"
             data-netlify-honeypot="bot-field"
             onSubmit={onSubmit}
