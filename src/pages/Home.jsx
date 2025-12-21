@@ -69,15 +69,6 @@ export default function Home() {
                   Join Tryouts
                 </motion.button>
 
-                <motion.a
-                  className="btnGhost"
-                  href="#sponsors"
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  Our Partners
-                </motion.a>
-
                 <div className="socialRow">
                   <a className="socialChip" href="#" onClick={(e) => e.preventDefault()}>
                     Discord
@@ -112,10 +103,7 @@ export default function Home() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <h2 className="shopCtaTitle">GET THE 2025 GD ESPORTS PRO KIT COLLECTION</h2>
-
             <div className="shopCtaGrid">
-              {/* ✅ FIX: Use Link to go to /creators */}
               <Link to="/creators" className="shopCtaCard">
                 <span className="shopCtaText">
                   MEET OUR
@@ -124,37 +112,6 @@ export default function Home() {
                 </span>
                 <span className="shopCtaArrow">›</span>
               </Link>
-
-              {/* ✅ FIX: Use Link instead of <a> */}
-              <Link to="/partners" className="shopCtaCard">
-                <span className="shopCtaText">
-                  MEET OUR
-                  <br />
-                  PARTNERS
-                </span>
-                <span className="shopCtaArrow">›</span>
-              </Link>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* SPONSORS */}
-        <section className="sectionPro" id="sponsors">
-          <motion.div
-            className="sponsorStrip"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="sponsorTitle">Sponsors</div>
-            <div className="sponsorRow">
-              {["HyperFuel", "AimLab", "VoltGear", "StreamForge", "NovaNet"].map((s) => (
-                <div key={s} className="sponsorPill">
-                  {s}
-                </div>
-              ))}
             </div>
           </motion.div>
         </section>
