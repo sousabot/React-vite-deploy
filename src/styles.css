@@ -1536,6 +1536,7 @@ textarea.input {
   padding: 0 1.5rem 5rem;
   display: flex;
   justify-content: center;
+  overflow-x: clip;
 }
 
 .aboutCard {
@@ -1547,6 +1548,7 @@ textarea.input {
   border: 1px solid rgba(229, 231, 235, 0.10);
   backdrop-filter: blur(8px);
   box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+   overflow: hidden;
 }
 
 .aboutLead {
@@ -1568,6 +1570,7 @@ textarea.input {
   position: relative;
   height: 18px;
   margin: 1.4rem 0 0.2rem;
+   overflow: hidden;
 }
 
 .animatedDividerTrack {
@@ -1632,4 +1635,98 @@ textarea.input {
   background: rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* =========================
+   GLOBAL MOBILE FIX
+   ========================= */
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent media overflow */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Main page padding */
+.dash,
+.creatorsPage,
+.aboutPage,
+.workPage {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* Stack grids */
+@media (max-width: 900px) {
+  .grid2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Creators page fixes */
+@media (max-width: 700px) {
+  .creatorsHero {
+    min-height: 260px;
+  }
+
+  .creatorsTitle {
+    font-size: 40px !important;
+    line-height: 1;
+  }
+
+  .creatorsGrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* About page */
+@media (max-width: 700px) {
+  .aboutHero {
+    padding: 4rem 1rem 1.6rem;
+  }
+
+  .aboutTitle {
+    font-size: 2rem;
+  }
+
+  .aboutCard {
+    padding: 1.4rem 1.1rem;
+  }
+}
+
+/* Work with us form */
+@media (max-width: 700px) {
+  .workForm .formRow {
+    grid-template-columns: 1fr !important;
+  }
+
+  .btnPrimary {
+    width: 100%;
+  }
+
+  /* Prevent iOS zoom */
+  input,
+  textarea,
+  button {
+    font-size: 16px;
+  }
+}
+
+/* Navbar / header safety */
+@media (max-width: 700px) {
+  header,
+  .navbar,
+  .nav {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 }
