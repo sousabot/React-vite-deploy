@@ -1413,3 +1413,209 @@ textarea.input {
   font-weight: 700;
   font-size: 14px;
 }
+
+/* ========= ABOUT PAGE ========= */
+
+.aboutPage {
+  position: relative;
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  background: radial-gradient(1200px 600px at 50% 0%, rgba(99, 102, 241, 0.10), transparent 60%),
+    linear-gradient(180deg, #07070b 0%, #0b1220 55%, #07070b 100%);
+}
+
+/* Logo watermark (using public/vite.svg) */
+.aboutWatermark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(900px 500px at 50% 20%, rgba(255,255,255,0.08), transparent 60%),
+    url("/vite.svg");
+  background-repeat: no-repeat;
+  background-position: center 120px;
+  background-size: 560px auto;
+  filter: saturate(1.1);
+}
+
+@media (max-width: 640px) {
+  .aboutWatermark {
+    background-size: 360px auto;
+    background-position: center 140px;
+    opacity: 0.10;
+  }
+}
+
+/* ========= HERO ========= */
+
+.aboutHero {
+  position: relative;
+  padding: 5rem 1.5rem 2.25rem;
+  display: flex;
+  justify-content: center;
+}
+
+.aboutHeroInner {
+  width: 100%;
+  max-width: 1000px;
+  text-align: center;
+}
+
+.aboutKicker {
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.aboutTitle {
+  margin: 1rem 0 0.75rem;
+  font-size: clamp(2.0rem, 4vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.05;
+  color: #e5e7eb;
+}
+
+.aboutSubtitle {
+  margin: 0 auto;
+  max-width: 720px;
+  color: rgba(229, 231, 235, 0.85);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* ========= Divider under hero (animated) ========= */
+
+.dividerWrap {
+  margin: 2rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.dividerLine {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, rgba(229, 231, 235, 0.35), transparent);
+}
+
+.dividerPulse {
+  height: 10px;
+  width: 10px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.9);
+  box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.65);
+  animation: dividerPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dividerPulse {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.55);
+  }
+  60% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 14px rgba(99, 102, 241, 0.0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.0);
+  }
+}
+
+/* ========= MAIN ========= */
+
+.aboutMain {
+  position: relative;
+  padding: 0 1.5rem 5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.aboutCard {
+  width: 100%;
+  max-width: 900px;
+  padding: 2rem 1.75rem;
+  border-radius: 18px;
+  background: rgba(17, 24, 39, 0.55);
+  border: 1px solid rgba(229, 231, 235, 0.10);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+}
+
+.aboutLead {
+  color: rgba(229, 231, 235, 0.90);
+  font-size: 1.12rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.aboutText {
+  color: rgba(229, 231, 235, 0.84);
+  line-height: 1.8;
+  margin: 1.15rem 0 0;
+}
+
+/* ========= Animated dividers inside card ========= */
+
+.animatedDivider {
+  position: relative;
+  height: 18px;
+  margin: 1.4rem 0 0.2rem;
+}
+
+.animatedDividerTrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent, rgba(229, 231, 235, 0.18), transparent);
+}
+
+.animatedDividerGlow {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  width: 120px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.85), transparent);
+  left: -140px;
+  animation: sweep 2.6s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0%   { left: -160px; opacity: 0.0; }
+  15%  { opacity: 1.0; }
+  50%  { left: calc(100% - 60px); opacity: 0.85; }
+  85%  { opacity: 1.0; }
+  100% { left: calc(100% + 160px); opacity: 0.0; }
+}
+
+/* ========= Closing ========= */
+
+.aboutClosing {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.aboutCommitment {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: rgba(229, 231, 235, 0.92);
+  margin: 0;
+}
+
+.aboutTagline {
+  margin: 0.7rem 0 0;
+  font-style: italic;
+  opacity: 0.85;
+  color: rgba(229, 231, 235, 0.85);
+}
