@@ -2,12 +2,53 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 
+function encodeForm(data) {
+  return new URLSearchParams(data).toString();
+}
+
 export default function WorkWithUs() {
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    setSubmitted(true);
+    setError("");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Convert FormData -> plain object
+    const payloadObj = Object.fromEntries(formData.entries());
+
+    try {
+      // 1) Save into Netlify Forms
+      const netlifyRes = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encodeForm(payloadObj),
+      });
+
+      if (!netlifyRes.ok) {
+        throw new Error("Netlify form submit failed");
+      }
+
+      // 2) Send to Discord via Netlify Function
+      const discordRes = await fetch("/.netlify/functions/form-to-discord", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encodeForm(payloadObj),
+      });
+
+      if (!discordRes.ok) {
+        throw new Error("Discord webhook function failed");
+      }
+
+      setSubmitted(true);
+      form.reset();
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      console.error(err);
+    }
   }
 
   return (
@@ -19,78 +60,79 @@ export default function WorkWithUs() {
         </p>
 
         {!submitted ? (
-         <motion.form
-  className="workForm"
-  name="work-with-us"
-  method="POST"
-  data-netlify="true"
-  onSubmit={onSubmit}
-  initial={{ opacity: 0, y: 12 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
->
-  {/* Required for Netlify */}
-  <input type="hidden" name="form-name" value="work-with-us" />
+          <motion.form
+            className="workForm"
+            name="work-with-us"
+            method="POST"
+            data-netlify="true"
+            onSubmit={onSubmit}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Required for Netlify */}
+            <input type="hidden" name="form-name" value="work-with-us" />
 
-  {/* Name */}
-  <div className="formRow">
-    <input name="firstName" className="input" placeholder="First Name" required />
-    <input name="lastName" className="input" placeholder="Last Name" required />
-  </div>
+            {/* Name */}
+            <div className="formRow">
+              <input name="firstName" className="input" placeholder="First Name" required />
+              <input name="lastName" className="input" placeholder="Last Name" required />
+            </div>
 
-  {/* Age */}
-  <div className="formRow">
-    <input
-      name="age"
-      className="input"
-      type="number"
-      placeholder="Age"
-      min="13"
-      required
-    />
-  </div>
+            {/* Age */}
+            <div className="formRow">
+              <input
+                name="age"
+                className="input"
+                type="number"
+                placeholder="Age"
+                min="13"
+                required
+              />
+            </div>
 
-  {/* About */}
-  <div className="formRow">
-    <textarea
-      name="about"
-      className="input textarea"
-      placeholder="Tell us about yourself"
-      rows={4}
-      required
-    />
-  </div>
+            {/* About */}
+            <div className="formRow">
+              <textarea
+                name="about"
+                className="input textarea"
+                placeholder="Tell us about yourself"
+                rows={4}
+                required
+              />
+            </div>
 
-  {/* Tournaments */}
-  <div className="formRow">
-    <textarea
-      name="tournaments"
-      className="input textarea"
-      placeholder="Tournaments you have played in"
-      rows={3}
-    />
-  </div>
+            {/* Tournaments */}
+            <div className="formRow">
+              <textarea
+                name="tournaments"
+                className="input textarea"
+                placeholder="Tournaments you have played in"
+                rows={3}
+              />
+            </div>
 
-  {/* Discord */}
-  <div className="formRow">
-    <input
-      name="discord"
-      className="input"
-      placeholder="Discord username (e.g. user#1234)"
-      required
-    />
-  </div>
+            {/* Discord */}
+            <div className="formRow">
+              <input
+                name="discord"
+                className="input"
+                placeholder="Discord username (e.g. user#1234)"
+                required
+              />
+            </div>
 
-  <motion.button
-    className="btnPrimary"
-    whileHover={{ scale: 1.04 }}
-    whileTap={{ scale: 0.97 }}
-    type="submit"
-  >
-    Submit Application
-  </motion.button>
-</motion.form>
+            {error && <div className="formError">{error}</div>}
 
+            <motion.button
+              className="btnPrimary"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              type="submit"
+            >
+              Submit Application
+            </motion.button>
+          </motion.form>
         ) : (
           <motion.div
             className="formSuccess"
@@ -98,9 +140,16 @@ export default function WorkWithUs() {
             animate={{ opacity: 1, y: 0 }}
           >
             <h3>Application submitted ✅</h3>
-            <p className="muted">
-              Thank you for reaching out. Our team will review your application.
-            </p>
+            <p className="muted">Thanks — we’ll review it and get back to you.</p>
+
+            <motion.button
+              className="btnGhost"
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSubmitted(false)}
+            >
+              Submit another
+            </motion.button>
           </motion.div>
         )}
       </div>
