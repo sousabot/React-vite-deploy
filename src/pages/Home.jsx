@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import Modal from "../components/Modal.jsx";
@@ -9,50 +9,120 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
+// keep this in sync with Creators page
+const CREATORS = [{ twitchLogin: "mewtzu" }];
+
 export default function Home() {
   const [open, setOpen] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  const tiltStyle = useMemo(
-    () => ({ transform: `rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)` }),
-    [tilt]
-  );
+  // Live status
+  const [liveCount, setLiveCount] = useState(0);
 
-  function onMove(e) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width;
-    const py = (e.clientY - rect.top) / rect.height;
-    setTilt({ x: (px - 0.5) * 8, y: -(py - 0.5) * 6 });
-  }
+  useEffect(() => {
+    let cancelled = false;
 
-  function onLeave() {
-    setTilt({ x: 0, y: 0 });
-  }
+    async function loadLive() {
+      try {
+        const results = await Promise.all(
+          CREATORS.map(async (c) => {
+            try {
+              const res = await fetch(
+                `/.netlify/functions/twitch-live?user=${encodeURIComponent(c.twitchLogin)}`
+              );
+              if (!res.ok) return false;
+              const data = await res.json();
+              return !!data?.isLive;
+            } catch {
+              return false;
+            }
+          })
+        );
+
+        if (cancelled) return;
+        setLiveCount(results.filter(Boolean).length);
+      } catch {
+        // ignore
+      }
+    }
+
+    loadLive();
+    const t = setInterval(loadLive, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
+
+  const creatorStatus =
+    liveCount > 0 ? `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now` : "No one Live Right Now";
 
   return (
     <PageMotion>
       <div className="homePro">
-        {/* ✅ NEW FEATURE (TEST): LIVE UPDATE CARD */}
+        {/* WHAT'S HAPPENING NOW */}
         <section className="sectionPro">
           <motion.div
-            className="updateCard"
+            className="statusCard"
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
-            <div className="updateTop">
-              <span className="updateBadge">
-                <span className="pulseDot" /> LIVE UPDATE
+            <div className="statusTop">
+              <span className="statusBadge">
+                <span className="pulseDot" /> WHAT’S HAPPENING NOW
               </span>
-              <span className="updateSmall">Home feature test</span>
+              <span className="statusSmall">Live org status</span>
             </div>
 
-            <div className="updateTitle">Deploy test feature added ✅</div>
-            <div className="updateDesc">
-              If you can see this card on Netlify, your auto-deploy pipeline is working
-              perfectly.
+            <div className="statusTitle">Current Status</div>
+
+            <div className="statusGrid">
+              {/* Creator Live */}
+              <div className="statusItem">
+                <div className="statusItemLeft">
+                  <span className={`statusDot ${liveCount > 0 ? "dotRed" : "dotGray"}`} />
+                  <div className="statusItemText">
+                    <div className="statusLabel">Creator</div>
+                    <div className="statusValue">{creatorStatus}</div>
+                  </div>
+                </div>
+
+                <Link to="/creators" className="statusLink">
+                  View
+                </Link>
+              </div>
+
+              {/* Tryouts Open */}
+              <div className="statusItem">
+                <div className="statusItemLeft">
+                  <span className="statusDot dotGreen" />
+                  <div className="statusItemText">
+                    <div className="statusLabel">Tryouts</div>
+                    <div className="statusValue">Open</div>
+                  </div>
+                </div>
+
+                <button className="statusLinkBtn" onClick={() => setOpen(true)}>
+                  Apply
+                </button>
+              </div>
+
+              {/* Roster Forming */}
+              <div className="statusItem">
+                <div className="statusItemLeft">
+                  <span className="statusDot dotYellow" />
+                  <div className="statusItemText">
+                    <div className="statusLabel">Roster</div>
+                    <div className="statusValue">Forming</div>
+                  </div>
+                </div>
+
+                <Link to="/about" className="statusLink">
+                  Info
+                </Link>
+              </div>
             </div>
           </motion.div>
         </section>
@@ -112,14 +182,5 @@ export default function Home() {
         </Modal>
       </div>
     </PageMotion>
-  );
-}
-
-function Stat({ value, label }) {
-  return (
-    <div className="statPro">
-      <div className="statValue">{value}</div>
-      <div className="statLabel">{label}</div>
-    </div>
   );
 }

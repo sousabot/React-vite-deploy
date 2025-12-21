@@ -2080,3 +2080,142 @@ img, video, canvas, svg {
   50% { opacity: 1; }
   100% { opacity: 0.4; }
 }
+
+/* =========================
+   HOME: WHAT'S HAPPENING NOW
+   ========================= */
+
+.statusCard {
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.statusTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  background: rgba(255, 140, 0, 0.14);
+  border: 1px solid rgba(255, 140, 0, 0.22);
+}
+
+.statusSmall {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.statusTitle {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.statusGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.statusItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.statusItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
+}
+
+.dotRed {
+  background: rgba(255, 60, 92, 0.95);
+  box-shadow: 0 0 18px rgba(255, 60, 92, 0.35);
+}
+
+.dotGreen {
+  background: rgba(34, 197, 94, 0.95);
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
+}
+
+.dotYellow {
+  background: rgba(245, 158, 11, 0.95);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.35);
+}
+
+.dotGray {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.statusItemText {
+  min-width: 0;
+}
+
+.statusLabel {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
+.statusValue {
+  margin-top: 2px;
+  font-weight: 700;
+  opacity: 0.92;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.statusLink,
+.statusLinkBtn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.statusLink:hover,
+.statusLinkBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 140, 0, 0.16);
+  border-color: rgba(255, 140, 0, 0.22);
+}

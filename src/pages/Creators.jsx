@@ -11,7 +11,7 @@ const CREATORS = [
     twitchLogin: "mewtzu",
 
     instagram: "https://www.instagram.com/mewtzu",
-    twitter: "https://twitter.com/mewtzu",
+    twitter: "https://x.com/mewtzu_",
 
     image: "/creators/mewtzu.png",
   },
