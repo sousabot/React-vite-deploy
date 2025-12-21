@@ -10,55 +10,39 @@ export default function WorkWithUs() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  async function onSubmit(e) {
-    e.preventDefault();
-    setError("");
+async function onSubmit(e) {
+  e.preventDefault();
+  setError("");
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+  const form = e.currentTarget;
+  const formData = new FormData(form);
 
-    // Always include form-name for Netlify
-    const payloadObj = {
-      "form-name": "work-with-us",
-      ...Object.fromEntries(formData.entries()),
-    };
+  const payloadObj = {
+    "form-name": "work-with-us",
+    ...Object.fromEntries(formData.entries()),
+  };
 
-    try {
-      // 1) Submit to Netlify Forms
-      const netlifyRes = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encodeForm(payloadObj),
-      });
+  try {
+    // 1) Send to Discord first
+    const discordRes = await fetch("/.netlify/functions/form-to-discord", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: encodeForm(payloadObj),
+    });
 
-      if (!netlifyRes.ok) {
-        const txt = await netlifyRes.text().catch(() => "");
-        throw new Error(
-          `Netlify form submit failed (${netlifyRes.status}) ${txt}`.trim()
-        );
-      }
-
-      // 2) Send to Discord via Netlify Function
-      const discordRes = await fetch("/.netlify/functions/form-to-discord", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encodeForm(payloadObj),
-      });
-
-      if (!discordRes.ok) {
-        const msg = await discordRes.text().catch(() => "");
-        throw new Error(
-          `Discord submission failed (${discordRes.status}) ${msg}`.trim()
-        );
-      }
-
-      setSubmitted(true);
-      form.reset();
-    } catch (err) {
-      console.error(err);
-      setError(err?.message || "Something went wrong. Please try again.");
+    if (!discordRes.ok) {
+      const msg = await discordRes.text().catch(() => "");
+      throw new Error(`Discord failed (${discordRes.status}) ${msg}`.trim());
     }
+
+    // 2) Now submit to Netlify Forms (native submit)
+    // This will POST to /success.html (a real file) and Netlify will store the form submission.
+    form.submit();
+  } catch (err) {
+    console.error(err);
+    setError(err?.message || "Something went wrong. Please try again.");
   }
+}
 
   return (
     <PageMotion>
@@ -69,18 +53,14 @@ export default function WorkWithUs() {
         </p>
 
         {!submitted ? (
-          <motion.form
-            className="workForm"
-            name="work-with-us"
-            method="POST"
-            action="/"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
-            onSubmit={onSubmit}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+      <motion.form
+  name="work-with-us"
+  method="POST"
+  action="/success.html"
+  data-netlify="true"
+  data-netlify-honeypot="bot-field"
+  onSubmit={onSubmit}
+>
             {/* Required for Netlify */}
             <input type="hidden" name="form-name" value="work-with-us" />
 
