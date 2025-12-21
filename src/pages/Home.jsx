@@ -9,14 +9,31 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
-// keep this in sync with Creators page
 const CREATORS = [{ twitchLogin: "mewtzu" }];
+
+function encodeForm(data) {
+  return new URLSearchParams(data).toString();
+}
 
 export default function Home() {
   const [open, setOpen] = useState(false);
 
   // Live status
   const [liveCount, setLiveCount] = useState(0);
+
+  // Tryouts form state
+  const [form, setForm] = useState({
+    gamerTag: "",
+    game: "",
+    discord: "",
+    role: "",
+    availability: "",
+    notes: "",
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,8 +55,7 @@ export default function Home() {
           })
         );
 
-        if (cancelled) return;
-        setLiveCount(results.filter(Boolean).length);
+        if (!cancelled) setLiveCount(results.filter(Boolean).length);
       } catch {
         // ignore
       }
@@ -54,7 +70,63 @@ export default function Home() {
   }, []);
 
   const creatorStatus =
-    liveCount > 0 ? `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now` : "No one Live Right Now";
+    liveCount > 0
+      ? `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now`
+      : "No one Live Right Now";
+
+  function onChange(e) {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+  }
+
+  async function submitTryout(e) {
+    e.preventDefault();
+    setSubmitError("");
+    setSubmitted(false);
+
+    // Basic required checks
+    if (!form.gamerTag.trim() || !form.game.trim() || !form.discord.trim()) {
+      setSubmitError("Please fill Gamer tag, Game, and Discord.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        type: "tryout",
+        ...form,
+      };
+
+      const res = await fetch("/.netlify/functions/form-to-discord", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encodeForm(payload),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || `Submit failed (${res.status})`);
+      }
+
+      setSubmitted(true);
+      setForm({
+        gamerTag: "",
+        game: "",
+        discord: "",
+        role: "",
+        availability: "",
+        notes: "",
+      });
+
+      // Optional: close after a moment
+      setTimeout(() => setOpen(false), 900);
+    } catch (err) {
+      console.error(err);
+      setSubmitError(err?.message || "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <PageMotion>
@@ -155,30 +227,95 @@ export default function Home() {
             Apply to join GD Esports. Show consistency, strong comms, and mindset.
           </p>
 
-          <div className="formRow">
-            <input className="input" placeholder="Gamer tag" />
-            <input className="input" placeholder="Game (Valorant / CS2 / Apex)" />
-          </div>
+          <form onSubmit={submitTryout}>
+            <div className="formRow">
+              <input
+                className="input"
+                name="gamerTag"
+                value={form.gamerTag}
+                onChange={onChange}
+                placeholder="Gamer tag"
+                required
+              />
+              <input
+                className="input"
+                name="game"
+                value={form.game}
+                onChange={onChange}
+                placeholder="Game (LoL / Valorant / CS2)"
+                required
+              />
+            </div>
 
-          <div className="formRow">
-            <motion.button
-              className="btnPrimary"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setOpen(false)}
-            >
-              Submit
-            </motion.button>
+            <div className="formRow">
+              <input
+                className="input"
+                name="discord"
+                value={form.discord}
+                onChange={onChange}
+                placeholder="Discord (e.g. user#1234)"
+                required
+              />
+              <input
+                className="input"
+                name="role"
+                value={form.role}
+                onChange={onChange}
+                placeholder="Role (IGL / Support / Entry / Top / Jungle...)"
+              />
+            </div>
 
-            <motion.button
-              className="btnGhost"
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </motion.button>
-          </div>
+            <div className="formRow">
+              <input
+                className="input"
+                name="availability"
+                value={form.availability}
+                onChange={onChange}
+                placeholder="Availability (days/times)"
+              />
+            </div>
+
+            <div className="formRow">
+              <textarea
+                className="input textarea"
+                name="notes"
+                value={form.notes}
+                onChange={onChange}
+                placeholder="Anything else? (rank, experience, links...)"
+                rows={4}
+              />
+            </div>
+
+            {submitError && <div className="formError">{submitError}</div>}
+            {submitted && (
+              <div className="formSuccess" style={{ marginTop: 10 }}>
+                Application sent ✅
+              </div>
+            )}
+
+            <div className="formRow" style={{ marginTop: 10 }}>
+              <motion.button
+                className="btnPrimary"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                disabled={submitting}
+              >
+                {submitting ? "Submitting..." : "Submit"}
+              </motion.button>
+
+              <motion.button
+                className="btnGhost"
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={() => setOpen(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </motion.button>
+            </div>
+          </form>
         </Modal>
       </div>
     </PageMotion>
