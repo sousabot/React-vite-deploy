@@ -1,7 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
-import "./About.css";
 
 export default function About() {
   return (
