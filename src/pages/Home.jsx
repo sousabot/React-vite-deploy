@@ -242,7 +242,7 @@ export default function Home() {
                 name="game"
                 value={form.game}
                 onChange={onChange}
-                placeholder="Game (LoL / Valorant / CS2)"
+                placeholder="Game (LoL)"
                 required
               />
             </div>
@@ -261,7 +261,7 @@ export default function Home() {
                 name="role"
                 value={form.role}
                 onChange={onChange}
-                placeholder="Role (IGL / Support / Entry / Top / Jungle...)"
+                placeholder="Role (Top / Jungle / Mid / ADC / Support)"
               />
             </div>
 
