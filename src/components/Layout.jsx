@@ -42,9 +42,14 @@ export default function Layout() {
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") navigate("/");
             }}
+            aria-label="Go to home"
+            title="GD Esports"
           >
-            <span className="brandMark">GD</span>
-            <span className="brandText">Esports</span>
+            {/* ✅ Logo (from public/vite.svg) */}
+            <img src="/vite.svg" alt="GD Esports" className="brandLogo" />
+
+            {/* Optional: keep text next to logo (remove if you want logo only) */}
+            <span className="brandText">GD Esports</span>
           </motion.div>
 
           {/* Main nav */}
@@ -71,9 +76,7 @@ export default function Layout() {
               <>
                 <NavLink
                   to="/dashboard"
-                  className={({ isActive }) =>
-                    `navAuthLink ${isActive ? "active" : ""}`
-                  }
+                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
                 >
                   Dashboard
                 </NavLink>
@@ -91,18 +94,14 @@ export default function Layout() {
               <>
                 <NavLink
                   to="/login"
-                  className={({ isActive }) =>
-                    `navAuthLink ${isActive ? "active" : ""}`
-                  }
+                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
                 >
                   Login
                 </NavLink>
 
                 <NavLink
                   to="/register"
-                  className={({ isActive }) =>
-                    `navAuthLink ${isActive ? "active" : ""}`
-                  }
+                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
                 >
                   Register
                 </NavLink>

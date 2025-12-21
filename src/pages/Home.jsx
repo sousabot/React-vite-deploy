@@ -32,14 +32,6 @@ export default function Home() {
   return (
     <PageMotion>
       <div className="homePro">
-        {/* DEPLOY MARKER (TEST) */}
-        <div style={{ opacity: 0.35, fontSize: 12, padding: "6px 0" }}>
-          HOME DEPLOY CHECK: 2a88ed4
-        </div>
-
-
-
-
         {/* ✅ NEW FEATURE (TEST): LIVE UPDATE CARD */}
         <section className="sectionPro">
           <motion.div

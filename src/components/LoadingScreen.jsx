@@ -1,77 +1,85 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import InteractiveBackground from "./InteractiveBackground.jsx";
+import { AnimatePresence, motion } from "framer-motion";
 
-const STATUS = [
-  "Booting systems",
-  "Connecting to servers",
-  "Loading creators",
-  "Syncing data",
-  "Almost ready",
-];
-
-export default function LoadingScreen() {
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState(STATUS[0]);
+export default function LoadingScreen({ show = true, label = "Loading" }) {
+  const [pct, setPct] = useState(10);
 
   useEffect(() => {
-    let p = 0;
-    const interval = setInterval(() => {
-      p += Math.random() * 8 + 4; // natural feel
-      if (p >= 100) {
-        p = 100;
-        clearInterval(interval);
-      }
+    if (!show) return;
 
-      setProgress(p);
+    setPct(10);
+    const t = setInterval(() => {
+      setPct((p) => {
+        const next = p + (p < 60 ? 7 : p < 85 ? 3 : 1);
+        return Math.min(next, 92);
+      });
+    }, 260);
 
-      const index = Math.min(
-        STATUS.length - 1,
-        Math.floor((p / 100) * STATUS.length)
-      );
-      setStatus(STATUS[index]);
-    }, 220);
+    return () => clearInterval(t);
+  }, [show]);
 
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => {
+    if (!show) setPct(100);
+  }, [show]);
 
   return (
-    <div className="loadingStage">
-      <InteractiveBackground density={45} className="bgBehindLoader" />
-
-      <motion.div
-        className="loadingCard"
-        initial={{ opacity: 0, y: 12, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-      >
-        {/* Logo */}
+    <AnimatePresence>
+      {show && (
         <motion.div
-          className="logoPulse"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+          className="loadingOverlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, filter: "blur(10px)" }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          aria-busy="true"
+          aria-live="polite"
         >
-          GD
-        </motion.div>
+          <div className="loadingVignette" aria-hidden="true" />
 
-        {/* Progress bar */}
-        <div className="loadingBar">
           <motion.div
-            className="loadingBarFill"
-            style={{ width: `${progress}%` }}
-            transition={{ ease: "easeOut", duration: 0.25 }}
-          />
-        </div>
+            className="loadingCard"
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.96, filter: "blur(6px)" }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="loadingLogoWrap">
+              <motion.div
+                className="loadingRing"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1.6, ease: "linear", repeat: Infinity }}
+                aria-hidden="true"
+              />
+              <img className="loadingLogo" src="/vite.svg" alt="GD Esports" />
+            </div>
 
-        {/* Status */}
-        <div className="loadingText">
-          {status} <span className="loadingPercent">{Math.floor(progress)}%</span>
-        </div>
+            <motion.div
+              className="loadingTitle"
+              animate={{ opacity: [0.82, 1, 0.82] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              {label}
+              <span className="loadingDots" aria-hidden="true">
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
+              </span>
+            </motion.div>
 
-        <div className="loadingHint muted small">
-          Tip: hover & click the background 👀
-        </div>
-      </motion.div>
-    </div>
+            <div className="loadingSub muted">Preparing the arena</div>
+
+            <div className="loadingBar" aria-hidden="true">
+              <motion.div
+                className="loadingBarFill"
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              />
+            </div>
+
+            <div className="loadingPct muted small">{pct}%</div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

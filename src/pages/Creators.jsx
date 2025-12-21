@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PageMotion from "../components/PageMotion.jsx";
-import { FaTwitch } from "react-icons/fa";
+import { FaTwitch, FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 const CREATORS = [
   {
@@ -9,45 +9,42 @@ const CREATORS = [
     platform: "Twitch",
     twitch: "https://www.twitch.tv/mewtzu",
     twitchLogin: "mewtzu",
-    image:
-      "https://static-cdn.jtvnw.net/jtv_user_pictures/placeholder-profile_image-300x300.png",
+
+    instagram: "https://www.instagram.com/mewtzu",
+    twitter: "https://twitter.com/mewtzu",
+
+    image: "/creators/mewtzu.png",
   },
 ];
 
+
 export default function Creators() {
-  const [liveMap, setLiveMap] = useState({}); // { mewtzu: true/false }
+  const [liveMap, setLiveMap] = useState({});
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadLive() {
-      try {
-        // Fetch live status for each creator using your existing function:
-        // /.netlify/functions/twitch-live?user=<login>
-        const results = await Promise.all(
-          CREATORS.map(async (c) => {
-            try {
-              const res = await fetch(
-                `/.netlify/functions/twitch-live?user=${encodeURIComponent(c.twitchLogin)}`
-              );
-              if (!res.ok) return [c.twitchLogin, false];
+      const results = await Promise.all(
+        CREATORS.map(async (c) => {
+          try {
+            const res = await fetch(
+              `/.netlify/functions/twitch-live?user=${encodeURIComponent(c.twitchLogin)}`
+            );
+            if (!res.ok) return [c.twitchLogin, false];
+            const data = await res.json();
+            return [c.twitchLogin, !!data?.isLive];
+          } catch {
+            return [c.twitchLogin, false];
+          }
+        })
+      );
 
-              const data = await res.json(); // { isLive: true/false, ... }
-              return [c.twitchLogin, !!data?.isLive];
-            } catch {
-              return [c.twitchLogin, false];
-            }
-          })
-        );
+      if (cancelled) return;
 
-        if (cancelled) return;
-
-        const next = {};
-        for (const [login, isLive] of results) next[login] = isLive;
-        setLiveMap(next);
-      } catch {
-        // ignore
-      }
+      const next = {};
+      for (const [login, isLive] of results) next[login] = isLive;
+      setLiveMap(next);
     }
 
     loadLive();
@@ -61,7 +58,7 @@ export default function Creators() {
   return (
     <PageMotion>
       <div className="creatorsPage">
-        {/* HERO BANNER */}
+        {/* HERO */}
         <section className="creatorsHero">
           <div className="creatorsHeroOverlay" />
           <div className="creatorsHeroInner">
@@ -74,7 +71,7 @@ export default function Creators() {
           </div>
         </section>
 
-        {/* CONTENT */}
+        {/* LIST */}
         <section className="creatorsSection">
           <div className="creatorsSectionHead">
             <div className="creatorsSectionLabel">CONTENT CREATORS</div>
@@ -83,54 +80,79 @@ export default function Creators() {
 
           <div className="creatorsGrid">
             {CREATORS.map((c) => {
-              // ✅ real status
               const isLive = !!liveMap[c.twitchLogin];
 
               return (
-                <a
-                  key={c.name}
-                  href={c.twitch}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="creatorCard creatorCardLink"
-                  aria-label={`Visit ${c.name} on Twitch`}
-                >
+                <div key={c.name} className="creatorCard">
+                  {/* IMAGE */}
                   <div
                     className="creatorImg creatorImgWithOverlay"
                     style={{ backgroundImage: `url(${c.image})` }}
                   >
-                    {/* Twitch icon overlay */}
-                    <div className="twitchOverlayIcon" aria-hidden="true">
+                    <a
+                      href={c.twitch}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="twitchOverlayIcon"
+                      aria-label={`Visit ${c.name} on Twitch`}
+                    >
                       <FaTwitch />
-                    </div>
+                    </a>
 
-                    {/* ✅ LIVE / OFFLINE badge */}
                     {isLive ? (
-                      <div className="liveBadge" aria-label="Live now">
+                      <div className="liveBadge">
                         <span className="liveDot" />
                         LIVE
                       </div>
                     ) : (
-                      <div className="offlineBadge" aria-label="Offline">
-                        OFFLINE
-                      </div>
+                      <div className="offlineBadge">OFFLINE</div>
                     )}
                   </div>
 
+                  {/* INFO */}
                   <div className="creatorInfo">
-                    <div className="creatorNameRow">
-                      <div className="creatorName">{c.name}</div>
-                      <div className="creatorArrow" aria-hidden="true">
-                        ›
-                      </div>
-                    </div>
+                    <div className="creatorName">{c.name}</div>
 
                     <div className="creatorMeta">
                       <span className="creatorChip">{c.role}</span>
                       <span className="creatorChip">{c.platform}</span>
                     </div>
+
+                    {/* SOCIALS */}
+                    <div className="creatorSocials">
+                      {c.instagram && (
+                        <a
+                          href={c.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Instagram"
+                        >
+                          <FaInstagram />
+                        </a>
+                      )}
+
+                      {c.twitter && (
+                        <a
+                          href={c.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Twitter / X"
+                        >
+                          <FaXTwitter />
+                        </a>
+                      )}
+
+                      <a
+                        href={c.twitch}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Twitch"
+                      >
+                        <FaTwitch />
+                      </a>
+                    </div>
                   </div>
-                </a>
+                </div>
               );
             })}
           </div>
