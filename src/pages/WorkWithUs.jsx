@@ -21,15 +21,16 @@ export default function WorkWithUs() {
     const payloadObj = Object.fromEntries(formData.entries());
 
     try {
-      // 1) Save into Netlify Forms
+      // 1) Save into Netlify Forms (works when form is detected at build time)
       const netlifyRes = await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: encodeForm(payloadObj),
       });
 
+      // Some setups return 200/302; treat any non-ok as fail
       if (!netlifyRes.ok) {
-        throw new Error("Netlify form submit failed");
+        throw new Error(`Netlify form submit failed (${netlifyRes.status})`);
       }
 
       // 2) Send to Discord via Netlify Function
@@ -40,14 +41,15 @@ export default function WorkWithUs() {
       });
 
       if (!discordRes.ok) {
-        throw new Error("Discord webhook function failed");
+        const msg = await discordRes.text().catch(() => "");
+        throw new Error(`Discord webhook function failed (${discordRes.status}) ${msg}`);
       }
 
       setSubmitted(true);
       form.reset();
     } catch (err) {
-      setError("Something went wrong. Please try again.");
       console.error(err);
+      setError("Something went wrong. Please try again.");
     }
   }
 
@@ -64,7 +66,9 @@ export default function WorkWithUs() {
             className="workForm"
             name="work-with-us"
             method="POST"
+            action="/"
             data-netlify="true"
+            data-netlify-honeypot="bot-field"
             onSubmit={onSubmit}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -73,10 +77,25 @@ export default function WorkWithUs() {
             {/* Required for Netlify */}
             <input type="hidden" name="form-name" value="work-with-us" />
 
+            {/* Honeypot (anti-spam) */}
+            <input type="hidden" name="bot-field" />
+
             {/* Name */}
             <div className="formRow">
-              <input name="firstName" className="input" placeholder="First Name" required />
-              <input name="lastName" className="input" placeholder="Last Name" required />
+              <input
+                name="firstName"
+                className="input"
+                placeholder="First Name"
+                autoComplete="given-name"
+                required
+              />
+              <input
+                name="lastName"
+                className="input"
+                placeholder="Last Name"
+                autoComplete="family-name"
+                required
+              />
             </div>
 
             {/* Age */}
@@ -146,7 +165,10 @@ export default function WorkWithUs() {
               className="btnGhost"
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setSubmitted(false)}
+              onClick={() => {
+                setSubmitted(false);
+                setError("");
+              }}
             >
               Submit another
             </motion.button>
