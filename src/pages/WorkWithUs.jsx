@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
+import fetch from "node-fetch";
 
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
@@ -17,8 +18,11 @@ export default function WorkWithUs() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    // Convert FormData -> plain object
-    const payloadObj = Object.fromEntries(formData.entries());
+const payloadObj = {
+  "form-name": "work-with-us",
+  ...Object.fromEntries(formData.entries()),
+};
+
 
     try {
       // 1) Save into Netlify Forms (works when form is detected at build time)
