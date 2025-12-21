@@ -1,4 +1,4 @@
-export async function handler(event) {
+exports.handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
@@ -19,7 +19,8 @@ export async function handler(event) {
           fields: [
             {
               name: "Name",
-              value: `${data.get("firstName") || ""} ${data.get("lastName") || ""}`.trim() || "—",
+              value:
+                `${data.get("firstName") || ""} ${data.get("lastName") || ""}`.trim() || "—",
               inline: true,
             },
             { name: "Age", value: data.get("age") || "—", inline: true },
@@ -47,4 +48,4 @@ export async function handler(event) {
   } catch (err) {
     return { statusCode: 500, body: `Function error: ${err?.message || err}` };
   }
-}
+};

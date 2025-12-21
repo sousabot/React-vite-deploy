@@ -50,10 +50,10 @@ const payloadObj = {
 
       setSubmitted(true);
       form.reset();
-    } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Please try again.");
-    }
+   } catch (err) {
+  console.error(err);
+  setError(err?.message || "Something went wrong. Please try again.");
+}
   }
 
   return (
