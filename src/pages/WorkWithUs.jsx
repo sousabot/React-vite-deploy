@@ -25,11 +25,11 @@ const payloadObj = {
 
     try {
       // 1) Save into Netlify Forms (works when form is detected at build time)
-      const netlifyRes = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encodeForm(payloadObj),
-      });
+   const netlifyRes = await fetch("/netlify-forms.html", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: encodeForm(payloadObj),
+});
 
       // Some setups return 200/302; treat any non-ok as fail
       if (!netlifyRes.ok) {
@@ -69,7 +69,7 @@ const payloadObj = {
             className="workForm"
             name="work-with-us"
             method="POST"
-            action="/"
+            action="/netlify-forms.html"
             data-netlify="true"
             data-netlify-honeypot="bot-field"
             onSubmit={onSubmit}
