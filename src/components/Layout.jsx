@@ -58,17 +58,6 @@ export default function Layout() {
             </NavLink>
 
             <NavLink
-              to="/partners"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              PARTNERS
-            </NavLink>
-
-            <NavLink to="/news" className={({ isActive }) => (isActive ? "active" : "")}>
-              NEWS
-            </NavLink>
-
-            <NavLink
               to="/work-with-us"
               className={({ isActive }) => (isActive ? "active" : "")}
             >

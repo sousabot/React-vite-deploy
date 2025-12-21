@@ -5,7 +5,7 @@ export default function Shop() {
   return (
     <PageMotion>
       <h2>Shop</h2>
-      <p className="muted">Merch store page (placeholder).</p>
+      <p className="muted">In the works</p>
     </PageMotion>
   );
 }
