@@ -28,6 +28,9 @@ export default function Home() {
   function onLeave() {
     setTilt({ x: 0, y: 0 });
   }
+  <div style={{ opacity: 0.35, fontSize: 12, padding: "6px 0" }}>
+  HOME DEPLOY CHECK: 2a88ed4
+</div>
 
   return (
     <PageMotion>
