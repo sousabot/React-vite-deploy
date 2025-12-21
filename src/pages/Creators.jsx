@@ -8,9 +8,12 @@ const CREATORS = [
     role: "Streamer",
     platform: "Twitch",
     twitch: "https://www.twitch.tv/mewtzu",
-    twitchLogin: "mewtzu", // used for live lookup
+    twitchLogin: "mewtzu",
+    image:
+      "https://static-cdn.jtvnw.net/jtv_user_pictures/placeholder-profile_image-300x300.png",
   },
 ];
+
 
 export default function Creators() {
   const [liveMap, setLiveMap] = useState({}); // { mewtzu: true/false }
@@ -68,7 +71,8 @@ export default function Creators() {
 
           <div className="creatorsGrid">
             {CREATORS.map((c) => {
-              const isLive = !!liveMap[c.twitchLogin];
+              const isLive = true; // 🔥 TEMP: force live for testing
+
 
               return (
                 <a
@@ -79,7 +83,10 @@ export default function Creators() {
                   className="creatorCard creatorCardLink"
                   aria-label={`Visit ${c.name} on Twitch`}
                 >
-                  <div className="creatorImg creatorImgWithOverlay">
+                  <div
+  className="creatorImg creatorImgWithOverlay"
+  style={{ backgroundImage: `url(${c.image})` }}
+>
                     {/* Twitch icon overlay */}
                     <div className="twitchOverlayIcon" aria-hidden="true">
                       <FaTwitch />
