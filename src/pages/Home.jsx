@@ -37,79 +37,8 @@ export default function Home() {
           HOME DEPLOY CHECK: 2a88ed4
         </div>
 
-        {/* HERO */}
-        <section className="heroPro" onMouseMove={onMove} onMouseLeave={onLeave}>
-          <motion.div
-            className="heroGrid"
-            style={tiltStyle}
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            transition={{ duration: 0.35, ease: "easeOut" }}
-          >
-            <div className="heroLeft">
-              <div className="kickerRow">
-                <span className="kickerBadge">GD Esports</span>
-                <span className="kickerDot">•</span>
-                <span className="kickerText">Competitive Organization</span>
-              </div>
 
-              <h1 className="heroTitle">
-                Play Fast. <span className="accentText">Think Faster.</span>
-              </h1>
 
-              <p className="heroDesc">
-                GD Esports is a competitive organization built on discipline, clean
-                communication, and clutch decision-making. We compete to win — nothing
-                less.
-              </p>
-
-              <div className="heroCTA">
-                <motion.button
-                  className="btnPrimary"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setOpen(true)}
-                >
-                  Join Tryouts
-                </motion.button>
-
-                <div className="socialRow">
-                  <a
-                    className="socialChip"
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Discord
-                  </a>
-                  <a
-                    className="socialChip"
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Twitch
-                  </a>
-                  <a
-                    className="socialChip"
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    X
-                  </a>
-                </div>
-              </div>
-
-              <div className="heroStats">
-                <Stat label="Scrims / Week" value="24" />
-                <Stat label="Tournaments" value="7" />
-                <Stat label="Goal" value="Champions" />
-                <Stat label="Region" value="EU / NA" />
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="heroDivider" />
-        </section>
 
         {/* ✅ NEW FEATURE (TEST): LIVE UPDATE CARD */}
         <section className="sectionPro">

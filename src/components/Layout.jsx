@@ -14,115 +14,127 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
 
-  // Theme toggle hook (optional)
+  // Theme toggle
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? "dark" : "light";
   }, [darkMode]);
 
   return (
     <div className="appShell">
-      {/* Background */}
-      <ParticlesBackground />
+      {/* === BACKGROUND STACK === */}
+      <div className="bgStack">
+        <div className="bgGradientAnimated" />
+        <ParticlesBackground />
+        <div className="bgVignette" />
+      </div>
 
-      <header className="topbar">
-        {/* Brand */}
-        <motion.div
-          className="brand"
-          onClick={() => navigate("/")}
-          whileHover={{ y: -1 }}
-          whileTap={{ scale: 0.98 }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") navigate("/");
-          }}
-        >
-          <span className="brandMark">GD</span>
-          <span className="brandText">Esports</span>
-        </motion.div>
-
-        {/* Main nav (like your screenshot) */}
-        <nav className="nav navMain">
-          <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : "")}>
-            ABOUT
-          </NavLink>
-
-          <NavLink to="/shop" className={({ isActive }) => (isActive ? "active" : "")}>
-            SHOP
-          </NavLink>
-
-          <NavLink
-            to="/partners"
-            className={({ isActive }) => (isActive ? "active" : "")}
+      {/* === UI LAYER === */}
+      <div className="uiLayer">
+        <header className="topbar">
+          {/* Brand */}
+          <motion.div
+            className="brand"
+            onClick={() => navigate("/")}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") navigate("/");
+            }}
           >
-            PARTNERS
-          </NavLink>
+            <span className="brandMark">GD</span>
+            <span className="brandText">Esports</span>
+          </motion.div>
 
-          <NavLink to="/news" className={({ isActive }) => (isActive ? "active" : "")}>
-            NEWS
-          </NavLink>
+          {/* Main nav */}
+          <nav className="nav navMain">
+            <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : "")}>
+              ABOUT
+            </NavLink>
 
-          <NavLink
-            to="/work-with-us"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            WORK WITH US
-          </NavLink>
-        </nav>
+            <NavLink to="/shop" className={({ isActive }) => (isActive ? "active" : "")}>
+              SHOP
+            </NavLink>
 
-        {/* Optional auth buttons (keep or remove) */}
-        <div className="navAuth">
-  {user ? (
-    <>
-      <NavLink
-        to="/dashboard"
-        className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
-      >
-        Dashboard
-      </NavLink>
+            <NavLink
+              to="/partners"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              PARTNERS
+            </NavLink>
 
-      <motion.button
-        className="btnGhost"
-        onClick={logout}
-        whileHover={{ y: -1 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        Logout
-      </motion.button>
-    </>
-  ) : (
-    <>
-      <NavLink
-        to="/login"
-        className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
-      >
-        Login
-      </NavLink>
+            <NavLink to="/news" className={({ isActive }) => (isActive ? "active" : "")}>
+              NEWS
+            </NavLink>
 
-      <NavLink
-        to="/register"
-        className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
-      >
-        Register
-      </NavLink>
-    </>
-  )}
-</div>
+            <NavLink
+              to="/work-with-us"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              WORK WITH US
+            </NavLink>
+          </nav>
 
+          {/* Auth */}
+          <div className="navAuth">
+            {user ? (
+              <>
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
+                >
+                  Dashboard
+                </NavLink>
 
-        {/* Right-side hamburger button */}
-        <SidebarButton onClick={() => setSidebarOpen(true)} />
-      </header>
+                <motion.button
+                  className="btnGhost"
+                  onClick={logout}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Logout
+                </motion.button>
+              </>
+            ) : (
+              <>
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
+                >
+                  Login
+                </NavLink>
 
-      <main className="content">
-        <Outlet />
-      </main>
+                <NavLink
+                  to="/register"
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
+                >
+                  Register
+                </NavLink>
+              </>
+            )}
+          </div>
 
-      <footer className="footer">
-        <span>© {new Date().getFullYear()} GD Esports</span>
-        <span className="footerDot">•</span>
-        <span>Built with React</span>
-      </footer>
+          {/* Sidebar toggle */}
+          <SidebarButton onClick={() => setSidebarOpen(true)} />
+        </header>
+
+        <main className="content">
+          <Outlet />
+        </main>
+
+        <footer className="footer">
+          <span>© {new Date().getFullYear()} GD Esports</span>
+          <span className="footerDot">•</span>
+          <span>Made by Sousa</span>
+        </footer>
+      </div>
 
       {/* Right Sidebar */}
       <RightSidebar
