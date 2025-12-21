@@ -62,14 +62,18 @@ export default function WorkWithUs() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {/* Required for Netlify */}
-          <input type="hidden" name="form-name" value="work-with-us" />
+ {/* Required for Netlify */}
+<input type="hidden" name="form-name" value="work-with-us" />
 
-          {/* Honeypot (anti-spam) */}
-          <input type="hidden" name="bot-field" />
+{/* ✅ Honeypot (anti-spam) */}
+<p style={{ display: "none" }}>
+  <label>
+    Don’t fill this out if you’re human: <input name="bot-field" />
+  </label>
+</p>
 
-          {/* ✅ Redirect to home page after successful submit */}
-          <input type="hidden" name="redirect" value="/" />
+{/* ✅ Redirect to home page */}
+<input type="hidden" name="redirect" value="/" />
 
           {/* Name */}
           <div className="formRow">
