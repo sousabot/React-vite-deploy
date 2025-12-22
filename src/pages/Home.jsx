@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { motion, useInView, useMotionValue, animate } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import Modal from "../components/Modal.jsx";
 import { Link } from "react-router-dom";
@@ -9,10 +9,69 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
-const CREATORS = [{ twitchLogin: "mewtzu" }];
+/* ======================
+   CREATORS (add more)
+   ====================== */
+const CREATORS = [
+  {
+    twitchLogin: "mewtzu",
+    name: "Mewtzu",
+    role: "Creator",
+    tagline: "Live gameplay • highlights • community vibes",
+    twitchUrl: "https://twitch.tv/mewtzu",
+  },
+];
+
+/* ======================
+   COMMUNITY STATS (edit)
+   ====================== */
+const COMMUNITY_STATS = [
+  { label: "Discord Members", value: 61, suffix: "+" },
+  { label: "Creators", value: 1, suffix: "" },
+];
 
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
+}
+
+/* ======================
+   STAT ANIMATION
+   ====================== */
+function AnimatedNumber({ value, duration = 1.2 }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-20% 0px" });
+
+  const mv = useMotionValue(0);
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const unsub = mv.on("change", (latest) => setDisplay(Math.round(latest)));
+    return () => unsub();
+  }, [mv]);
+
+  useEffect(() => {
+    if (!inView) return;
+    const controls = animate(mv, value, { duration, ease: "easeOut" });
+    return () => controls.stop();
+  }, [inView, mv, value, duration]);
+
+  return (
+    <span ref={ref}>
+      {Number.isFinite(display) ? display.toLocaleString() : "0"}
+    </span>
+  );
+}
+
+function StatCard({ label, value, suffix }) {
+  return (
+    <div className="statCard">
+      <div className="statCardValue">
+        <AnimatedNumber value={value} />
+        {suffix}
+      </div>
+      <div className="statCardLabel">{label}</div>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -22,13 +81,15 @@ export default function Home() {
      LIVE CREATOR STATUS
      ====================== */
   const [liveCount, setLiveCount] = useState(0);
+  const [liveMap, setLiveMap] = useState({});
+  const [featured, setFeatured] = useState(CREATORS[0]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadLive() {
       try {
-        const results = await Promise.all(
+        const entries = await Promise.all(
           CREATORS.map(async (c) => {
             try {
               const res = await fetch(
@@ -36,17 +97,25 @@ export default function Home() {
                   c.twitchLogin
                 )}`
               );
-              if (!res.ok) return false;
+              if (!res.ok) return [c.twitchLogin, false];
               const data = await res.json();
-              return !!data?.isLive;
+              return [c.twitchLogin, !!data?.isLive];
             } catch {
-              return false;
+              return [c.twitchLogin, false];
             }
           })
         );
 
         if (!cancelled) {
-          setLiveCount(results.filter(Boolean).length);
+          const map = Object.fromEntries(entries);
+          setLiveMap(map);
+
+          const count = Object.values(map).filter(Boolean).length;
+          setLiveCount(count);
+
+          // Featured: prefer someone live; otherwise default first
+          const liveCreator = CREATORS.find((c) => map[c.twitchLogin]);
+          setFeatured(liveCreator || CREATORS[0]);
         }
       } catch {
         // ignore
@@ -127,6 +196,8 @@ export default function Home() {
     }
   }
 
+  const featuredIsLive = !!liveMap?.[featured?.twitchLogin];
+
   return (
     <PageMotion>
       <div className="homePro">
@@ -178,10 +249,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button
-                  className="statusLinkBtn"
-                  onClick={() => setOpen(true)}
-                >
+                <button className="statusLinkBtn" onClick={() => setOpen(true)}>
                   Apply
                 </button>
               </div>
@@ -200,6 +268,76 @@ export default function Home() {
                   Info
                 </Link>
               </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ======================
+            FEATURED CREATOR
+           ====================== */}
+        <section className="sectionPro">
+          <motion.div
+            className="featuredCreatorCard"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="featuredTop">
+              <span className="featuredBadge">⭐ FEATURED CREATOR</span>
+
+              <span className={`featuredLive ${featuredIsLive ? "on" : ""}`}>
+                <span className="featuredLiveDot" />
+                {featuredIsLive ? "LIVE NOW" : "OFFLINE"}
+              </span>
+            </div>
+
+            <div className="featuredNameRow">
+              <div className="featuredName">{featured?.name}</div>
+              <div className="featuredRole">{featured?.role}</div>
+            </div>
+
+            <div className="featuredTagline muted">{featured?.tagline}</div>
+
+            <div className="featuredActions">
+              <a
+                className="btnPrimary"
+                href={featured?.twitchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Watch on Twitch
+              </a>
+
+              <Link className="btnGhost" to="/creators">
+                View Creators
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ======================
+            COMMUNITY STATS
+           ====================== */}
+        <section className="sectionPro">
+          <motion.div
+            className="statsWrap"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="statsHead">
+              <div className="statsTitle">Community Stats</div>
+              <div className="statsSub muted">
+                Built by the squad — powered by the community
+              </div>
+            </div>
+
+            <div className="statsGrid">
+              {COMMUNITY_STATS.map((s) => (
+                <StatCard key={s.label} {...s} />
+              ))}
             </div>
           </motion.div>
         </section>
