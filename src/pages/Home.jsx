@@ -45,7 +45,9 @@ export default function Home() {
           })
         );
 
-        if (!cancelled) setLiveCount(results.filter(Boolean).length);
+        if (!cancelled) {
+          setLiveCount(results.filter(Boolean).length);
+        }
       } catch {
         // ignore
       }
@@ -118,7 +120,7 @@ export default function Home() {
       });
 
       setTimeout(() => setOpen(false), 900);
-    } catch (err) {
+    } catch {
       setSubmitError("Something went wrong. Try again.");
     } finally {
       setSubmitting(false);
@@ -147,27 +149,35 @@ export default function Home() {
             </div>
 
             <div className="statusGrid">
+              {/* CREATOR STATUS */}
               <div className="statusItem">
-                <span
-                  className={`statusDot ${
-                    liveCount > 0 ? "dotRed" : "dotGray"
-                  }`}
-                />
-                <div>
-                  <div className="statusLabel">Creators</div>
-                  <div className="statusValue">{creatorStatus}</div>
+                <div className="statusItemLeft">
+                  <span
+                    className={`statusDot ${
+                      liveCount > 0 ? "dotRed" : "dotGray"
+                    }`}
+                  />
+                  <div className="statusItemText">
+                    <div className="statusLabel">Creators</div>
+                    <div className="statusValue">{creatorStatus}</div>
+                  </div>
                 </div>
+
                 <Link to="/creators" className="statusLink">
                   View
                 </Link>
               </div>
 
+              {/* TRYOUTS */}
               <div className="statusItem">
-                <span className="statusDot dotGreen" />
-                <div>
-                  <div className="statusLabel">Tryouts</div>
-                  <div className="statusValue">Open</div>
+                <div className="statusItemLeft">
+                  <span className="statusDot dotGreen" />
+                  <div className="statusItemText">
+                    <div className="statusLabel">Tryouts</div>
+                    <div className="statusValue">Open</div>
+                  </div>
                 </div>
+
                 <button
                   className="statusLinkBtn"
                   onClick={() => setOpen(true)}
@@ -176,12 +186,16 @@ export default function Home() {
                 </button>
               </div>
 
+              {/* ROSTER */}
               <div className="statusItem">
-                <span className="statusDot dotYellow" />
-                <div>
-                  <div className="statusLabel">Roster</div>
-                  <div className="statusValue">Forming</div>
+                <div className="statusItemLeft">
+                  <span className="statusDot dotYellow" />
+                  <div className="statusItemText">
+                    <div className="statusLabel">Roster</div>
+                    <div className="statusValue">Forming</div>
+                  </div>
                 </div>
+
                 <Link to="/about" className="statusLink">
                   Info
                 </Link>
