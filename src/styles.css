@@ -12,6 +12,24 @@
   --shadow: 0 20px 60px rgba(0,0,0,.55);
 }
 
+/* =========================
+   iOS SAFE-AREA FIX
+   ========================= */
+
+:root {
+  --safe-top: env(safe-area-inset-top);
+}
+
+/* Apply safe area to sticky header */
+.topbar {
+  padding-top: calc(16px + var(--safe-top));
+}
+
+/* Prevent content jump under header */
+body {
+  padding-top: var(--safe-top);
+}
+
 .homePro {
   max-width: 1100px;
   margin: 0 auto;
@@ -95,7 +113,7 @@ body{
 a{ color: inherit; text-decoration: none; }
 button{ font-family: inherit; }
 
-.appShell{ min-height:100vh; display:flex; flex-direction:column; }
+.appShell{ min-height:100svh; display:flex; flex-direction:column; }
 .topbar{
   position: sticky; top:0; z-index:50;
   display:flex; align-items:center; justify-content:space-between;
@@ -164,7 +182,7 @@ button{ font-family: inherit; }
 .btnIcon:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); }
 
 .loadingWrap{
-  min-height:100vh; display:grid; place-items:center; gap:14px;
+  min-height:100svh; display:grid; place-items:center; gap:14px;
   padding: 30px;
 }
 .logoPulse{
@@ -382,7 +400,7 @@ textarea.input {
 
 /* Full-screen stage for loader */
 .loadingStage{
-  min-height: 100vh;
+  min-height: 100svh;
   display: grid;
   place-items: center;
   position: relative;
@@ -767,7 +785,7 @@ textarea.input {
   top: 0;
   right: 0;
   width: min(320px, 86vw);
-  height: 100vh;
+  height: 100svh;
   background: rgba(10,10,18,.92);
   border-left: 1px solid rgba(255,255,255,.12);
   backdrop-filter: blur(16px);
@@ -1383,7 +1401,7 @@ textarea.input {
 /* === BACKGROUND ROOT === */
 .bgRoot{
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh;
   background: #0b0c10;
   overflow: hidden;
 }
@@ -1469,7 +1487,7 @@ textarea.input {
 
 .aboutPage {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 0;
   overflow: hidden;
   background: radial-gradient(1200px 600px at 50% 0%, rgba(99, 102, 241, 0.10), transparent 60%),
