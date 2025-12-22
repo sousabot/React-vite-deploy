@@ -202,6 +202,49 @@ export default function Home() {
     <PageMotion>
       <div className="homePro">
         {/* ======================
+            ANNOUNCEMENT TEASER (MOVED TO TOP)
+           ====================== */}
+        <section className="sectionPro">
+          <motion.div
+            className="announceCard"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="announceTop">
+              <span className="announceBadge">🚨 ANNOUNCEMENT INCOMING</span>
+              <span className="announceSmall muted">Stay locked in</span>
+            </div>
+
+            <div className="announceTitle">Roster reveal coming soon</div>
+            <div className="announceDesc muted">
+              Major updates are on the way. Follow GD Esports to be first.
+            </div>
+
+            <div className="announceActions">
+              <a
+                href="https://discord.gg/5fZ7UEnnzn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnPrimary"
+              >
+                Join Discord
+              </a>
+
+              <a
+                href="https://x.com/GDESPORTS25"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnGhost"
+              >
+                Follow on X
+              </a>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ======================
             WHAT’S HAPPENING NOW
            ====================== */}
         <section className="sectionPro">
@@ -357,49 +400,6 @@ export default function Home() {
         </section>
 
         {/* ======================
-            ANNOUNCEMENT TEASER
-           ====================== */}
-        <section className="sectionPro">
-          <motion.div
-            className="announceCard"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <div className="announceTop">
-              <span className="announceBadge">🚨 ANNOUNCEMENT INCOMING</span>
-              <span className="announceSmall muted">Stay locked in</span>
-            </div>
-
-            <div className="announceTitle">Roster reveal coming soon</div>
-            <div className="announceDesc muted">
-              Major updates are on the way. Follow GD Esports to be first.
-            </div>
-
-            <div className="announceActions">
-              <a
-                href="https://discord.gg/5fZ7UEnnzn"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btnPrimary"
-              >
-                Join Discord
-              </a>
-
-              <a
-                href="https://x.com/GDESPORTS25"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btnGhost"
-              >
-                Follow on X
-              </a>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* ======================
             TRYOUTS MODAL
            ====================== */}
         <Modal
@@ -454,9 +454,7 @@ export default function Home() {
             />
 
             {submitError && <div className="formError">{submitError}</div>}
-            {submitted && (
-              <div className="formSuccess">Application sent ✅</div>
-            )}
+            {submitted && <div className="formSuccess">Application sent ✅</div>}
 
             <div className="formRow">
               <motion.button
