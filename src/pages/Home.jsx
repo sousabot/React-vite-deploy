@@ -18,22 +18,10 @@ function encodeForm(data) {
 export default function Home() {
   const [open, setOpen] = useState(false);
 
-  // Live status
+  /* ======================
+     LIVE CREATOR STATUS
+     ====================== */
   const [liveCount, setLiveCount] = useState(0);
-
-  // Tryouts form state
-  const [form, setForm] = useState({
-    gamerTag: "",
-    game: "",
-    discord: "",
-    role: "",
-    availability: "",
-    notes: "",
-  });
-
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,7 +32,9 @@ export default function Home() {
           CREATORS.map(async (c) => {
             try {
               const res = await fetch(
-                `/.netlify/functions/twitch-live?user=${encodeURIComponent(c.twitchLogin)}`
+                `/.netlify/functions/twitch-live?user=${encodeURIComponent(
+                  c.twitchLogin
+                )}`
               );
               if (!res.ok) return false;
               const data = await res.json();
@@ -74,6 +64,22 @@ export default function Home() {
       ? `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now`
       : "No one Live Right Now";
 
+  /* ======================
+     TRYOUT FORM STATE
+     ====================== */
+  const [form, setForm] = useState({
+    gamerTag: "",
+    game: "",
+    discord: "",
+    role: "",
+    availability: "",
+    notes: "",
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
   function onChange(e) {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
@@ -84,18 +90,14 @@ export default function Home() {
     setSubmitError("");
     setSubmitted(false);
 
-    // Basic required checks
-    if (!form.gamerTag.trim() || !form.game.trim() || !form.discord.trim()) {
+    if (!form.gamerTag || !form.game || !form.discord) {
       setSubmitError("Please fill Gamer tag, Game, and Discord.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const payload = {
-        type: "tryout",
-        ...form,
-      };
+      const payload = { type: "tryout", ...form };
 
       const res = await fetch("/.netlify/functions/form-to-discord", {
         method: "POST",
@@ -103,10 +105,7 @@ export default function Home() {
         body: encodeForm(payload),
       });
 
-      if (!res.ok) {
-        const msg = await res.text().catch(() => "");
-        throw new Error(msg || `Submit failed (${res.status})`);
-      }
+      if (!res.ok) throw new Error("Submission failed");
 
       setSubmitted(true);
       setForm({
@@ -118,11 +117,9 @@ export default function Home() {
         notes: "",
       });
 
-      // Optional: close after a moment
       setTimeout(() => setOpen(false), 900);
     } catch (err) {
-      console.error(err);
-      setSubmitError(err?.message || "Something went wrong. Please try again.");
+      setSubmitError("Something went wrong. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +128,9 @@ export default function Home() {
   return (
     <PageMotion>
       <div className="homePro">
-        {/* WHAT'S HAPPENING NOW */}
+        {/* ======================
+            WHAT’S HAPPENING NOW
+           ====================== */}
         <section className="sectionPro">
           <motion.div
             className="statusCard"
@@ -139,7 +138,6 @@ export default function Home() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
           >
             <div className="statusTop">
               <span className="statusBadge">
@@ -148,49 +146,42 @@ export default function Home() {
               <span className="statusSmall">Live org status</span>
             </div>
 
-            <div className="statusTitle">Current Status</div>
-
             <div className="statusGrid">
-              {/* Creator Live */}
               <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span className={`statusDot ${liveCount > 0 ? "dotRed" : "dotGray"}`} />
-                  <div className="statusItemText">
-                    <div className="statusLabel">Creator</div>
-                    <div className="statusValue">{creatorStatus}</div>
-                  </div>
+                <span
+                  className={`statusDot ${
+                    liveCount > 0 ? "dotRed" : "dotGray"
+                  }`}
+                />
+                <div>
+                  <div className="statusLabel">Creators</div>
+                  <div className="statusValue">{creatorStatus}</div>
                 </div>
-
                 <Link to="/creators" className="statusLink">
                   View
                 </Link>
               </div>
 
-              {/* Tryouts Open */}
               <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span className="statusDot dotGreen" />
-                  <div className="statusItemText">
-                    <div className="statusLabel">Tryouts</div>
-                    <div className="statusValue">Open</div>
-                  </div>
+                <span className="statusDot dotGreen" />
+                <div>
+                  <div className="statusLabel">Tryouts</div>
+                  <div className="statusValue">Open</div>
                 </div>
-
-                <button className="statusLinkBtn" onClick={() => setOpen(true)}>
+                <button
+                  className="statusLinkBtn"
+                  onClick={() => setOpen(true)}
+                >
                   Apply
                 </button>
               </div>
 
-              {/* Roster Forming */}
               <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span className="statusDot dotYellow" />
-                  <div className="statusItemText">
-                    <div className="statusLabel">Roster</div>
-                    <div className="statusValue">Forming</div>
-                  </div>
+                <span className="statusDot dotYellow" />
+                <div>
+                  <div className="statusLabel">Roster</div>
+                  <div className="statusValue">Forming</div>
                 </div>
-
                 <Link to="/about" className="statusLink">
                   Info
                 </Link>
@@ -199,34 +190,71 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* CREATOR CTA */}
+        {/* ======================
+            CREATOR CTA
+           ====================== */}
         <section className="sectionPro shopCtaSection">
+          <Link to="/creators" className="shopCtaCard">
+            <span className="shopCtaText">
+              MEET OUR
+              <br />
+              CREATORS
+            </span>
+            <span className="shopCtaArrow">›</span>
+          </Link>
+        </section>
+
+        {/* ======================
+            ANNOUNCEMENT TEASER
+           ====================== */}
+        <section className="sectionPro">
           <motion.div
+            className="announceCard"
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <div className="shopCtaGrid">
-              <Link to="/creators" className="shopCtaCard">
-                <span className="shopCtaText">
-                  MEET OUR
-                  <br />
-                  CREATORS
-                </span>
-                <span className="shopCtaArrow">›</span>
-              </Link>
+            <div className="announceTop">
+              <span className="announceBadge">🚨 ANNOUNCEMENT INCOMING</span>
+              <span className="announceSmall muted">Stay locked in</span>
+            </div>
+
+            <div className="announceTitle">Roster reveal coming soon</div>
+            <div className="announceDesc muted">
+              Major updates are on the way. Follow GD Esports to be first.
+            </div>
+
+            <div className="announceActions">
+              <a
+                href="https://discord.gg/5fZ7UEnnzn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnPrimary"
+              >
+                Join Discord
+              </a>
+
+              <a
+                href="https://x.com/GDESPORTS25"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnGhost"
+              >
+                Follow on X
+              </a>
             </div>
           </motion.div>
         </section>
 
-        {/* TRYOUTS MODAL */}
-        <Modal open={open} title="GD Esports Tryouts" onClose={() => setOpen(false)}>
-          <p className="muted">
-            Apply to join GD Esports. Show consistency, strong comms, and mindset.
-          </p>
-
+        {/* ======================
+            TRYOUTS MODAL
+           ====================== */}
+        <Modal
+          open={open}
+          title="GD Esports Tryouts"
+          onClose={() => setOpen(false)}
+        >
           <form onSubmit={submitTryout}>
             <div className="formRow">
               <input
@@ -253,7 +281,7 @@ export default function Home() {
                 name="discord"
                 value={form.discord}
                 onChange={onChange}
-                placeholder="Discord (e.g. user#1234)"
+                placeholder="Discord"
                 required
               />
               <input
@@ -261,39 +289,24 @@ export default function Home() {
                 name="role"
                 value={form.role}
                 onChange={onChange}
-                placeholder="Role (Top / Jungle / Mid / ADC / Support)"
+                placeholder="Role"
               />
             </div>
 
-            <div className="formRow">
-              <input
-                className="input"
-                name="availability"
-                value={form.availability}
-                onChange={onChange}
-                placeholder="Availability (days/times)"
-              />
-            </div>
-
-            <div className="formRow">
-              <textarea
-                className="input textarea"
-                name="notes"
-                value={form.notes}
-                onChange={onChange}
-                placeholder="Anything else? (rank, experience, links...)"
-                rows={4}
-              />
-            </div>
+            <textarea
+              className="input textarea"
+              name="notes"
+              value={form.notes}
+              onChange={onChange}
+              placeholder="Experience / rank / links"
+            />
 
             {submitError && <div className="formError">{submitError}</div>}
             {submitted && (
-              <div className="formSuccess" style={{ marginTop: 10 }}>
-                Application sent ✅
-              </div>
+              <div className="formSuccess">Application sent ✅</div>
             )}
 
-            <div className="formRow" style={{ marginTop: 10 }}>
+            <div className="formRow">
               <motion.button
                 className="btnPrimary"
                 whileHover={{ scale: 1.04 }}
@@ -306,11 +319,8 @@ export default function Home() {
 
               <motion.button
                 className="btnGhost"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={() => setOpen(false)}
-                disabled={submitting}
               >
                 Cancel
               </motion.button>
