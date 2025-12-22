@@ -35,6 +35,63 @@ function encodeForm(data) {
 }
 
 /* ======================
+   ANNOUNCEMENT COUNTDOWN
+   ====================== */
+function getTargetDateUTC() {
+  // Dec 25 @ 00:00 UTC (safe across timezones)
+  return new Date(Date.UTC(new Date().getUTCFullYear(), 11, 25, 0, 0, 0));
+}
+
+function CountdownToDec25() {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const thisYearTarget = getTargetDateUTC();
+  let diff = thisYearTarget.getTime() - now;
+
+  // If passed, count down to next year's Dec 25
+  if (diff <= 0) {
+    const nextYearTarget = new Date(
+      Date.UTC(new Date().getUTCFullYear() + 1, 11, 25, 0, 0, 0)
+    );
+    diff = nextYearTarget.getTime() - now;
+  }
+
+  const totalSeconds = Math.max(0, Math.floor(diff / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return (
+    <div className="announceTimer">
+      <div className="timerChip">
+        <div className="timerNum">{days}</div>
+        <div className="timerLbl">DAYS</div>
+      </div>
+      <div className="timerChip">
+        <div className="timerNum">{pad(hours)}</div>
+        <div className="timerLbl">HRS</div>
+      </div>
+      <div className="timerChip">
+        <div className="timerNum">{pad(minutes)}</div>
+        <div className="timerLbl">MIN</div>
+      </div>
+      <div className="timerChip">
+        <div className="timerNum">{pad(seconds)}</div>
+        <div className="timerLbl">SEC</div>
+      </div>
+    </div>
+  );
+}
+
+/* ======================
    STAT ANIMATION
    ====================== */
 function AnimatedNumber({ value, duration = 1.2 }) {
@@ -202,7 +259,7 @@ export default function Home() {
     <PageMotion>
       <div className="homePro">
         {/* ======================
-            ANNOUNCEMENT TEASER (MOVED TO TOP)
+            ANNOUNCEMENT TEASER (TOP) + COUNTDOWN
            ====================== */}
         <section className="sectionPro">
           <motion.div
@@ -217,9 +274,10 @@ export default function Home() {
               <span className="announceSmall muted">Stay locked in</span>
             </div>
 
-            <div className="announceTitle">Roster reveal coming soon</div>
+            <div className="announceTitle">Jersey Reveal — Dec 25</div>
+            <CountdownToDec25 />
             <div className="announceDesc muted">
-              Major updates are on the way. Follow GD Esports to be first.
+              Countdown to the drop. Join Discord so you don’t miss it.
             </div>
 
             <div className="announceActions">
@@ -268,7 +326,7 @@ export default function Home() {
                 <div className="statusItemLeft">
                   <span
                     className={`statusDot ${
-                      liveCount > 0 ? "dotRed" : "dotGray"
+                     liveCount > 0 ? "dotRed" : "dotGray"
                     }`}
                   />
                   <div className="statusItemText">

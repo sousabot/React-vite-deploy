@@ -2579,3 +2579,56 @@ img, video, canvas, svg {
   text-transform: uppercase;
   color: rgba(255,255,255,.65);
 }
+
+/* =========================
+   ANNOUNCEMENT COUNTDOWN
+   ========================= */
+
+.announceTimer{
+  margin: 14px 0 8px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.timerChip{
+  min-width: 72px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.25));
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
+  text-align: center;
+}
+
+.timerNum{
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: .5px;
+  line-height: 1.1;
+}
+
+.timerLbl{
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+}
+
+/* Mobile stacking */
+@media (max-width: 520px){
+  .announceTimer{
+    justify-content: center;
+  }
+
+  .timerChip{
+    min-width: 64px;
+  }
+
+  .timerNum{
+    font-size: 20px;
+  }
+}
