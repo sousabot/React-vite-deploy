@@ -68,12 +68,25 @@ export default function Layout() {
 
           {/* Main nav */}
           <nav className="nav navMain">
-            <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : "")}>
+            <NavLink
+              to="/about"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
               ABOUT
             </NavLink>
 
-            <NavLink to="/shop" className={({ isActive }) => (isActive ? "active" : "")}>
+            <NavLink
+              to="/shop"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
               SHOP
+            </NavLink>
+
+            <NavLink
+              to="/giveaway"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              GIVEAWAY
             </NavLink>
 
             <NavLink
@@ -90,7 +103,9 @@ export default function Layout() {
               <>
                 <NavLink
                   to="/dashboard"
-                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
                 >
                   Dashboard
                 </NavLink>
@@ -99,7 +114,9 @@ export default function Layout() {
                 {isAdmin && (
                   <NavLink
                     to="/admin"
-                    className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                    className={({ isActive }) =>
+                      `navAuthLink ${isActive ? "active" : ""}`
+                    }
                   >
                     Admin
                   </NavLink>
@@ -118,14 +135,18 @@ export default function Layout() {
               <>
                 <NavLink
                   to="/login"
-                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
                 >
                   Login
                 </NavLink>
 
                 <NavLink
                   to="/register"
-                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
                 >
                   Register
                 </NavLink>
