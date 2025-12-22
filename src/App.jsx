@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import Creators from "./pages/Creators.jsx";
 import LoadingGate from "./components/LoadingGate.jsx";
 import Layout from "./components/Layout.jsx";
+import Admin from "./pages/Admin.jsx";
 
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
@@ -19,9 +20,51 @@ import Partners from "./pages/Partners.jsx";
 import News from "./pages/News.jsx";
 import WorkWithUs from "./pages/WorkWithUs.jsx";
 
+/* ======================
+   ROUTE GUARDS
+   ====================== */
+
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
+}
+
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+
+  const ADMIN_EMAIL = "goncalosad123@gmail.com";
+  const ADMIN_GAMERTAG = "sousamos"; // 👈 change to your real gamerTag if needed
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  const email =
+    user.email ||
+    user.user?.email ||
+    user.profile?.email ||
+    user?.claims?.email ||
+    "";
+
+  const gamerTag =
+    user.gamerTag ||
+    user.user?.gamerTag ||
+    user.profile?.gamerTag ||
+    "";
+
+  console.log("ADMIN CHECK user:", user);
+  console.log("ADMIN CHECK email:", email);
+  console.log("ADMIN CHECK gamerTag:", gamerTag);
+
+  const isAdminByEmail =
+    email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  const isAdminByTag =
+    gamerTag && gamerTag.toLowerCase() === ADMIN_GAMERTAG.toLowerCase();
+
+  if (!isAdminByEmail && !isAdminByTag) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 }
 
 export default function App() {
@@ -44,12 +87,23 @@ export default function App() {
               <Route path="/news" element={<News />} />
               <Route path="/work-with-us" element={<WorkWithUs />} />
 
+              {/* USER DASHBOARD */}
               <Route
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <Dashboard />
                   </ProtectedRoute>
+                }
+              />
+
+              {/* 🔒 ADMIN PANEL (EMAIL-LOCKED) */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <Admin />
+                  </AdminRoute>
                 }
               />
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -13,6 +13,22 @@ export default function Layout() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
+
+  // ✅ Put YOUR real login email here (from your console screenshot)
+  const ADMIN_EMAIL = "goncalosd123@gmail.com";
+
+  const isAdmin = useMemo(() => {
+    if (!user) return false;
+
+    const email =
+      user.email ||
+      user.user?.email ||
+      user.profile?.email ||
+      user?.claims?.email ||
+      "";
+
+    return email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  }, [user]);
 
   // Theme toggle
   useEffect(() => {
@@ -47,8 +63,6 @@ export default function Layout() {
           >
             {/* ✅ Logo (from public/vite.svg) */}
             <img src="/vite.svg" alt="GD Esports" className="brandLogo" />
-
-            {/* Optional: keep text next to logo (remove if you want logo only) */}
             <span className="brandText">GD Esports</span>
           </motion.div>
 
@@ -80,6 +94,16 @@ export default function Layout() {
                 >
                   Dashboard
                 </NavLink>
+
+                {/* ✅ Only show Admin for your admin email */}
+                {isAdmin && (
+                  <NavLink
+                    to="/admin"
+                    className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  >
+                    Admin
+                  </NavLink>
+                )}
 
                 <motion.button
                   className="btnGhost"
