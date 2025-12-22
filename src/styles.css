@@ -12,6 +12,57 @@
   --shadow: 0 20px 60px rgba(0,0,0,.55);
 }
 
+.homePro {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+.sectionPro {
+  margin-top: 28px;
+}
+
+/* =========================
+   FIX STATUS CARD ALIGNMENT
+   ========================= */
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left side wrapper */
+.statusItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+/* Text stack */
+.statusItemText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Labels */
+.statusLabel {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,.65);
+  text-transform: uppercase;
+}
+
+.statusValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
 /* Light mode (optional) */
 :root[data-theme="light"]{
   --bg: #f6f7fb;
@@ -2279,17 +2330,17 @@ img, video, canvas, svg {
 }
 
 /* =========================
-   HOME: ANNOUNCEMENT TEASER
+   HOME – ANNOUNCEMENT TEASER
    ========================= */
 
 .announceCard {
   border-radius: 16px;
-  padding: 18px 18px 16px;
-  background: radial-gradient(800px 220px at 20% 0%, rgba(255, 60, 92, 0.14), transparent 55%),
+  padding: 18px;
+  background:
+    radial-gradient(800px 260px at 10% 0%, rgba(255, 70, 90, 0.18), transparent 55%),
     rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
-  overflow: hidden;
 }
 
 .announceTop {
@@ -2300,28 +2351,24 @@ img, video, canvas, svg {
 }
 
 .announceBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
   font-weight: 900;
   font-size: 12px;
-  letter-spacing: 0.06em;
-  background: rgba(255, 60, 92, 0.14);
-  border: 1px solid rgba(255, 60, 92, 0.22);
+  letter-spacing: 0.08em;
+  background: rgba(255, 70, 90, 0.18);
+  border: 1px solid rgba(255, 70, 90, 0.28);
 }
 
 .announceSmall {
   font-size: 12px;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 .announceTitle {
   margin-top: 12px;
   font-size: 20px;
   font-weight: 950;
-  letter-spacing: 0.02em;
 }
 
 .announceDesc {
@@ -2336,11 +2383,24 @@ img, video, canvas, svg {
   flex-wrap: wrap;
 }
 
-/* Mobile */
 @media (max-width: 700px) {
-  .announceActions a,
-  .announceActions button {
+  .announceActions a {
     width: 100%;
     text-align: center;
+  }
+}
+
+
+/* ===== GLOBAL PAGE CONTAINER ===== */
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+/* tighter padding on mobile */
+@media (max-width: 640px) {
+  .pageContainer {
+    padding: 20px 16px 64px;
   }
 }
