@@ -11,7 +11,7 @@ const fadeUp = {
 };
 
 // 🔧 LOCAL TESTING ONLY (set to false when done)
-const FORCE_REVEAL = true;
+const FORCE_REVEAL = false;
 
 /* ======================
    CREATORS (add more)
