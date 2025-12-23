@@ -11,7 +11,7 @@ const fadeUp = {
 };
 
 // 🔧 LOCAL TESTING ONLY (set to false when done)
-const FORCE_REVEAL = false;
+const FORCE_REVEAL = true;
 
 /* ======================
    CREATORS (add more)
@@ -23,6 +23,33 @@ const CREATORS = [
     role: "Creator",
     tagline: "Live gameplay • highlights • community vibes",
     twitchUrl: "https://twitch.tv/mewtzu",
+  },
+  {
+    twitchLogin: "kaymael",
+    name: "Kaymael",
+    role: "Content Creator",
+    tagline: "Streams • clips • esports energy",
+    twitchUrl: "https://twitch.tv/kaymael",
+  },
+];
+
+/* ======================
+   JERSEYS (add more)
+   Put images in /public and set paths here.
+   ====================== */
+const JERSEYS = [
+  {
+    id: "home",
+    title: "Home Jersey 🟠",
+    image: "/jersey-reveal.png",
+    previewUrl:
+      "https://www.spized.com/uk-en/design-preview?cfgId=9c58ed21fcfae35b449522141611f77833875fb7c5be760a69db6080e8352126381d90eb5ab54adc9f3ecf271cab68c2607f99f6eed0d09f17daa43ac52da0a3",
+  },
+  {
+    id: "away",
+    title: "Away Jersey ⚫",
+    image: "/jersey-away.png", // ✅ add this file to /public
+    previewUrl: "PASTE_SECOND_SPIZED_URL_HERE",
   },
 ];
 
@@ -183,11 +210,6 @@ export default function Home() {
       setRevealReady(true);
     }
   }, [revealDate]);
-
-  // Put your actual reveal image in /public and set the path here:
-  const JERSEY_IMAGE = "/jersey-reveal.png";
-  const JERSEY_PREVIEW_URL =
-    "https://www.spized.com/uk-en/design-preview?cfgId=9c58ed21fcfae35b449522141611f77833875fb7c5be760a69db6080e8352126381d90eb5ab54adc9f3ecf271cab68c2607f99f6eed0d09f17daa43ac52da0a3";
 
   /* ======================
      LIVE CREATOR STATUS
@@ -365,7 +387,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <div className="announceTitle">The Jersey is Here 🟠</div>
+                <div className="announceTitle">Jerseys are Here 🟠⚫</div>
 
                 <div
                   className="announceReveal"
@@ -375,30 +397,60 @@ export default function Home() {
                     overflow: "hidden",
                     border: "1px solid rgba(255,255,255,.12)",
                     background: "rgba(0,0,0,.22)",
+                    padding: 12,
+                    display: "grid",
+                    gap: 12,
+                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                   }}
                 >
-                  <div
-                    className="jerseyRevealImg"
-                    style={{ backgroundImage: `url(${JERSEY_IMAGE})` }}
-                  />
+                  {JERSEYS.map((j) => (
+                    <div
+                      key={j.id}
+                      style={{
+                        borderRadius: 14,
+                        overflow: "hidden",
+                        border: "1px solid rgba(255,255,255,.10)",
+                        background: "rgba(0,0,0,.18)",
+                      }}
+                    >
+                      <div
+                        className="jerseyRevealImg"
+                        style={{
+                          backgroundImage: `url(${j.image})`,
+                          minHeight: 220,
+                        }}
+                      />
+                      <div
+                        style={{
+                          padding: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 10,
+                        }}
+                      >
+                        <div style={{ fontWeight: 700 }}>{j.title}</div>
+                        <a
+                          href={j.previewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btnPrimary"
+                          style={{ padding: "8px 12px", fontSize: 14 }}
+                          onClick={() => track("jersey_view", { id: j.id })}
+                        >
+                          View
+                        </a>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="announceDesc muted" style={{ marginTop: 10 }}>
-                  Official GD Esports jersey reveal. Want one? Hit the shop
-                  preview.
+                  Official GD Esports jersey reveals. Hit view to open the
+                  previews.
                 </div>
 
                 <div className="announceActions">
-                  <a
-                    href={JERSEY_PREVIEW_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btnPrimary"
-                    onClick={() => track("jersey_view")}
-                  >
-                    View Jersey
-                  </a>
-
                   <Link to="/shop" className="btnGhost">
                     Shop
                   </Link>
