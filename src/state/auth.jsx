@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { track } from "./track.js"; // add at top
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -34,11 +35,17 @@ export function AuthProvider({ children }) {
     return () => unsub();
   }, []);
 
-  async function login(email, password) {
-    if (!email || !password) throw new Error("Please enter email and password.");
-    await signInWithEmailAndPassword(auth, email, password);
-    // user state updates via onAuthStateChanged
-  }
+
+
+async function login(email, password) {
+  if (!email || !password) throw new Error("Please enter email and password.");
+
+  await signInWithEmailAndPassword(auth, email, password);
+
+  // 🔥 REAL metric
+  track("login");
+}
+
 
   // Supports both:
   // register(email, password, gamerTag)  ✅
@@ -58,12 +65,16 @@ export function AuthProvider({ children }) {
 
     if (!email || !password) throw new Error("Please enter email and password.");
 
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-    // store gamerTag in displayName
-    if (gamerTag) {
-      await updateProfile(cred.user, { displayName: gamerTag });
-    }
+const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+if (gamerTag) {
+  await updateProfile(cred.user, { displayName: gamerTag });
+}
+
+track("register"); // 🔥 REAL metric
+
+setUser(shapeUser(cred.user));
 
     // update local state immediately (auth listener will also update)
     setUser(shapeUser(cred.user));
@@ -74,11 +85,15 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  async function resetPassword(email) {
-    if (!email) throw new Error("Please enter your email.");
-    await sendPasswordResetEmail(auth, email);
-    return true;
-  }
+async function resetPassword(email) {
+  if (!email) throw new Error("Please enter your email.");
+  await sendPasswordResetEmail(auth, email);
+
+  track("password_reset"); // optional metric
+
+  return true;
+}
+
 
   const value = useMemo(() => ({ user, ready, login, register, logout, resetPassword }), [
     user,

@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "./firebase.js";
 
 function lastNDays(n) {
@@ -15,21 +15,28 @@ function lastNDays(n) {
   return days;
 }
 
-export async function getMetricsSum(days = 30) {
-  const ids = lastNDays(days);
-  const q = query(collection(db, "metrics_daily"), where("day", "in", ids.slice(0, 10)));
-  // Firestore "in" supports max 10 values — call multiple chunks if you want >10.
-  // For now: 7 or 10 days works best.
+/**
+ * Realtime sum of counters across last N days (N <= 10 recommended)
+ * Calls onUpdate(sumObj) whenever Firestore changes.
+ */
+export function subscribeMetricsSum(days = 7, onUpdate) {
+  const ids = lastNDays(Math.min(days, 10)); // keep <= 10 for "in"
 
-  const snap = await getDocs(q);
+  const q = query(
+    collection(db, "metrics_daily"),
+    where("day", "in", ids)
+  );
 
-  const sum = {};
-  snap.forEach((doc) => {
-    const data = doc.data();
-    for (const [k, v] of Object.entries(data)) {
-      if (typeof v === "number") sum[k] = (sum[k] || 0) + v;
-    }
+  const unsub = onSnapshot(q, (snap) => {
+    const sum = {};
+    snap.forEach((docSnap) => {
+      const data = docSnap.data();
+      for (const [k, v] of Object.entries(data)) {
+        if (typeof v === "number") sum[k] = (sum[k] || 0) + v;
+      }
+    });
+    onUpdate?.(sum);
   });
 
-  return sum;
+  return unsub;
 }
