@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, animate } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import Modal from "../components/Modal.jsx";
@@ -8,6 +8,9 @@ const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0 },
 };
+
+// 🔧 LOCAL TESTING ONLY (set to false when done)
+const FORCE_REVEAL = false;
 
 /* ======================
    CREATORS (add more)
@@ -22,27 +25,19 @@ const CREATORS = [
   },
 ];
 
-/* ======================
-   COMMUNITY STATS (edit)
-   ====================== */
-const COMMUNITY_STATS = [
-  { label: "Discord Members", value: 61, suffix: "+" },
-  { label: "Creators", value: 1, suffix: "" },
-];
-
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
 }
 
 /* ======================
-   ANNOUNCEMENT COUNTDOWN
+   ANNOUNCEMENT COUNTDOWN + REVEAL
    ====================== */
 function getTargetDateUTC() {
   // Dec 25 @ 00:00 UTC (safe across timezones)
   return new Date(Date.UTC(new Date().getUTCFullYear(), 11, 25, 0, 0, 0));
 }
 
-function CountdownToDec25() {
+function CountdownToDec25({ onFinished }) {
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -50,16 +45,13 @@ function CountdownToDec25() {
     return () => clearInterval(t);
   }, []);
 
-  const thisYearTarget = getTargetDateUTC();
-  let diff = thisYearTarget.getTime() - now;
+  const target = getTargetDateUTC();
+  const diff = target.getTime() - now;
+  const finished = diff <= 0;
 
-  // If passed, count down to next year's Dec 25
-  if (diff <= 0) {
-    const nextYearTarget = new Date(
-      Date.UTC(new Date().getUTCFullYear() + 1, 11, 25, 0, 0, 0)
-    );
-    diff = nextYearTarget.getTime() - now;
-  }
+  useEffect(() => {
+    if (finished) onFinished?.();
+  }, [finished, onFinished]);
 
   const totalSeconds = Math.max(0, Math.floor(diff / 1000));
   const days = Math.floor(totalSeconds / 86400);
@@ -135,6 +127,68 @@ export default function Home() {
   const [open, setOpen] = useState(false);
 
   /* ======================
+     DISCORD MEMBER COUNT (AUTO)
+     ====================== */
+  const [discordMembers, setDiscordMembers] = useState(0);
+  const [discordOnline, setDiscordOnline] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDiscordCounts() {
+      try {
+        const res = await fetch("/.netlify/functions/discord-members", {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (typeof data?.members === "number") setDiscordMembers(data.members);
+        if (typeof data?.online === "number") setDiscordOnline(data.online);
+      } catch {
+        // ignore
+      }
+    }
+
+    loadDiscordCounts();
+    const t = setInterval(loadDiscordCounts, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
+
+  const COMMUNITY_STATS = useMemo(
+    () => [
+      { label: "Discord Members", value: discordMembers || 0, suffix: "+" },
+      { label: "Creators", value: CREATORS.length, suffix: "" },
+      ...(typeof discordOnline === "number"
+        ? [{ label: "Online Now", value: discordOnline, suffix: "" }]
+        : []),
+    ],
+    [discordMembers, discordOnline]
+  );
+
+  /* ======================
+     JERSEY REVEAL STATE
+     ====================== */
+  const [revealReady, setRevealReady] = useState(false);
+  const revealDate = useMemo(() => getTargetDateUTC(), []);
+
+  useEffect(() => {
+    if (FORCE_REVEAL || Date.now() >= revealDate.getTime()) {
+      setRevealReady(true);
+    }
+  }, [revealDate]);
+
+  // Put your actual reveal image in /public and set the path here:
+  const JERSEY_IMAGE = "/jersey-reveal.png";
+  const JERSEY_PREVIEW_URL =
+    "https://www.spized.com/uk-en/design-preview?cfgId=9c58ed21fcfae35b449522141611f77833875fb7c5be760a69db6080e8352126381d90eb5ab54adc9f3ecf271cab68c2607f99f6eed0d09f17daa43ac52da0a3";
+
+  /* ======================
      LIVE CREATOR STATUS
      ====================== */
   const [liveCount, setLiveCount] = useState(0);
@@ -170,7 +224,6 @@ export default function Home() {
           const count = Object.values(map).filter(Boolean).length;
           setLiveCount(count);
 
-          // Featured: prefer someone live; otherwise default first
           const liveCreator = CREATORS.find((c) => map[c.twitchLogin]);
           setFeatured(liveCreator || CREATORS[0]);
         }
@@ -259,7 +312,7 @@ export default function Home() {
     <PageMotion>
       <div className="homePro">
         {/* ======================
-            ANNOUNCEMENT TEASER (TOP) + COUNTDOWN
+            ANNOUNCEMENT TEASER
            ====================== */}
         <section className="sectionPro">
           <motion.div
@@ -270,35 +323,80 @@ export default function Home() {
             viewport={{ once: true, amount: 0.2 }}
           >
             <div className="announceTop">
-              <span className="announceBadge">🚨 ANNOUNCEMENT INCOMING</span>
-              <span className="announceSmall muted">Stay locked in</span>
+              <span className="announceBadge">🚨 ANNOUNCEMENT</span>
+              <span className="announceSmall muted">
+                {revealReady ? "Live now" : "Stay locked in"}
+              </span>
             </div>
 
-            <div className="announceTitle">Jersey Reveal — Dec 25</div>
-            <CountdownToDec25 />
-            <div className="announceDesc muted">
-              Countdown to the drop. Join Discord so you don’t miss it.
-            </div>
+            {!revealReady ? (
+              <>
+                <div className="announceTitle">Jersey Reveal — Dec 25</div>
+                <CountdownToDec25 onFinished={() => setRevealReady(true)} />
+                <div className="announceDesc muted">
+                  Countdown to the drop. Join Discord so you don’t miss it.
+                </div>
 
-            <div className="announceActions">
-              <a
-                href="https://discord.gg/5fZ7UEnnzn"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btnPrimary"
-              >
-                Join Discord
-              </a>
+                <div className="announceActions">
+                  <a
+                    href="https://discord.gg/5fZ7UEnnzn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btnPrimary"
+                  >
+                    Join Discord
+                  </a>
 
-              <a
-                href="https://x.com/GDESPORTS25"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btnGhost"
-              >
-                Follow on X
-              </a>
-            </div>
+                  <a
+                    href="https://x.com/GDESPORTS25"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btnGhost"
+                  >
+                    Follow on X
+                  </a>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="announceTitle">The Jersey is Here 🟠</div>
+
+                <div
+                  className="announceReveal"
+                  style={{
+                    marginTop: 14,
+                    borderRadius: 18,
+                    overflow: "hidden",
+                    border: "1px solid rgba(255,255,255,.12)",
+                    background: "rgba(0,0,0,.22)",
+                  }}
+                >
+                  <div
+                    className="jerseyRevealImg"
+                    style={{ backgroundImage: `url(${JERSEY_IMAGE})` }}
+                  />
+                </div>
+
+                <div className="announceDesc muted" style={{ marginTop: 10 }}>
+                  Official GD Esports jersey reveal. Want one? Hit the shop preview.
+                </div>
+
+                <div className="announceActions">
+                  <a
+                    href={JERSEY_PREVIEW_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btnPrimary"
+                  >
+                    View Jersey
+                  </a>
+
+                  <Link to="/shop" className="btnGhost">
+                    Shop
+                  </Link>
+                </div>
+              </>
+            )}
           </motion.div>
         </section>
 
@@ -321,13 +419,10 @@ export default function Home() {
             </div>
 
             <div className="statusGrid">
-              {/* CREATOR STATUS */}
               <div className="statusItem">
                 <div className="statusItemLeft">
                   <span
-                    className={`statusDot ${
-                     liveCount > 0 ? "dotRed" : "dotGray"
-                    }`}
+                    className={`statusDot ${liveCount > 0 ? "dotRed" : "dotGray"}`}
                   />
                   <div className="statusItemText">
                     <div className="statusLabel">Creators</div>
@@ -340,7 +435,6 @@ export default function Home() {
                 </Link>
               </div>
 
-              {/* TRYOUTS */}
               <div className="statusItem">
                 <div className="statusItemLeft">
                   <span className="statusDot dotGreen" />
@@ -355,7 +449,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* ROSTER */}
               <div className="statusItem">
                 <div className="statusItemLeft">
                   <span className="statusDot dotYellow" />

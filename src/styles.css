@@ -2673,3 +2673,24 @@ img, video, canvas, svg {
   text-overflow: clip !important;
   line-height: 1.35;
 }
+
+/* Jersey reveal image */
+.jerseyRevealImg {
+  width: 100%;
+  max-height: 420px;          /* keeps it from being huge */
+  aspect-ratio: 3 / 2;        /* better for jersey shape */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;   /* 👈 key fix */
+}
+
+/* Mobile adjustment */
+@media (max-width: 640px) {
+  .jerseyRevealImg {
+    max-height: 300px;
+  }
+}
+
+.jerseyRevealImg {
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.45));
+}
