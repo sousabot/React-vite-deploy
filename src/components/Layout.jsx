@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import ParticlesBackground from "./ParticlesBackground.jsx";
 import RightSidebar from "./RightSidebar.jsx";
 import SidebarButton from "./SidebarButton.jsx";
+import { track } from "../state/track.js";
 import { useAuth } from "../state/auth.jsx";
 
 export default function Layout() {
@@ -14,8 +15,15 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
 
+  const location = useLocation();
+
+  // Analytics: track page views
+  useEffect(() => {
+    track("page_view", { path: location.pathname });
+  }, [location.pathname]);
+
   // ✅ Put YOUR real login email here (from your console screenshot)
-  const ADMIN_EMAIL = "goncalosd123@gmail.com";
+  const ADMIN_EMAIL = "sousamospt@gmail.com";
 
   const isAdmin = useMemo(() => {
     if (!user) return false;
@@ -68,11 +76,17 @@ export default function Layout() {
 
           {/* Main nav */}
           <nav className="nav navMain">
-            <NavLink to="/about" className={({ isActive }) => (isActive ? "active" : "")}>
+            <NavLink
+              to="/about"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
               ABOUT
             </NavLink>
 
-            <NavLink to="/shop" className={({ isActive }) => (isActive ? "active" : "")}>
+            <NavLink
+              to="/shop"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
               SHOP
             </NavLink>
 
@@ -90,7 +104,9 @@ export default function Layout() {
               <>
                 <NavLink
                   to="/dashboard"
-                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
                 >
                   Dashboard
                 </NavLink>
@@ -99,7 +115,9 @@ export default function Layout() {
                 {isAdmin && (
                   <NavLink
                     to="/admin"
-                    className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                    className={({ isActive }) =>
+                      `navAuthLink ${isActive ? "active" : ""}`
+                    }
                   >
                     Admin
                   </NavLink>
@@ -118,14 +136,18 @@ export default function Layout() {
               <>
                 <NavLink
                   to="/login"
-                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
                 >
                   Login
                 </NavLink>
 
                 <NavLink
                   to="/register"
-                  className={({ isActive }) => `navAuthLink ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `navAuthLink ${isActive ? "active" : ""}`
+                  }
                 >
                   Register
                 </NavLink>

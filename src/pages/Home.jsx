@@ -3,6 +3,7 @@ import { motion, useInView, useMotionValue, animate } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import Modal from "../components/Modal.jsx";
 import { Link } from "react-router-dom";
+import { track } from "../state/track.js";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -289,6 +290,8 @@ export default function Home() {
       if (!res.ok) throw new Error("Submission failed");
 
       setSubmitted(true);
+      track("tryout_submit", { game: form.game || "unknown" });
+
       setForm({
         gamerTag: "",
         game: "",
@@ -343,6 +346,9 @@ export default function Home() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btnPrimary"
+                    onClick={() =>
+                      track("discord_click", { source: "announcement" })
+                    }
                   >
                     Join Discord
                   </a>
@@ -378,7 +384,8 @@ export default function Home() {
                 </div>
 
                 <div className="announceDesc muted" style={{ marginTop: 10 }}>
-                  Official GD Esports jersey reveal. Want one? Hit the shop preview.
+                  Official GD Esports jersey reveal. Want one? Hit the shop
+                  preview.
                 </div>
 
                 <div className="announceActions">
@@ -387,6 +394,7 @@ export default function Home() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btnPrimary"
+                    onClick={() => track("jersey_view")}
                   >
                     View Jersey
                   </a>
@@ -422,7 +430,9 @@ export default function Home() {
               <div className="statusItem">
                 <div className="statusItemLeft">
                   <span
-                    className={`statusDot ${liveCount > 0 ? "dotRed" : "dotGray"}`}
+                    className={`statusDot ${
+                      liveCount > 0 ? "dotRed" : "dotGray"
+                    }`}
                   />
                   <div className="statusItemText">
                     <div className="statusLabel">Creators</div>
@@ -444,7 +454,13 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button className="statusLinkBtn" onClick={() => setOpen(true)}>
+                <button
+                  className="statusLinkBtn"
+                  onClick={() => {
+                    track("tryout_open");
+                    setOpen(true);
+                  }}
+                >
                   Apply
                 </button>
               </div>

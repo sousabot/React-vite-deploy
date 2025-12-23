@@ -32,7 +32,7 @@ function ProtectedRoute({ children }) {
 function AdminRoute({ children }) {
   const { user } = useAuth();
 
-  const ADMIN_EMAIL = "goncalosad123@gmail.com";
+  const ADMIN_EMAIL = "sousamospt@gmail.com";
   const ADMIN_GAMERTAG = "sousamos"; // 👈 change to your real gamerTag if needed
 
   if (!user) return <Navigate to="/login" replace />;
