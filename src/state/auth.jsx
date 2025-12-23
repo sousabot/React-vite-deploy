@@ -1,138 +1,92 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signOut,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "./firebase.js";
 
 const AuthContext = createContext(null);
 
-const LS_USER = "gd_user";
-const LS_USERS = "gd_users"; // simple local "db"
-const LS_RESET = "gd_reset_codes"; // { [email]: { code, expiresAt } }
+function shapeUser(firebaseUser) {
+  if (!firebaseUser) return null;
 
-function getUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_USERS)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function setUsers(users) {
-  localStorage.setItem(LS_USERS, JSON.stringify(users));
-}
-
-function getResetMap() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_RESET)) || {};
-  } catch {
-    return {};
-  }
-}
-
-function setResetMap(map) {
-  localStorage.setItem(LS_RESET, JSON.stringify(map));
-}
-
-function generateCode() {
-  // 6-digit numeric code
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return {
+    uid: firebaseUser.uid,
+    email: firebaseUser.email || "",
+    gamerTag: firebaseUser.displayName || "", // 👈 keeps your admin checks working
+    firebaseUser,
+  };
 }
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(LS_USER));
-      if (saved) setUser(saved);
-    } catch {}
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(shapeUser(u));
+      setReady(true);
+    });
+    return () => unsub();
   }, []);
 
-  function login(email, password) {
-    const users = getUsers();
-    const found = users.find((u) => u.email === email && u.password === password);
-    if (!found) throw new Error("Invalid email or password.");
-    localStorage.setItem(
-      LS_USER,
-      JSON.stringify({ email: found.email, gamerTag: found.gamerTag })
-    );
-    setUser({ email: found.email, gamerTag: found.gamerTag });
+  async function login(email, password) {
+    if (!email || !password) throw new Error("Please enter email and password.");
+    await signInWithEmailAndPassword(auth, email, password);
+    // user state updates via onAuthStateChanged
   }
 
-  function register({ email, password, gamerTag }) {
-    const users = getUsers();
-    if (users.some((u) => u.email === email)) throw new Error("Email is already registered.");
+  // Supports both:
+  // register(email, password, gamerTag)  ✅
+  // register({ email, password, gamerTag }) ✅ (for your existing Register page style)
+  async function register(a, b, c) {
+    let email, password, gamerTag;
 
-    const newUser = { email, password, gamerTag };
-    setUsers([...users, newUser]);
+    if (typeof a === "object" && a) {
+      email = a.email;
+      password = a.password;
+      gamerTag = a.gamerTag;
+    } else {
+      email = a;
+      password = b;
+      gamerTag = c;
+    }
 
-    // auto-login
-    localStorage.setItem(LS_USER, JSON.stringify({ email, gamerTag }));
-    setUser({ email, gamerTag });
+    if (!email || !password) throw new Error("Please enter email and password.");
+
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+    // store gamerTag in displayName
+    if (gamerTag) {
+      await updateProfile(cred.user, { displayName: gamerTag });
+    }
+
+    // update local state immediately (auth listener will also update)
+    setUser(shapeUser(cred.user));
   }
 
-  function logout() {
-    localStorage.removeItem(LS_USER);
+  async function logout() {
+    await signOut(auth);
     setUser(null);
   }
 
-  /**
-   * LocalStorage-only reset:
-   * - Generates a code and stores it for 15 minutes
-   * - Returns the code so UI can show it (since there's no email service here)
-   */
-  function resetPassword(email) {
-    const users = getUsers();
-    const exists = users.some((u) => u.email === email);
-
-    // Security best-practice: don't reveal whether the email exists
-    // We'll still generate a code only if it exists, but always return a generic response.
-    if (!exists) {
-      return { ok: true, code: null };
-    }
-
-    const map = getResetMap();
-    const code = generateCode();
-    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 min
-
-    map[email] = { code, expiresAt };
-    setResetMap(map);
-
-    return { ok: true, code };
+  async function resetPassword(email) {
+    if (!email) throw new Error("Please enter your email.");
+    await sendPasswordResetEmail(auth, email);
+    return true;
   }
 
-  /**
-   * Confirm reset and set new password
-   */
-  function confirmPasswordReset(email, code, newPassword) {
-    if (!email || !code || !newPassword) throw new Error("Missing fields.");
+  const value = useMemo(() => ({ user, ready, login, register, logout, resetPassword }), [
+    user,
+    ready,
+  ]);
 
-    const map = getResetMap();
-    const entry = map[email];
-
-    if (!entry) throw new Error("Invalid or expired reset code.");
-    if (Date.now() > entry.expiresAt) {
-      delete map[email];
-      setResetMap(map);
-      throw new Error("Reset code expired. Request a new one.");
-    }
-
-    if (String(entry.code) !== String(code)) throw new Error("Invalid reset code.");
-
-    const users = getUsers();
-    const idx = users.findIndex((u) => u.email === email);
-    if (idx === -1) throw new Error("Account not found.");
-
-    users[idx] = { ...users[idx], password: newPassword };
-    setUsers(users);
-
-    delete map[email];
-    setResetMap(map);
-
-    return { ok: true };
-  }
-
-  const value = useMemo(
-    () => ({ user, login, register, logout, resetPassword, confirmPasswordReset }),
-    [user]
-  );
+  // Optional: prevent flashing before auth state loads
+  if (!ready) return null;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
