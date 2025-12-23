@@ -1490,31 +1490,33 @@ textarea.input {
   min-height: 100svh;
   padding: 0;
   overflow: hidden;
-  background: radial-gradient(1200px 600px at 50% 0%, rgba(99, 102, 241, 0.10), transparent 60%),
-    linear-gradient(180deg, #07070b 0%, #0b1220 55%, #07070b 100%);
+  background: transparent; /* REMOVE big flat panel */
 }
 
-/* Logo watermark (using public/vite.svg) */
-.aboutWatermark {
+/* Logo watermark (About) */
+.aboutWatermark{
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.10;
   mix-blend-mode: screen;
+
   background-image:
-    radial-gradient(900px 500px at 50% 20%, rgba(255,255,255,0.08), transparent 60%),
+    radial-gradient(900px 500px at 50% 18%, rgba(255,255,255,0.07), transparent 60%),
     url("/vite.svg");
+
   background-repeat: no-repeat;
-  background-position: center 120px;
-  background-size: 560px auto;
-  filter: saturate(1.1);
+  background-position: center 45%;
+  background-size: clamp(320px, 52vw, 640px) auto;
+
+  filter: saturate(1.05);
 }
 
-@media (max-width: 640px) {
-  .aboutWatermark {
-    background-size: 360px auto;
-    background-position: center 140px;
-    opacity: 0.10;
+@media (max-width: 640px){
+  .aboutWatermark{
+    background-position: center 40%;
+    background-size: clamp(260px, 72vw, 420px) auto;
+    opacity: 0.09;
   }
 }
 
@@ -2649,4 +2651,25 @@ img, video, canvas, svg {
   .timerNum{
     font-size: 20px;
   }
+}
+/* ABOUT: values grid */
+.aboutValuesGrid{
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 860px){
+  .aboutValuesGrid{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Remove ellipsis for About value cards only */
+.aboutValueCard .statusValue{
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.35;
 }
