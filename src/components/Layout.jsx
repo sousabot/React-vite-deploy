@@ -22,7 +22,7 @@ export default function Layout() {
     track("page_view", { path: location.pathname });
   }, [location.pathname]);
 
-  // ✅ Put YOUR real login email here (from your console screenshot)
+  // ✅ Put YOUR real login email here
   const ADMIN_EMAIL = "sousamospt@gmail.com";
 
   const isAdmin = useMemo(() => {
@@ -69,7 +69,6 @@ export default function Layout() {
             aria-label="Go to home"
             title="GD Esports"
           >
-            {/* ✅ Logo (from public/vite.svg) */}
             <img src="/vite.svg" alt="GD Esports" className="brandLogo" />
             <span className="brandText">GD Esports</span>
           </motion.div>
@@ -79,6 +78,7 @@ export default function Layout() {
             <NavLink
               to="/about"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={() => track("nav_click", { target: "about" })}
             >
               ABOUT
             </NavLink>
@@ -86,13 +86,24 @@ export default function Layout() {
             <NavLink
               to="/shop"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={() => track("nav_click", { target: "shop" })}
             >
               SHOP
+            </NavLink>
+
+            {/* ✅ NEW GIVEAWAY LINK */}
+            <NavLink
+              to="/giveaway"
+              className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={() => track("nav_click", { target: "giveaway" })}
+            >
+              GIVEAWAY
             </NavLink>
 
             <NavLink
               to="/work-with-us"
               className={({ isActive }) => (isActive ? "active" : "")}
+              onClick={() => track("nav_click", { target: "work_with_us" })}
             >
               WORK WITH US
             </NavLink>
@@ -107,6 +118,7 @@ export default function Layout() {
                   className={({ isActive }) =>
                     `navAuthLink ${isActive ? "active" : ""}`
                   }
+                  onClick={() => track("nav_click", { target: "dashboard" })}
                 >
                   Dashboard
                 </NavLink>
@@ -118,6 +130,7 @@ export default function Layout() {
                     className={({ isActive }) =>
                       `navAuthLink ${isActive ? "active" : ""}`
                     }
+                    onClick={() => track("nav_click", { target: "admin" })}
                   >
                     Admin
                   </NavLink>
@@ -125,7 +138,10 @@ export default function Layout() {
 
                 <motion.button
                   className="btnGhost"
-                  onClick={logout}
+                  onClick={() => {
+                    track("logout_click");
+                    logout();
+                  }}
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -139,6 +155,7 @@ export default function Layout() {
                   className={({ isActive }) =>
                     `navAuthLink ${isActive ? "active" : ""}`
                   }
+                  onClick={() => track("nav_click", { target: "login" })}
                 >
                   Login
                 </NavLink>
@@ -148,6 +165,7 @@ export default function Layout() {
                   className={({ isActive }) =>
                     `navAuthLink ${isActive ? "active" : ""}`
                   }
+                  onClick={() => track("nav_click", { target: "register" })}
                 >
                   Register
                 </NavLink>
