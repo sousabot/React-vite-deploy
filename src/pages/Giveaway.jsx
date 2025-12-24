@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import { track } from "../state/track.js";
@@ -12,8 +12,71 @@ function encodeForm(data) {
   return new URLSearchParams(data).toString();
 }
 
+function msParts(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const days = Math.floor(total / 86400);
+  const hours = Math.floor((total % 86400) / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+  return { days, hours, minutes, seconds };
+}
+
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function Countdown({ targetMs, label }) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const diff = Math.max(0, targetMs - now);
+  const { days, hours, minutes, seconds } = msParts(diff);
+
+  return (
+    <div className="giveawayCountdown">
+      <div className="giveawayCountdownLabel">{label}</div>
+      <div className="giveawayCountdownRow">
+        <div className="timerChip">
+          <div className="timerNum">{days}</div>
+          <div className="timerLbl">DAYS</div>
+        </div>
+        <div className="timerChip">
+          <div className="timerNum">{pad2(hours)}</div>
+          <div className="timerLbl">HRS</div>
+        </div>
+        <div className="timerChip">
+          <div className="timerNum">{pad2(minutes)}</div>
+          <div className="timerLbl">MIN</div>
+        </div>
+        <div className="timerChip">
+          <div className="timerNum">{pad2(seconds)}</div>
+          <div className="timerLbl">SEC</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Giveaway() {
-  // ✅ Edit these whenever you run a new giveaway
+  /**
+   * ✅ SET YOUR WINDOW HERE (UTC)
+   * Example below:
+   * - Start: Dec 25, 00:00 UTC
+   * - End:   Dec 31, 23:59 UTC
+   */
+  const START_UTC = useMemo(
+    () => new Date(Date.UTC(new Date().getUTCFullYear(), 11, 25, 0, 0, 0)).getTime(),
+    []
+  );
+  const END_UTC = useMemo(
+    () => new Date(Date.UTC(new Date().getUTCFullYear(), 11, 31, 23, 59, 0)).getTime(),
+    []
+  );
+
   const GIVEAWAY = useMemo(
     () => ({
       title: "GD Esports Giveaway",
@@ -28,9 +91,21 @@ export default function Giveaway() {
       ],
       discordInvite: "https://discord.gg/5fZ7UEnnzn",
       xUrl: "https://x.com/GDESPORTS25",
+      instagramUrl: "https://www.instagram.com/", // <-- update
     }),
     []
   );
+
+  // Window state
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const hasStarted = now >= START_UTC;
+  const hasEnded = now >= END_UTC;
+  const isOpen = hasStarted && !hasEnded;
 
   const [form, setForm] = useState({
     gamerTag: "",
@@ -54,6 +129,12 @@ export default function Giveaway() {
     setErr("");
     setOk(false);
 
+    // ✅ hard lock
+    if (!isOpen) {
+      setErr(hasEnded ? "This giveaway has ended." : "Giveaway not open yet.");
+      return;
+    }
+
     if (!form.gamerTag || !form.discord || !form.email) {
       setErr("Please fill GamerTag, Discord and Email.");
       return;
@@ -61,7 +142,6 @@ export default function Giveaway() {
 
     setLoading(true);
     try {
-      // ✅ send to Discord via your existing function
       const payload = {
         type: "giveaway_entry",
         ...form,
@@ -114,6 +194,17 @@ export default function Giveaway() {
               <div className="giveawayPrizeLabel">Prize</div>
               <div className="giveawayPrize">{GIVEAWAY.prize}</div>
               <div className="giveawayEnds muted">{GIVEAWAY.endsText}</div>
+
+              {/* ✅ STATUS / COUNTDOWN */}
+              {!hasStarted && (
+                <Countdown targetMs={START_UTC} label="Giveaway opens in" />
+              )}
+              {isOpen && <Countdown targetMs={END_UTC} label="Giveaway ends in" />}
+              {hasEnded && (
+                <div className="giveawayLocked">
+                  Giveaway ended ✅ Winners announced in Discord.
+                </div>
+              )}
             </div>
 
             <div className="giveawayActions">
@@ -126,6 +217,7 @@ export default function Giveaway() {
               >
                 Join Discord
               </a>
+
               <a
                 href={GIVEAWAY.xUrl}
                 target="_blank"
@@ -134,6 +226,16 @@ export default function Giveaway() {
                 onClick={() => track("x_click", { source: "giveaway" })}
               >
                 Follow on X
+              </a>
+
+              <a
+                href={GIVEAWAY.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnGhost"
+                onClick={() => track("instagram_click", { source: "giveaway" })}
+              >
+                Follow on Instagram
               </a>
             </div>
           </motion.div>
@@ -166,6 +268,18 @@ export default function Giveaway() {
             <div className="giveawayCard">
               <div className="giveawayCardTitle">Entry Form</div>
 
+              {!isOpen && !hasEnded && (
+                <div className="alert">
+                  Giveaway is not open yet. Come back when the countdown hits 0.
+                </div>
+              )}
+
+              {hasEnded && (
+                <div className="alert">
+                  Giveaway has ended. Winners will be announced in Discord.
+                </div>
+              )}
+
               {err && <div className="alert">{err}</div>}
               {ok && (
                 <div className="alert success">
@@ -182,6 +296,7 @@ export default function Giveaway() {
                   onChange={onChange}
                   placeholder="Your gamer tag"
                   autoComplete="off"
+                  disabled={!isOpen || loading}
                 />
 
                 <label className="label">Email</label>
@@ -192,6 +307,7 @@ export default function Giveaway() {
                   onChange={onChange}
                   placeholder="you@email.com"
                   autoComplete="email"
+                  disabled={!isOpen || loading}
                 />
 
                 <label className="label">Discord</label>
@@ -202,6 +318,7 @@ export default function Giveaway() {
                   onChange={onChange}
                   placeholder="name#0000 (or @name)"
                   autoComplete="off"
+                  disabled={!isOpen || loading}
                 />
 
                 <label className="label">Platform</label>
@@ -210,6 +327,7 @@ export default function Giveaway() {
                   name="platform"
                   value={form.platform}
                   onChange={onChange}
+                  disabled={!isOpen || loading}
                 >
                   <option value="PC">PC</option>
                 </select>
@@ -221,16 +339,23 @@ export default function Giveaway() {
                   value={form.notes}
                   onChange={onChange}
                   placeholder="Links / socials / notes"
+                  disabled={!isOpen || loading}
                 />
 
                 <motion.button
                   type="submit"
                   className="btnPrimary"
-                  disabled={loading}
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={!isOpen || loading}
+                  whileHover={{ scale: isOpen && !loading ? 1.03 : 1 }}
+                  whileTap={{ scale: isOpen && !loading ? 0.98 : 1 }}
                 >
-                  {loading ? "Submitting..." : "Submit Entry"}
+                  {hasEnded
+                    ? "Giveaway Ended"
+                    : !hasStarted
+                    ? "Not Open Yet"
+                    : loading
+                    ? "Submitting..."
+                    : "Submit Entry"}
                 </motion.button>
               </form>
             </div>
