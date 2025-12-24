@@ -62,6 +62,8 @@ export default function Layout() {
           <nav className="nav navMain">
             <NavLink to="/about">ABOUT</NavLink>
             <NavLink to="/shop">SHOP</NavLink>
+            <NavLink to="/creators">CREATORS</NavLink>
+            <NavLink to="/clips">CLIPS</NavLink> {/* ✅ NEW */}
             <NavLink to="/giveaway">GIVEAWAY</NavLink>
             <NavLink to="/work-with-us">WORK WITH US</NavLink>
           </nav>

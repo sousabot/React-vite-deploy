@@ -3509,3 +3509,237 @@ img, video, canvas, svg {
     max-width: 100%;
   }
 }
+/* =========================
+   CLIPS PAGE
+   ========================= */
+
+.clipsPage {
+  width: 100%;
+}
+
+.clipsHero {
+  position: relative;
+  padding: 56px 18px 10px;
+}
+
+.clipsHeroOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+      900px 380px at 20% 20%,
+      rgba(255, 138, 0, 0.22),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 420px at 80% 30%,
+      rgba(0, 0, 0, 0.35),
+      transparent 60%
+    );
+}
+
+.clipsHeroInner {
+  position: relative;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.clipsBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 138, 0, 0.35);
+  background: rgba(255, 138, 0, 0.10);
+  color: #ffb35c;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+.clipsTitle {
+  margin: 14px 0 6px;
+  font-size: 42px;
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.clipsSubtitle {
+  max-width: 720px;
+}
+
+.clipsControls {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+/* ===== FILTER BUTTONS ===== */
+.clipsFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.clipsFilterBtn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clipsFilterBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.clipsFilterBtn.active {
+  background: linear-gradient(135deg, #ff8a00, #f59e0b);
+  color: #000;
+  border-color: transparent;
+}
+
+.clipsError {
+  color: #ff6b6b;
+  font-size: 13px;
+}
+
+/* ===== GRID ===== */
+.clipsSection {
+  padding: 18px 18px 56px;
+}
+
+.clipsGrid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.clipsEmpty {
+  grid-column: 1 / -1;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+}
+
+/* ===== CARD ===== */
+.clipCard {
+  display: block;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  color: inherit;
+}
+
+.clipCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.clipThumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.clipThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.clipPlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+  color: #fff;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18),
+    rgba(0, 0, 0, 0.65)
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.clipCard:hover .clipPlay {
+  opacity: 1;
+}
+
+.clipInfo {
+  padding: 14px;
+}
+
+.clipTitle {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.35;
+  margin-bottom: 8px;
+
+  /* 2-line clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.clipMeta {
+  font-size: 12px;
+  color: rgba(229, 231, 235, 0.72);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .clipsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .clipsTitle {
+    font-size: 34px;
+  }
+
+  .clipsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .clipsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Clips section header (for 30+ days section) */
+.clipsSectionHeader {
+  max-width: 1180px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.clipsSectionTitle {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+

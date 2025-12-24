@@ -13,6 +13,7 @@ import Partners from "./pages/Partners.jsx";
 import News from "./pages/News.jsx";
 import WorkWithUs from "./pages/WorkWithUs.jsx";
 import Giveaway from "./pages/Giveaway.jsx";
+import Clips from "./pages/Clips.jsx"; // ✅ NEW
 
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -58,6 +59,7 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/creators" element={<Creators />} />
+              <Route path="/clips" element={<Clips />} /> {/* ✅ NEW */}
               <Route path="/partners" element={<Partners />} />
               <Route path="/news" element={<News />} />
               <Route path="/work-with-us" element={<WorkWithUs />} />
