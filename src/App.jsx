@@ -20,6 +20,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Admin from "./pages/Admin.jsx";
 
 import { AuthProvider, useAuth } from "./state/auth.jsx";
+import { ADMIN_EMAILS } from "./state/admins.js";
 
 /* ======================
    ROUTE GUARDS
@@ -33,40 +34,12 @@ function ProtectedRoute({ children }) {
 function AdminRoute({ children }) {
   const { user } = useAuth();
 
-  // ✅ Add as many admin emails as you want here
-  const ADMIN_EMAILS = [
-    "sousamospt@gmail.com",
-    "hrms11@outlook.com",
-    "admin3@email.com",
-  ].map((e) => e.toLowerCase());
-
-  // Optional: allow by gamertag too
-  const ADMIN_GAMERTAGS = ["sousamos"].map((t) => t.toLowerCase());
-
   if (!user) return <Navigate to="/login" replace />;
 
-  const email =
-    user.email ||
-    user.user?.email ||
-    user.profile?.email ||
-    user?.claims?.email ||
-    "";
+  const email = (user.email || "").toLowerCase();
+  const isAdmin = ADMIN_EMAILS.includes(email);
 
-  const gamerTag =
-    user.gamerTag ||
-    user.user?.gamerTag ||
-    user.profile?.gamerTag ||
-    "";
-
-  const emailLower = (email || "").toLowerCase();
-  const tagLower = (gamerTag || "").toLowerCase();
-
-  const isAdminByEmail = emailLower && ADMIN_EMAILS.includes(emailLower);
-  const isAdminByTag = tagLower && ADMIN_GAMERTAGS.includes(tagLower);
-
-  if (!isAdminByEmail && !isAdminByTag) {
-    return <Navigate to="/" replace />;
-  }
+  if (!isAdmin) return <Navigate to="/" replace />;
 
   return children;
 }
@@ -94,7 +67,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* USER DASHBOARD */}
+              {/* USER */}
               <Route
                 path="/dashboard"
                 element={
