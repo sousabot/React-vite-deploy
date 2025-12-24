@@ -33,8 +33,15 @@ function ProtectedRoute({ children }) {
 function AdminRoute({ children }) {
   const { user } = useAuth();
 
-  const ADMIN_EMAIL = "sousamospt@gmail.com";
-  const ADMIN_GAMERTAG = "sousamos"; // change if needed
+  // ✅ Add as many admin emails as you want here
+  const ADMIN_EMAILS = [
+    "sousamospt@gmail.com",
+    "hrms11@outlook.com",
+    "admin3@email.com",
+  ].map((e) => e.toLowerCase());
+
+  // Optional: allow by gamertag too
+  const ADMIN_GAMERTAGS = ["sousamos"].map((t) => t.toLowerCase());
 
   if (!user) return <Navigate to="/login" replace />;
 
@@ -51,11 +58,11 @@ function AdminRoute({ children }) {
     user.profile?.gamerTag ||
     "";
 
-  const isAdminByEmail =
-    email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const emailLower = (email || "").toLowerCase();
+  const tagLower = (gamerTag || "").toLowerCase();
 
-  const isAdminByTag =
-    gamerTag && gamerTag.toLowerCase() === ADMIN_GAMERTAG.toLowerCase();
+  const isAdminByEmail = emailLower && ADMIN_EMAILS.includes(emailLower);
+  const isAdminByTag = tagLower && ADMIN_GAMERTAGS.includes(tagLower);
 
   if (!isAdminByEmail && !isAdminByTag) {
     return <Navigate to="/" replace />;

@@ -23,6 +23,7 @@ export default function Giveaway() {
       rules: [
         "Join the Discord",
         "Follow our X account",
+        "Follow our Instagram account",
         "Submit your entry below",
       ],
       discordInvite: "https://discord.gg/5fZ7UEnnzn",
@@ -211,10 +212,6 @@ export default function Giveaway() {
                   onChange={onChange}
                 >
                   <option value="PC">PC</option>
-                  <option value="PlayStation">PlayStation</option>
-                  <option value="Xbox">Xbox</option>
-                  <option value="Switch">Switch</option>
-                  <option value="Mobile">Mobile</option>
                 </select>
 
                 <label className="label">Anything else (optional)</label>
