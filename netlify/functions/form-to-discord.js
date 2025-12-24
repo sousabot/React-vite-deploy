@@ -1,174 +1,152 @@
-import React, { useState } from "react";
-import PageMotion from "../components/PageMotion.jsx";
-import { motion } from "framer-motion";
-import { track } from "../state/track.js";
+// netlify/functions/form-to-discord.js
 
-const GIVEAWAY = {
-  title: "GD Esports Giveaway",
-  prize: "1x GD Jersey + Discord VIP Role",
-  ends: "Dec 25",
-};
+function parseBody(event) {
+  const contentType =
+    event.headers?.["content-type"] ||
+    event.headers?.["Content-Type"] ||
+    "";
 
-function encodeForm(data) {
-  return new URLSearchParams(data).toString();
-}
-
-export default function Giveaway() {
-  const [form, setForm] = useState({
-    gamerTag: "",
-    email: "",
-    discord: "",
-    platform: "",
-    notes: "",
-  });
-
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  function onChange(e) {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
-  }
-
-  async function submit(e) {
-    e.preventDefault();
-    setError("");
-    setSuccess(false);
-
-    if (!form.gamerTag || !form.email || !form.discord) {
-      setError("Please fill Gamer Tag, Email, and Discord.");
-      return;
-    }
-
-    setSubmitting(true);
-
+  if (contentType.includes("application/json")) {
     try {
-      const payload = {
-        type: "giveaway_entry",
-        prize: GIVEAWAY.prize,
-        gamerTag: form.gamerTag,
-        email: form.email,
-        discord: form.discord,
-        platform: form.platform,
-        notes: form.notes,
-      };
-
-      const res = await fetch("/.netlify/functions/form-to-discord", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encodeForm(payload),
-      });
-
-      if (!res.ok) throw new Error("Submission failed");
-
-      setSuccess(true);
-      track("giveaway_submit");
-
-      setForm({
-        gamerTag: "",
-        email: "",
-        discord: "",
-        platform: "",
-        notes: "",
-      });
+      return JSON.parse(event.body || "{}");
     } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
+      return {};
     }
   }
 
-  return (
-    <PageMotion>
-      <div className="giveawayPage">
-        <section className="giveawayHero">
-          <span className="giveawayBadge">🎁 GIVEAWAY</span>
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    const params = new URLSearchParams(event.body || "");
+    return Object.fromEntries(params.entries());
+  }
 
-          <h1 className="giveawayTitle">{GIVEAWAY.title}</h1>
-          <p className="giveawaySub">
-            Enter for a chance to win exclusive merch.
-          </p>
-
-          <div className="giveawayPrizeCard">
-            <div className="giveawayPrizeLabel">Prize</div>
-            <div className="giveawayPrize">{GIVEAWAY.prize}</div>
-            <div className="giveawayEnds">Ends: {GIVEAWAY.ends}</div>
-          </div>
-
-          <motion.form
-            className="giveawayForm"
-            onSubmit={submit}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="formRow">
-              <input
-                className="input"
-                name="gamerTag"
-                placeholder="Gamer Tag"
-                value={form.gamerTag}
-                onChange={onChange}
-                required
-              />
-
-              <input
-                className="input"
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={onChange}
-                required
-              />
-            </div>
-
-            <div className="formRow">
-              <input
-                className="input"
-                name="discord"
-                placeholder="Discord (name#0000)"
-                value={form.discord}
-                onChange={onChange}
-                required
-              />
-
-              <input
-                className="input"
-                name="platform"
-                placeholder="Platform (PC / Console)"
-                value={form.platform}
-                onChange={onChange}
-              />
-            </div>
-
-            <textarea
-              className="input textarea"
-              name="notes"
-              placeholder="Anything else? (optional)"
-              value={form.notes}
-              onChange={onChange}
-            />
-
-            {error && <div className="formError">{error}</div>}
-            {success && (
-              <div className="formSuccess">
-                Entry submitted ✅ Good luck!
-              </div>
-            )}
-
-            <motion.button
-              className="btnPrimary giveawaySubmit"
-              type="submit"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              disabled={submitting}
-            >
-              {submitting ? "Submitting..." : "Enter Giveaway"}
-            </motion.button>
-          </motion.form>
-        </section>
-      </div>
-    </PageMotion>
-  );
+  return {};
 }
+
+function clean(value) {
+  return String(value ?? "").trim();
+}
+
+exports.handler = async (event) => {
+  try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
+    }
+
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+      return {
+        statusCode: 500,
+        body: "Missing DISCORD_WEBHOOK_URL environment variable",
+      };
+    }
+
+    const data = parseBody(event);
+    const type = clean(data.type) || "work-with-us";
+
+    // ===== COMMON FIELDS =====
+    const gamerTag = clean(data.gamerTag);
+    const discord = clean(data.discord);
+    const notes = clean(data.notes);
+
+    // ===== TRYOUT FIELDS =====
+    const game = clean(data.game);
+    const role = clean(data.role);
+    const availability = clean(data.availability);
+
+    // ===== WORK WITH US FIELDS =====
+    const firstName = clean(data.firstName);
+    const lastName = clean(data.lastName);
+    const age = clean(data.age);
+    const about = clean(data.about);
+    const tournaments = clean(data.tournaments);
+
+    // ===== GIVEAWAY FIELDS =====
+    const email = clean(data.email);
+    const platform = clean(data.platform);
+    const prize = clean(data.prize);
+
+    let title = "📩 New Submission";
+    let color = 0xff8a00;
+    let fields = [];
+
+    if (type === "tryout") {
+      title = "🟢 New Tryout Application";
+      color = 0x22c55e;
+
+      fields = [
+        { name: "Gamer Tag", value: gamerTag || "—", inline: true },
+        { name: "Game", value: game || "—", inline: true },
+        { name: "Discord", value: discord || "—", inline: true },
+        { name: "Role", value: role || "—", inline: true },
+        { name: "Availability", value: availability || "—", inline: false },
+        { name: "Notes", value: notes || "—", inline: false },
+      ];
+    }
+
+    else if (type === "giveaway_entry") {
+      title = "🎁 New Giveaway Entry";
+      color = 0xf59e0b;
+
+      fields = [
+        { name: "Prize", value: prize || "—", inline: false },
+        { name: "Gamer Tag", value: gamerTag || "—", inline: true },
+        { name: "Email", value: email || "—", inline: true },
+        { name: "Discord", value: discord || "—", inline: true },
+        { name: "Platform", value: platform || "—", inline: true },
+        { name: "Notes", value: notes || "—", inline: false },
+      ];
+    }
+
+    else {
+      title = "📩 New Work With Us Application";
+      color = 0xff8a00;
+
+      fields = [
+        { name: "First Name", value: firstName || "—", inline: true },
+        { name: "Last Name", value: lastName || "—", inline: true },
+        { name: "Age", value: age || "—", inline: true },
+        { name: "Discord", value: discord || "—", inline: true },
+        { name: "About", value: about || "—", inline: false },
+        { name: "Tournaments", value: tournaments || "—", inline: false },
+      ];
+    }
+
+    const payload = {
+      username: "GD Esports Bot",
+      embeds: [
+        {
+          title,
+          color,
+          fields,
+          footer: {
+            text: `Source: ${type} • ${new Date().toLocaleString()}`,
+          },
+        },
+      ],
+    };
+
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return {
+        statusCode: 502,
+        body: `Discord webhook failed: ${res.status} ${text}`,
+      };
+    }
+
+    return {
+      statusCode: 200,
+      body: "OK",
+    };
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: `Function error: ${err?.message || err}`,
+    };
+  }
+};
