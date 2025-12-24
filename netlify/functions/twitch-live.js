@@ -1,68 +1,106 @@
+// netlify/functions/twitch-live.js
+const TWITCH_API = "https://api.twitch.tv/helix";
+
+function json(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store", // IMPORTANT: avoid stale live status
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+async function twitchFetch(url, { clientId, token }) {
+  const res = await fetch(url, {
+    headers: {
+      "Client-Id": clientId,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const text = await res.text();
+  let data = null;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    const msg = data?.message || data?.error || text?.slice?.(0, 200) || `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+
+  return data;
+}
+
 exports.handler = async (event) => {
   try {
-    const username = event.queryStringParameters?.user;
-    if (!username) {
-      return { statusCode: 400, body: "Missing ?user=" };
-    }
+    const username =
+      event.queryStringParameters?.user ||
+      event.multiValueQueryStringParameters?.user?.[0];
+
+    if (!username) return json(400, { error: "Missing ?user=" });
 
     const clientId = process.env.TWITCH_CLIENT_ID;
     const token = process.env.TWITCH_APP_TOKEN;
 
     if (!clientId || !token) {
-      return { statusCode: 500, body: "Missing TWITCH_CLIENT_ID or TWITCH_APP_TOKEN env vars" };
+      return json(500, { error: "Missing TWITCH_CLIENT_ID or TWITCH_APP_TOKEN env vars" });
     }
 
-    // 1) Get user id from login name
-    const userRes = await fetch(`https://api.twitch.tv/helix/users?login=${encodeURIComponent(username)}`, {
-      headers: {
-        "Client-Id": clientId,
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const creds = { clientId, token };
 
-    if (!userRes.ok) {
-      const t = await userRes.text().catch(() => "");
-      return { statusCode: 502, body: `Twitch users lookup failed: ${userRes.status} ${t}` };
+    // 1) Resolve user login -> id
+    const users = await twitchFetch(
+      `${TWITCH_API}/users?login=${encodeURIComponent(username)}`,
+      creds
+    );
+
+    const user = users?.data?.[0];
+    if (!user?.id) {
+      return json(200, {
+        user: username,
+        isLive: false,
+        title: "",
+        game: "",
+        viewerCount: 0,
+        startedAt: "",
+        error: "User not found",
+      });
     }
 
-    const userJson = await userRes.json();
-    const userId = userJson?.data?.[0]?.id;
+    // 2) Streams endpoint: if offline => data = []
+    const streams = await twitchFetch(
+      `${TWITCH_API}/streams?user_id=${encodeURIComponent(user.id)}`,
+      creds
+    );
 
-    if (!userId) {
-      return { statusCode: 200, body: JSON.stringify({ user: username, isLive: false }) };
-    }
+    const stream = Array.isArray(streams?.data) && streams.data.length > 0 ? streams.data[0] : null;
 
-    // 2) Check if user has an active stream
-    const streamRes = await fetch(`https://api.twitch.tv/helix/streams?user_id=${userId}`, {
-      headers: {
-        "Client-Id": clientId,
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    // ✅ Correct offline handling
+    const isLive = !!stream;
 
-    if (!streamRes.ok) {
-      const t = await streamRes.text().catch(() => "");
-      return { statusCode: 502, body: `Twitch streams lookup failed: ${streamRes.status} ${t}` };
-    }
-
-    const streamJson = await streamRes.json();
-    const stream = streamJson?.data?.[0];
-
-    const out = {
-      user: username,
-      isLive: Boolean(stream),
+    return json(200, {
+      user: user.login,
+      displayName: user.display_name,
+      isLive,
       title: stream?.title || "",
       game: stream?.game_name || "",
       viewerCount: stream?.viewer_count || 0,
       startedAt: stream?.started_at || "",
-    };
-
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=30" },
-      body: JSON.stringify(out),
-    };
+    });
   } catch (err) {
-    return { statusCode: 500, body: `Function error: ${err?.message || err}` };
+    return json(200, {
+      user: event.queryStringParameters?.user || "",
+      isLive: false,
+      title: "",
+      game: "",
+      viewerCount: 0,
+      startedAt: "",
+      error: err?.message || "Function error",
+    });
   }
 };
