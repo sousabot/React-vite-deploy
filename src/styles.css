@@ -3099,3 +3099,413 @@ img, video, canvas, svg {
     padding: 20px;
   }
 }
+
+/* =========================
+   ADMIN PAGE (Expanded)
+   ========================= */
+
+.adminPage {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 18px 80px;
+}
+
+.adminHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.adminHeaderLeft h1 {
+  margin: 0;
+  font-size: 40px;
+  letter-spacing: -0.02em;
+}
+
+.adminHeaderLeft p {
+  margin: 6px 0 0;
+}
+
+.adminHeaderRight {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.adminRange {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.adminRangeRow {
+  display: flex;
+  gap: 8px;
+}
+
+.adminChip {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.86);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.adminChip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.adminChip.active {
+  border-color: rgba(255, 140, 0, 0.55);
+  background: rgba(255, 140, 0, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.adminActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.adminSection {
+  margin-top: 26px;
+}
+
+.adminSectionTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.adminGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.adminStatCard {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  padding: 18px 18px 16px;
+  min-height: 110px;
+}
+
+.adminStatValue {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.adminStatLabel {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.3;
+}
+
+.adminStatDelta {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Split panels */
+.adminSplit {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 14px;
+}
+
+.adminCardWide {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  padding: 18px;
+}
+
+.adminCardTitle {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Lists */
+.adminList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adminListRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.adminListKey {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 75%;
+}
+
+.adminListVal {
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Live notice */
+.adminNotice {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+}
+
+/* Make sure pulseDot looks good if you already have it */
+.adminNotice .pulseDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 90, 90, 1);
+  box-shadow: 0 0 0 0 rgba(255, 90, 90, 0.65);
+  animation: adminPulse 1.7s infinite;
+}
+
+@keyframes adminPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 90, 90, 0.65);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 90, 90, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 90, 90, 0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .adminGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .adminSplit {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .adminHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .adminGrid {
+    grid-template-columns: 1fr;
+  }
+  .adminHeaderLeft h1 {
+    font-size: 34px;
+  }
+  .adminListKey {
+    max-width: 68%;
+  }
+}
+
+/* =========================
+   WORK WITH US (Improved)
+   ========================= */
+
+.workPage {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 18px 90px;
+}
+
+/* HERO */
+.workHero {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
+  margin-bottom: 18px;
+}
+
+.workHeroOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(700px 300px at 20% 30%, rgba(255, 140, 0, 0.25), transparent 60%),
+    radial-gradient(650px 260px at 80% 60%, rgba(255, 90, 90, 0.10), transparent 60%),
+    linear-gradient(to bottom, rgba(255,255,255,0.03), rgba(0,0,0,0.15));
+  pointer-events: none;
+}
+
+.workHeroInner {
+  position: relative;
+  padding: 34px 28px;
+}
+
+.workBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 140, 0, 0.35);
+  background: rgba(255, 140, 0, 0.10);
+  color: rgba(255, 220, 180, 0.95);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.workTitle {
+  margin: 14px 0 6px;
+  font-size: 44px;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.workSubtitle {
+  margin: 0;
+  max-width: 62ch;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+}
+
+/* SECTION */
+.workSection {
+  display: flex;
+  justify-content: center;
+}
+
+/* FORM CONTAINER */
+.workForm {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* CARDS INSIDE FORM */
+.workCard {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+  padding: 16px 16px 14px;
+}
+
+.workCardTitle {
+  margin: 0 0 12px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* ROLE CHIPS */
+.workRoleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.workRoleChip {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.86);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.workRoleChip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.workRoleChip.active {
+  border-color: rgba(255, 140, 0, 0.55);
+  background: rgba(255, 140, 0, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Ensure existing form inputs look nice in this page */
+.workForm .input {
+  width: 100%;
+}
+
+.workForm .textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+/* Make button full width and consistent */
+.workForm .btnPrimary {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* Success message (if you don't already have .formSuccess globally) */
+.formSuccess {
+  border-radius: 14px;
+  padding: 12px 12px;
+  border: 1px solid rgba(70, 255, 170, 0.25);
+  background: rgba(70, 255, 170, 0.10);
+  color: rgba(215, 255, 235, 0.95);
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .workTitle {
+    font-size: 36px;
+  }
+  .workHeroInner {
+    padding: 28px 18px;
+  }
+  .workForm {
+    max-width: 100%;
+  }
+}
