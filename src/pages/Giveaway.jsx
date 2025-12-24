@@ -18,8 +18,8 @@ export default function Giveaway() {
     () => ({
       title: "GD Esports Giveaway",
       subtitle: "Enter for a chance to win exclusive merch.",
-      prize: "1x GD Jersey + Gift Card",
-      endsText: "Ends: Dec 25",
+      prize: "3 winners 1x GD Jersey + 2 League of legends giftcards",
+      endsText: "Ends: Dec 31",
       rules: [
         "Join the Discord",
         "Follow our X account",
