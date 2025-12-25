@@ -9,59 +9,67 @@ const CREATORS = [
     platform: "Twitch",
     twitch: "https://www.twitch.tv/mewtzu",
     twitchLogin: "mewtzu",
-
     instagram: "https://www.instagram.com/mewtzu",
     twitter: "https://x.com/mewtzu_",
-
     image: "/creators/mewtzu.png",
   },
-
-  // ✅ NEW CREATOR
   {
     name: "kaymael",
     role: "Content Creator",
     platform: "Twitch",
     twitch: "https://www.twitch.tv/kaymael",
     twitchLogin: "kaymael",
-
     instagram: "https://www.instagram.com/samirawashere",
-
     image: "/creators/kaymael.png",
   },
 ];
 
-
 export default function Creators() {
   const [liveMap, setLiveMap] = useState({});
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadLive() {
-      const results = await Promise.all(
-        CREATORS.map(async (c) => {
-          try {
-            const res = await fetch(
-              `/.netlify/functions/twitch-live?user=${encodeURIComponent(c.twitchLogin)}`
-            );
-            if (!res.ok) return [c.twitchLogin, false];
-            const data = await res.json();
-            return [c.twitchLogin, !!data?.isLive];
-          } catch {
-            return [c.twitchLogin, false];
-          }
-        })
-      );
+      try {
+        const results = await Promise.all(
+          CREATORS.map(async (c) => {
+            try {
+              // cache-bust to avoid any cached/stale responses
+              const url = `/.netlify/functions/twitch-live?user=${encodeURIComponent(
+                c.twitchLogin
+              )}&_=${Date.now()}`;
 
-      if (cancelled) return;
+              const res = await fetch(url, {
+                cache: "no-store",
+                headers: { "Cache-Control": "no-cache" },
+              });
 
-      const next = {};
-      for (const [login, isLive] of results) next[login] = isLive;
-      setLiveMap(next);
+              if (!res.ok) return [c.twitchLogin, false];
+              const data = await res.json();
+              return [c.twitchLogin, !!data?.isLive];
+            } catch {
+              return [c.twitchLogin, false];
+            }
+          })
+        );
+
+        if (cancelled) return;
+
+        const next = {};
+        for (const [login, isLive] of results) next[login] = isLive;
+
+        setLiveMap(next);
+        setLoaded(true); // ✅ first check completed
+      } catch {
+        if (!cancelled) setLoaded(true);
+      }
     }
 
     loadLive();
     const t = setInterval(loadLive, 60_000);
+
     return () => {
       cancelled = true;
       clearInterval(t);
@@ -112,7 +120,10 @@ export default function Creators() {
                       <FaTwitch />
                     </a>
 
-                    {isLive ? (
+                    {/* ✅ FIX: don't show OFFLINE until we've actually checked */}
+                    {!loaded ? (
+                      <div className="offlineBadge">CHECKING…</div>
+                    ) : isLive ? (
                       <div className="liveBadge">
                         <span className="liveDot" />
                         LIVE
