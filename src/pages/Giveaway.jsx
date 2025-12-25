@@ -68,21 +68,22 @@ export default function Giveaway() {
    * - Start: Dec 25, 00:00 UTC
    * - End:   Dec 31, 23:59 UTC
    */
-  const START_UTC = useMemo(
-    () => new Date(Date.UTC(new Date().getUTCFullYear(), 11, 25, 0, 0, 0)).getTime(),
-    []
-  );
-  const END_UTC = useMemo(
-    () => new Date(Date.UTC(new Date().getUTCFullYear(), 11, 31, 23, 59, 0)).getTime(),
-    []
-  );
+const START_UTC = useMemo(() => {
+  const y = new Date().getUTCFullYear();
+  return new Date(Date.UTC(y, 11, 31, 0, 0, 0)).getTime(); // Dec = 11
+}, []);
+
+const END_UTC = useMemo(() => {
+  const y = new Date().getUTCFullYear();
+  return new Date(Date.UTC(y + 1, 0, 19, 23, 59, 0)).getTime(); // Jan = 0
+}, []);
 
   const GIVEAWAY = useMemo(
     () => ({
       title: "GD Esports Giveaway",
       subtitle: "Enter for a chance to win exclusive merch.",
       prize: "3 winners 1x GD Jersey + 2 League of legends giftcards",
-      endsText: "Ends: Dec 31",
+      endsText: "Ends: Jan 19",
       rules: [
         "Join the Discord",
         "Follow our X account",
