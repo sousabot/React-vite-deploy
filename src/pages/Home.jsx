@@ -24,7 +24,6 @@ const CREATORS = [
     tagline: "Live gameplay • highlights • community vibes",
     twitchUrl: "https://twitch.tv/mewtzu",
   },
-
 ];
 
 /* ======================
@@ -42,7 +41,7 @@ const JERSEYS = [
   {
     id: "away",
     title: "Away Jersey ⚫",
-    image: "/jersey-away.png", // ✅ add this file to /public
+    image: "/jersey-away.png",
     previewUrl: "PASTE_SECOND_SPIZED_URL_HERE",
   },
 ];
@@ -330,9 +329,6 @@ export default function Home() {
   return (
     <PageMotion>
       <div className="homePro">
-        {/* ======================
-            ANNOUNCEMENT TEASER
-           ====================== */}
         <section className="sectionPro">
           <motion.div
             className="announceCard"
@@ -407,13 +403,12 @@ export default function Home() {
                         background: "rgba(0,0,0,.18)",
                       }}
                     >
+                      {/* ✅ FIXED: consistent sizing + per-jersey modifier class */}
                       <div
-                        className="jerseyRevealImg"
-                        style={{
-                          backgroundImage: `url(${j.image})`,
-                          minHeight: 220,
-                        }}
+                        className={`jerseyRevealImg jerseyRevealImg--${j.id}`}
+                        style={{ backgroundImage: `url(${j.image})` }}
                       />
+
                       <div
                         style={{
                           padding: 10,
