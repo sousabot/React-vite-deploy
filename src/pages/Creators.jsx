@@ -13,15 +13,6 @@ const CREATORS = [
     twitter: "https://x.com/mewtzu_",
     image: "/creators/mewtzu.png",
   },
-  {
-    name: "kaymael",
-    role: "Content Creator",
-    platform: "Twitch",
-    twitch: "https://www.twitch.tv/kaymael",
-    twitchLogin: "kaymael",
-    instagram: "https://www.instagram.com/samirawashere",
-    image: "/creators/kaymael.png",
-  },
 ];
 
 export default function Creators() {
