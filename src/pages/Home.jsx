@@ -24,13 +24,7 @@ const CREATORS = [
     tagline: "Live gameplay • highlights • community vibes",
     twitchUrl: "https://twitch.tv/mewtzu",
   },
-  {
-    twitchLogin: "kaymael",
-    name: "Kaymael",
-    role: "Content Creator",
-    tagline: "Streams • clips • esports energy",
-    twitchUrl: "https://twitch.tv/kaymael",
-  },
+
 ];
 
 /* ======================
