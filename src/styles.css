@@ -3897,3 +3897,29 @@ img, video, canvas, svg {
   line-height: 1.2;
   opacity: 0.85;
 }
+
+/* Mobile: allow the topbar links to horizontally scroll */
+@media (max-width: 900px) {
+  .topbar{
+    gap: 10px;
+  }
+
+  .nav.navMain{
+    flex: 1;
+    min-width: 0;                 /* critical so overflow can happen */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    touch-action: pan-x;          /* allow horizontal swipes */
+  }
+
+  .nav.navMain::-webkit-scrollbar{
+    display: none;
+  }
+
+  .nav.navMain a{
+    flex: 0 0 auto;               /* prevent items from shrinking weirdly */
+  }
+}
