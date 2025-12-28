@@ -3898,28 +3898,38 @@ img, video, canvas, svg {
   opacity: 0.85;
 }
 
-/* Mobile: allow the topbar links to horizontally scroll */
-@media (max-width: 900px) {
+/* ===== MOBILE HEADER FIX (scrollable nav that doesn't break layout) ===== */
+@media (max-width: 700px) {
   .topbar{
+    justify-content: flex-start; /* stop space-between spreading everything */
     gap: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
+  /* Optional: save space on mobile */
+  .brandText{
+    display: none;
+  }
+
+  /* Make the MAIN nav the scrollable middle strip */
   .nav.navMain{
-    flex: 1;
-    min-width: 0;                 /* critical so overflow can happen */
+    flex: 1 1 auto;
+    min-width: 0;                 /* CRITICAL: allow it to shrink */
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     white-space: nowrap;
     flex-wrap: nowrap;
-    touch-action: pan-x;          /* allow horizontal swipes */
+    scrollbar-width: none;
   }
+  .nav.navMain::-webkit-scrollbar{ display:none; }
+  .nav.navMain a{ flex: 0 0 auto; }
 
-  .nav.navMain::-webkit-scrollbar{
-    display: none;
-  }
-
-  .nav.navMain a{
-    flex: 0 0 auto;               /* prevent items from shrinking weirdly */
+  /* Keep auth + hamburger from pushing the nav off-screen */
+  .navAuth{
+    flex: 0 0 auto;
+    margin-left: 0;               /* remove the push */
+    gap: 8px;
   }
 }
