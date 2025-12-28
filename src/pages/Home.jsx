@@ -379,70 +379,52 @@ export default function Home() {
               <>
                 <div className="announceTitle">Jerseys are Here 🟠⚫</div>
 
-                <div
-                  className="announceReveal"
-                  style={{
-                    marginTop: 14,
-                    borderRadius: 18,
-                    overflow: "hidden",
-                    border: "1px solid rgba(255,255,255,.12)",
-                    background: "rgba(0,0,0,.22)",
-                    padding: 12,
-                    display: "grid",
-                    gap: 12,
-                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                  }}
-                >
-                  {JERSEYS.map((j) => (
-                    <div
-                      key={j.id}
-                      style={{
-                        borderRadius: 14,
-                        overflow: "hidden",
-                        border: "1px solid rgba(255,255,255,.10)",
-                        background: "rgba(0,0,0,.18)",
-                      }}
-                    >
-                      {/* ✅ FIXED: consistent sizing + per-jersey modifier class */}
-                      <div
-                        className={`jerseyRevealImg jerseyRevealImg--${j.id}`}
-                        style={{ backgroundImage: `url(${j.image})` }}
-                      />
-
-                      <div
-                        style={{
-                          padding: 10,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: 10,
-                        }}
-                      >
-                        <div style={{ fontWeight: 700 }}>{j.title}</div>
-                        <a
-                          href={j.previewUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btnPrimary"
-                          style={{ padding: "8px 12px", fontSize: 14 }}
-                          onClick={() => track("jersey_view", { id: j.id })}
-                        >
-                          View
-                        </a>
-                      </div>
+                {/* ✅ NEW SHOWCASE LAYOUT */}
+                <div className="jerseyShowcase">
+                  <div className="jerseyShowcase__head">
+                    <div className="jerseyShowcase__kicker muted">
+                      Official reveal
                     </div>
-                  ))}
-                </div>
+                    <div className="jerseyShowcase__sub">
+                      Tap a jersey to open the Spized preview.
+                    </div>
+                  </div>
 
-                <div className="announceDesc muted" style={{ marginTop: 10 }}>
-                  Official GD Esports jersey reveals. Hit view to open the
-                  previews.
-                </div>
+                  <div className="jerseyShowcase__grid">
+                    {JERSEYS.map((j) => (
+                      <a
+                        key={j.id}
+                        href={j.previewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="jerseyTile"
+                        onClick={() => track("jersey_view", { id: j.id })}
+                      >
+                        <div
+                          className={`jerseyTile__img jerseyTile__img--${j.id}`}
+                          style={{ backgroundImage: `url(${j.image})` }}
+                        />
 
-                <div className="announceActions">
-                  <Link to="/shop" className="btnGhost">
-                    Shop
-                  </Link>
+                        <div className="jerseyTile__meta">
+                          <div className="jerseyTile__title">{j.title}</div>
+                          <div className="jerseyTile__cta">
+                            <span>View</span>
+                            <span className="jerseyTile__arrow">↗</span>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+
+                  <div className="jerseyShowcase__footer">
+                    <div className="jerseyShowcase__note muted">
+                      Limited runs. Creator drops + team stock update in Discord.
+                    </div>
+
+                    <Link to="/shop" className="btnGhost">
+                      Shop
+                    </Link>
+                  </div>
                 </div>
               </>
             )}
