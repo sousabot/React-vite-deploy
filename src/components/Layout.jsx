@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import ParticlesBackground from "./ParticlesBackground.jsx";
 import RightSidebar from "./RightSidebar.jsx";
 import SidebarButton from "./SidebarButton.jsx";
+import NewsletterSignup from "./NewsletterSignup.jsx";
+
 import { track } from "../state/track.js";
 import { useAuth } from "../state/auth.jsx";
 import { ADMIN_EMAILS } from "../state/admins.js";
@@ -53,6 +55,9 @@ export default function Layout() {
             whileTap={{ scale: 0.98 }}
             role="button"
             tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") navigate("/");
+            }}
           >
             <img src="/vite.svg" alt="GD Esports" className="brandLogo" />
             <span className="brandText">GD Esports</span>
@@ -102,6 +107,7 @@ export default function Layout() {
             )}
           </div>
 
+          {/* Mobile sidebar button */}
           <SidebarButton onClick={() => setSidebarOpen(true)} />
         </header>
 
@@ -109,10 +115,25 @@ export default function Layout() {
           <Outlet />
         </main>
 
+        {/* FOOTER */}
         <footer className="footer">
-          <span>© {new Date().getFullYear()} GD Esports</span>
-          <span className="footerDot">•</span>
-          <span>Made by Sousa</span>
+          <NewsletterSignup />
+
+          <div className="footerLinks">
+            <a className="footerLink" href="/privacy-policy">
+              Privacy Policy
+            </a>
+            <span className="footerDot">•</span>
+            <a className="footerLink" href="/terms-of-service">
+              Terms of Service
+            </a>
+          </div>
+
+          <div className="footerMeta">
+            <span>© {new Date().getFullYear()} GD Esports</span>
+            <span className="footerDot">•</span>
+            <span>Made by Sousa</span>
+          </div>
         </footer>
       </div>
 

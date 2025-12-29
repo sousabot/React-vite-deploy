@@ -13,7 +13,10 @@ import Partners from "./pages/Partners.jsx";
 import News from "./pages/News.jsx";
 import WorkWithUs from "./pages/WorkWithUs.jsx";
 import Giveaway from "./pages/Giveaway.jsx";
-import Clips from "./pages/Clips.jsx"; // ✅ NEW
+import Clips from "./pages/Clips.jsx";
+
+import Privacy from "./pages/Privacy.jsx";
+import Terms from "./pages/Terms.jsx";
 
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -59,11 +62,15 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/creators" element={<Creators />} />
-              <Route path="/clips" element={<Clips />} /> {/* ✅ NEW */}
+              <Route path="/clips" element={<Clips />} />
               <Route path="/partners" element={<Partners />} />
               <Route path="/news" element={<News />} />
               <Route path="/work-with-us" element={<WorkWithUs />} />
               <Route path="/giveaway" element={<Giveaway />} />
+
+              {/* LEGAL */}
+              <Route path="/privacy-policy" element={<Privacy />} />
+              <Route path="/terms-of-service" element={<Terms />} />
 
               {/* AUTH */}
               <Route path="/login" element={<Login />} />
