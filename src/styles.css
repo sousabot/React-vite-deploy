@@ -3933,3 +3933,244 @@ img, video, canvas, svg {
     gap: 8px;
   }
 }
+
+/* ===== SHOP PAGE (JERSEYS LIVE) ===== */
+.shopPage{
+  min-height: 78vh;
+  padding: 54px 16px 72px;
+  display: grid;
+  place-items: center;
+}
+
+.shopWrap{
+  width: min(1100px, 100%);
+}
+
+.shopHeader{
+  text-align: center;
+  margin-bottom: 26px;
+  position: relative;
+}
+
+.shopHeader::before{
+  content:"";
+  position:absolute;
+  inset:-28px;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255,155,80,.24), transparent 55%),
+    radial-gradient(circle at 85% 35%, rgba(120,140,255,.16), transparent 60%);
+  filter: blur(20px);
+  pointer-events:none;
+  opacity: .95;
+}
+
+.shopHeader > *{ position: relative; z-index: 1; }
+
+.shopKicker{
+  display: inline-flex;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.30);
+  backdrop-filter: blur(10px);
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: rgba(255,255,255,.9);
+}
+
+.shopTitle{
+  margin: 16px 0 10px;
+  font-size: clamp(34px, 6vw, 58px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+
+.shopSub{
+  margin: 0 auto;
+  max-width: 60ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255,255,255,.72);
+}
+
+.shopCtas{
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.shopSection{
+  margin-top: 18px;
+}
+
+.shopSectionTop{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0 14px;
+  flex-wrap: wrap;
+}
+
+.shopH2{
+  font-size: 20px;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.shopPills{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.shopPill{
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.26);
+  color: rgba(255,255,255,.75);
+}
+
+.shopGrid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.shopCard{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.30);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 20px 55px rgba(0,0,0,.45);
+}
+
+.shopCardMedia{
+  position: relative;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,155,80,.22), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+}
+
+.shopCardMedia img{
+  width: 100%;
+  height: 320px;
+  object-fit: contain;
+  display: block;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.shopCardBadge{
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,155,80,.34);
+  background: rgba(0,0,0,.35);
+  color: rgba(255,255,255,.9);
+  backdrop-filter: blur(10px);
+}
+
+.shopCardBody{
+  padding: 14px 14px 16px;
+}
+
+.shopCardTitle{
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.shopCardTag{
+  margin-top: 4px;
+  font-size: 13px;
+  color: rgba(255,255,255,.68);
+}
+
+.shopCardDesc{
+  margin: 10px 0 14px;
+  color: rgba(255,255,255,.70);
+  line-height: 1.55;
+}
+
+.shopCardActions{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.shopInfo{
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.shopInfoCard{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.24);
+  padding: 14px;
+}
+
+.shopInfoTitle{
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.shopInfoText{
+  color: rgba(255,255,255,.68);
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.shopFooterCta{
+  margin-top: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.26);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.shopFooterTitle{
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.shopFooterText{
+  color: rgba(255,255,255,.68);
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.shopFooterBtns{
+  display: flex;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 860px){
+  .shopGrid{ grid-template-columns: 1fr; }
+  .shopCardMedia img{ height: 300px; }
+  .shopInfo{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px){
+  .shopCardActions{ grid-template-columns: 1fr; }
+}
