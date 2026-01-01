@@ -59,8 +59,16 @@ export default function Layout() {
               if (e.key === "Enter" || e.key === " ") navigate("/");
             }}
           >
-            <img src="/vite.svg" alt="GD Esports" className="brandLogo" />
-            <span className="brandText">GD Esports</span>
+           <img
+  src="/gd-logo.svg"
+  alt="GD Esports"
+  className="brandLogo"
+  loading="eager"
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/logo.svg";
+  }}
+/>
           </motion.div>
 
           {/* NAV */}

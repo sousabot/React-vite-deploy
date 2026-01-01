@@ -10,9 +10,6 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
-// 🔧 LOCAL TESTING ONLY (set to false when done)
-const FORCE_REVEAL = false;
-
 /* ======================
    CREATORS (add more)
    ====================== */
@@ -36,72 +33,18 @@ const JERSEYS = [
     title: "Home Jersey 🟠",
     image: "/jersey-reveal.png",
     previewUrl:
-      "https://www.spized.com/uk-en/design-preview?cfgId=9c58ed21fcfae35b449522141611f77833875fb7c5be760a69db6080e8352126381d90eb5ab54adc9f3ecf271cab68c2607f99f6eed0d09f17daa43ac52da0a3",
+      "https://gdesports.uk/shop",
   },
   {
     id: "away",
     title: "Away Jersey ⚫",
     image: "/jersey-away.png",
-    previewUrl: "PASTE_SECOND_SPIZED_URL_HERE",
+    previewUrl: "https://gdesports.uk/shop", // <-- update this
   },
 ];
 
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
-}
-
-/* ======================
-   ANNOUNCEMENT COUNTDOWN + REVEAL
-   ====================== */
-function getTargetDateUTC() {
-  // Dec 25 @ 00:00 UTC (safe across timezones)
-  return new Date(Date.UTC(new Date().getUTCFullYear(), 11, 25, 0, 0, 0));
-}
-
-function CountdownToDec25({ onFinished }) {
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const target = getTargetDateUTC();
-  const diff = target.getTime() - now;
-  const finished = diff <= 0;
-
-  useEffect(() => {
-    if (finished) onFinished?.();
-  }, [finished, onFinished]);
-
-  const totalSeconds = Math.max(0, Math.floor(diff / 1000));
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  const pad = (n) => String(n).padStart(2, "0");
-
-  return (
-    <div className="announceTimer">
-      <div className="timerChip">
-        <div className="timerNum">{days}</div>
-        <div className="timerLbl">DAYS</div>
-      </div>
-      <div className="timerChip">
-        <div className="timerNum">{pad(hours)}</div>
-        <div className="timerLbl">HRS</div>
-      </div>
-      <div className="timerChip">
-        <div className="timerNum">{pad(minutes)}</div>
-        <div className="timerLbl">MIN</div>
-      </div>
-      <div className="timerChip">
-        <div className="timerNum">{pad(seconds)}</div>
-        <div className="timerLbl">SEC</div>
-      </div>
-    </div>
-  );
 }
 
 /* ======================
@@ -194,15 +137,9 @@ export default function Home() {
 
   /* ======================
      JERSEY REVEAL STATE
+     Jerseys are already out -> always show reveal UI.
      ====================== */
-  const [revealReady, setRevealReady] = useState(false);
-  const revealDate = useMemo(() => getTargetDateUTC(), []);
-
-  useEffect(() => {
-    if (FORCE_REVEAL || Date.now() >= revealDate.getTime()) {
-      setRevealReady(true);
-    }
-  }, [revealDate]);
+  const revealReady = true;
 
   /* ======================
      LIVE CREATOR STATUS
@@ -344,90 +281,56 @@ export default function Home() {
               </span>
             </div>
 
-            {!revealReady ? (
-              <>
-                <div className="announceTitle">Jersey Reveal — Dec 25</div>
-                <CountdownToDec25 onFinished={() => setRevealReady(true)} />
-                <div className="announceDesc muted">
-                  Countdown to the drop. Join Discord so you don’t miss it.
-                </div>
+            {/* Jerseys always live now */}
+            <div className="announceTitle">Jerseys are Here 🟠⚫</div>
 
-                <div className="announceActions">
+            {/* ✅ SHOWCASE LAYOUT */}
+            <div className="jerseyShowcase">
+              <div className="jerseyShowcase__head">
+                <div className="jerseyShowcase__kicker muted">
+                  Official reveal
+                </div>
+                <div className="jerseyShowcase__sub">
+                  Click a jersey to open the Spized preview.
+                </div>
+              </div>
+
+              <div className="jerseyShowcase__grid">
+                {JERSEYS.map((j) => (
                   <a
-                    href="https://discord.gg/5fZ7UEnnzn"
+                    key={j.id}
+                    href={j.previewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btnPrimary"
-                    onClick={() =>
-                      track("discord_click", { source: "announcement" })
-                    }
+                    className="jerseyTile"
+                    onClick={() => track("jersey_view", { id: j.id })}
                   >
-                    Join Discord
+                    <div
+                      className={`jerseyTile__img jerseyTile__img--${j.id}`}
+                      style={{ backgroundImage: `url(${j.image})` }}
+                    />
+
+                    <div className="jerseyTile__meta">
+                      <div className="jerseyTile__title">{j.title}</div>
+                      <div className="jerseyTile__cta">
+                        <span>View</span>
+                        <span className="jerseyTile__arrow">↗</span>
+                      </div>
+                    </div>
                   </a>
+                ))}
+              </div>
 
-                  <a
-                    href="https://x.com/GDESPORTS25"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btnGhost"
-                  >
-                    Follow on X
-                  </a>
+              <div className="jerseyShowcase__footer">
+                <div className="jerseyShowcase__note muted">
+                  Limited runs. Creator drops + team stock update in Discord.
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="announceTitle">Jerseys are Here 🟠⚫</div>
 
-                {/* ✅ NEW SHOWCASE LAYOUT */}
-                <div className="jerseyShowcase">
-                  <div className="jerseyShowcase__head">
-                    <div className="jerseyShowcase__kicker muted">
-                      Official reveal
-                    </div>
-                    <div className="jerseyShowcase__sub">
-                      Tap a jersey to open the Spized preview.
-                    </div>
-                  </div>
-
-                  <div className="jerseyShowcase__grid">
-                    {JERSEYS.map((j) => (
-                      <a
-                        key={j.id}
-                        href={j.previewUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="jerseyTile"
-                        onClick={() => track("jersey_view", { id: j.id })}
-                      >
-                        <div
-                          className={`jerseyTile__img jerseyTile__img--${j.id}`}
-                          style={{ backgroundImage: `url(${j.image})` }}
-                        />
-
-                        <div className="jerseyTile__meta">
-                          <div className="jerseyTile__title">{j.title}</div>
-                          <div className="jerseyTile__cta">
-                            <span>View</span>
-                            <span className="jerseyTile__arrow">↗</span>
-                          </div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-
-                  <div className="jerseyShowcase__footer">
-                    <div className="jerseyShowcase__note muted">
-                      Limited runs. Creator drops + team stock update in Discord.
-                    </div>
-
-                    <Link to="/shop" className="btnGhost">
-                      Shop
-                    </Link>
-                  </div>
-                </div>
-              </>
-            )}
+                <Link to="/shop" className="btnGhost">
+                  Shop
+                </Link>
+              </div>
+            </div>
           </motion.div>
         </section>
 

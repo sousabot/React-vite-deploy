@@ -63,20 +63,25 @@ function Countdown({ targetMs, label }) {
 
 export default function Giveaway() {
   /**
-   * ✅ SET YOUR WINDOW HERE (UTC)
-   * Example below:
-   * - Start: Dec 25, 00:00 UTC
-   * - End:   Dec 31, 23:59 UTC
+   * ✅ GIVEAWAY WINDOW
+   * Start: open immediately
+   * End:   Jan 19, 23:59 UTC (next Jan 19 if current date is already past it)
    */
-const START_UTC = useMemo(() => {
-  const y = new Date().getUTCFullYear();
-  return new Date(Date.UTC(y, 11, 31, 0, 0, 0)).getTime(); // Dec = 11
-}, []);
+  const START_UTC = useMemo(() => Date.now() - 60_000, []);
 
-const END_UTC = useMemo(() => {
-  const y = new Date().getUTCFullYear();
-  return new Date(Date.UTC(y + 1, 0, 19, 23, 59, 0)).getTime(); // Jan = 0
-}, []);
+  const END_UTC = useMemo(() => {
+    const now = new Date();
+    const y = now.getUTCFullYear();
+
+    // Jan 19 23:59 UTC for this year
+    const endThisYear = new Date(Date.UTC(y, 0, 19, 23, 59, 0)).getTime();
+
+    // If we already passed it, use next year
+    if (Date.now() > endThisYear) {
+      return new Date(Date.UTC(y + 1, 0, 19, 23, 59, 0)).getTime();
+    }
+    return endThisYear;
+  }, []);
 
   const GIVEAWAY = useMemo(
     () => ({
@@ -200,7 +205,9 @@ const END_UTC = useMemo(() => {
               {!hasStarted && (
                 <Countdown targetMs={START_UTC} label="Giveaway opens in" />
               )}
-              {isOpen && <Countdown targetMs={END_UTC} label="Giveaway ends in" />}
+              {isOpen && (
+                <Countdown targetMs={END_UTC} label="Giveaway ends in" />
+              )}
               {hasEnded && (
                 <div className="giveawayLocked">
                   Giveaway ended ✅ Winners announced in Discord.
@@ -283,9 +290,7 @@ const END_UTC = useMemo(() => {
 
               {err && <div className="alert">{err}</div>}
               {ok && (
-                <div className="alert success">
-                  Entry submitted ✅ Good luck!
-                </div>
+                <div className="alert success">Entry submitted ✅ Good luck!</div>
               )}
 
               <form onSubmit={onSubmit} className="form">
