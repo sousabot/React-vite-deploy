@@ -237,7 +237,7 @@
   }
 
   function TwitchPanel() {
-    const [creatorList, setCreatorList] = useLocalStorageState(LS.creators, "mewtzu,kaymael");
+    const [creatorList, setCreatorList] = useLocalStorageState(LS.creators, "mewtzu,polarzita_");
     const [liveMap, setLiveMap] = useState({});
     const [liveErr, setLiveErr] = useState("");
     const [checkingLive, setCheckingLive] = useState(false);

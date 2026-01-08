@@ -11,7 +11,7 @@ const fadeUp = {
 const CREATORS = [
   { key: "all", label: "All", twitchLogin: null },
   { key: "mewtzu", label: "Mewtzu", twitchLogin: "mewtzu" },
-  { key: "kaymael", label: "Kaymael", twitchLogin: "kaymael" },
+  { key: "polarzita_", label: "polarzita_", twitchLogin: "polarzita_" },
 ];
 
 const DAY_OPTIONS = [

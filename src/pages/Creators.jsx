@@ -13,6 +13,16 @@ const CREATORS = [
     twitter: "https://x.com/mewtzu_",
     image: "/creators/mewtzu.png",
   },
+   {
+    name: "polarzita_",
+    role: "Streamer",
+    platform: "Twitch",
+    twitch: "https://www.twitch.tv/polarzita_",
+    twitchLogin: "polarzita_",
+    instagram: "https://www.instagram.com/polarzitaa_/",
+    twitter: "https://x.com/polar__tang",
+    image: "/creators/polarzita_.png",
+  },
 ];
 
 export default function Creators() {
