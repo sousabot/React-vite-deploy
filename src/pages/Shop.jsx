@@ -21,6 +21,15 @@ const PRODUCTS = [
     desc: "Official GD Esports Away Jersey. Premium athletic fit.",
     sizes: ["L", "M", "S", "XL", "XS", "XXL"], // ✅ multiple sizes
   },
+    {
+    id: "Jersey",
+    name: "Jersey",
+    tag: "Black and Orange Edition",
+    img: "/jersey.png",
+    price: 30.00,
+    desc: "Official GD Esports Away Jersey. Premium athletic fit.",
+    sizes: ["L", "M", "S", "XL", "XS", "XXL"], // ✅ multiple sizes
+  },
 ];
 
 function formatGBP(n) {

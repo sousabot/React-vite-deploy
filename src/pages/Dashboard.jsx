@@ -118,7 +118,6 @@
     const actions = [
       { label: "Creators", href: "/creators" },
       { label: "Clips", href: "/clips" },
-      { label: "Giveaway", href: "/giveaway" },
       { label: "Shop", href: "/shop" },
       { label: "News", href: "/news" },
       { label: "Admin", href: "/admin" },

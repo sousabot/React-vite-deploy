@@ -12,7 +12,6 @@ import Creators from "./pages/Creators.jsx";
 import Partners from "./pages/Partners.jsx";
 import News from "./pages/News.jsx";
 import WorkWithUs from "./pages/WorkWithUs.jsx";
-import Giveaway from "./pages/Giveaway.jsx";
 import Clips from "./pages/Clips.jsx";
 
 import Privacy from "./pages/Privacy.jsx";
@@ -66,7 +65,6 @@ export default function App() {
               <Route path="/partners" element={<Partners />} />
               <Route path="/news" element={<News />} />
               <Route path="/work-with-us" element={<WorkWithUs />} />
-              <Route path="/giveaway" element={<Giveaway />} />
 
               {/* LEGAL */}
               <Route path="/privacy-policy" element={<Privacy />} />

@@ -76,7 +76,6 @@ export default function Layout() {
             <NavLink to="/about">ABOUT</NavLink>
             <NavLink to="/shop">SHOP</NavLink>
             <NavLink to="/creators">CREATORS</NavLink>
-            <NavLink to="/giveaway">GIVEAWAY</NavLink>
             <NavLink to="/work-with-us">WORK WITH US</NavLink>
           </nav>
 
