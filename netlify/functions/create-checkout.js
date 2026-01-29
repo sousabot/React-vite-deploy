@@ -5,6 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const PRODUCTS = {
   home: { name: "GD Esports Home Jersey (Orange Edition)", amount: 7000 }, // £1.00
   away: { name: "GD Esports Away Jersey (Black Edition)", amount: 3000 }, // £49.99
+  Jersey: { name: "GD Esports Jersey (Black & Orange Edition)", amount: 3000 },
 };
 
 export const handler = async (event) => {
