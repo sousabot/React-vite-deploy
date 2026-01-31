@@ -59,9 +59,15 @@ export const handler = async (event) => {
       mode: "payment",
       payment_method_types: ["card"],
       line_items,
-      shipping_address_collection: {
-        allowed_countries: ["GB", "IE", "US", "CA", "AU", "FR", "DE", "NL", "ES", "IT"],
-      },
+  shipping_address_collection: {
+  allowed_countries: [
+    "GB","IE","US","CA","AU",
+    "FR","DE","NL","ES","IT",
+    "BE","CH","AT","SE","NO","DK","FI",
+    "PT","PL","CZ","HU","GR","RO","BG",
+    "LU","IS"
+  ],
+},
       success_url: `${baseUrl}/shop?success=1&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/shop?canceled=1`,
       metadata: {
