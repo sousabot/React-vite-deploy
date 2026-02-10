@@ -12,6 +12,7 @@ const CREATORS = [
   { key: "all", label: "All", twitchLogin: null },
   { key: "mewtzu", label: "Mewtzu", twitchLogin: "mewtzu" },
   { key: "polarzita_", label: "polarzita_", twitchLogin: "polarzita_" },
+  { key: "apheliom13", label: "apheliom13", twitchLogin: "apheliom13" },
 ];
 
 const DAY_OPTIONS = [

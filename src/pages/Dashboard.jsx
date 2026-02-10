@@ -236,7 +236,7 @@
   }
 
   function TwitchPanel() {
-    const [creatorList, setCreatorList] = useLocalStorageState(LS.creators, "mewtzu,polarzita_");
+    const [creatorList, setCreatorList] = useLocalStorageState(LS.creators, "mewtzu,polarzita_,apheliom13");
     const [liveMap, setLiveMap] = useState({});
     const [liveErr, setLiveErr] = useState("");
     const [checkingLive, setCheckingLive] = useState(false);
@@ -257,7 +257,7 @@
 
       if (logins.length === 0) {
         setCheckingLive(false);
-        setLiveErr("Enter usernames like: mewtzu,kaymael");
+        setLiveErr("Enter usernames like: mewtzu,kaymael,apheliom13");
         return;
       }
 
@@ -340,7 +340,7 @@
           <div className="row" style={{ gap: 10, flexWrap: "wrap" }}>
             <input
               className="input"
-              placeholder="mewtzu,kaymael"
+              placeholder="mewtzu,kaymael,apheliom13"
               value={creatorList}
               onChange={(e) => setCreatorList(e.target.value)}
               style={{ flex: "1 1 260px" }}

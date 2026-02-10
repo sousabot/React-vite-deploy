@@ -23,6 +23,16 @@ const CREATORS = [
     twitter: "https://x.com/polar__tang",
     image: "/creators/polarzita_.png",
   },
+   {
+    name: "apheliom13",
+    role: "Streamer",
+    platform: "Twitch",
+    twitch: "https://www.twitch.tv/apheliom13",
+    twitchLogin: "apheliom13",
+    instagram: "https://www.instagram.com/f_martins13/",
+    twitter: "https://x.com/f_martins1308",
+    image: "/creators/apheliom13.png",
+  },
 ];
 
 export default function Creators() {
