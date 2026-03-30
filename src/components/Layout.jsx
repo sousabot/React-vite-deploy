@@ -59,16 +59,16 @@ export default function Layout() {
               if (e.key === "Enter" || e.key === " ") navigate("/");
             }}
           >
-           <img
-  src="/gd-logo.svg"
-  alt="GD Esports"
-  className="brandLogo"
-  loading="eager"
-  onError={(e) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = "/logo.svg";
-  }}
-/>
+            <img
+              src="/gd-logo.svg"
+              alt="GD Esports"
+              className="brandLogo"
+              loading="eager"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/logo.svg";
+              }}
+            />
           </motion.div>
 
           {/* NAV */}
@@ -76,6 +76,7 @@ export default function Layout() {
             <NavLink to="/about">ABOUT</NavLink>
             <NavLink to="/shop">SHOP</NavLink>
             <NavLink to="/creators">CREATORS</NavLink>
+            <NavLink to="/staff">STAFF</NavLink>
             <NavLink to="/work-with-us">WORK WITH US</NavLink>
           </nav>
 

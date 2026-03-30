@@ -43,7 +43,7 @@ const CREATORS = [
   {
     id: "apheliom13",
     name: "apheliom13",
-    handle: "@f_martins1308",
+    handle: "@f_martins1308", 
     role: "Streamer · Bot Lane",
     game: "League of Legends",
     twitch: "https://www.twitch.tv/apheliom13",

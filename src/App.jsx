@@ -9,6 +9,7 @@ import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
 import Shop from "./pages/Shop.jsx";
 import Creators from "./pages/Creators.jsx";
+import Staff from "./pages/Staff.jsx";
 import Partners from "./pages/Partners.jsx";
 import News from "./pages/News.jsx";
 import WorkWithUs from "./pages/WorkWithUs.jsx";
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/creators" element={<Creators />} />
+              <Route path="/staff" element={<Staff />} />
               <Route path="/clips" element={<Clips />} />
               <Route path="/partners" element={<Partners />} />
               <Route path="/news" element={<News />} />
