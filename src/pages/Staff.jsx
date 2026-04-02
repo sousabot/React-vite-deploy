@@ -28,7 +28,25 @@ const DEPARTMENTS = [
         accentRgb: "255,122,0",
         initials: "S",
         number: "01",
-        image: "/staff/Hugo.png", // ← add your photo to /public/staff/Hugo.png
+      },
+    ],
+  },
+    {
+    id: "Developer",
+    label: "Developer",
+    icon: "👑",
+    members: [
+      {
+        id: "Goncalo",
+        name: "Goncalo",
+        role: "Developer",
+        game: "GD Esports",
+        tags: ["Owner", "Developer"],
+        accent: "#ff7a00",
+        accentRgb: "255,122,0",
+        initials: "S",
+        number: "01",
+        image: "/staff/goncalo.png", // ← add your photo to /public/staff/Hugo.png
       },
     ],
   },
@@ -51,7 +69,7 @@ const DEPARTMENTS = [
       },
       {
         id: "Aleix",
-        name: "aleix",
+        name: "Aleix",
         role: "LPLOL MANAGER",
         game: "League of Legends",
         tags: ["Manager", "League of Legends"],
@@ -62,8 +80,8 @@ const DEPARTMENTS = [
         image: "/staff/Aleix.png",
       },
        {
-        id: "chule",
-        name: "chule",
+        id: "Chule",
+        name: "Chule",
         role: "head coach lplol",
         game: "League of Legends",
         tags: ["Coach", "League of Legends"],
@@ -72,6 +90,18 @@ const DEPARTMENTS = [
         initials: "C",
         number: "04",
         image: "/staff/chule.png",
+      },
+      {
+        id: "Rodrigo",
+        name: "Rodrigo",
+        role: "Benelux Team Manager",
+        game: "League of Legends",
+        tags: ["Team Manager", "League of Legends"],
+        accent: "#ffb000",
+        accentRgb: "255,176,0",
+        initials: "R",
+        number: "05",
+        image: "/staff/Rodrigo.png",
       },
     ],
   },
@@ -101,7 +131,7 @@ const DEPARTMENTS = [
     members: [
       {
         id: "Analyst",
-        name: "zmora",
+        name: "Zmora",
         role: "Analyst",
         game: "GD Esports",
         tags: ["Analyst"],
