@@ -247,7 +247,7 @@ export default function Creators() {
                 </div>
 
                 <div className="cx3LivePanelFoot muted small">
-                  Updates every 60s · Powered by Twitch API
+                  Updates every 60s
                 </div>
               </div>
             </motion.div>
