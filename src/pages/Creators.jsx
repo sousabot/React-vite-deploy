@@ -99,6 +99,21 @@ const CREATORS = [
     tags: ["Entertainment", "Community"],
     number: "06",
   },
+  {
+    id: "foxyycsgo_",
+    name: "foxyycsgo_",
+    handle: "@foxyycsgo_", 
+    role: "Streamer",
+    game: " Counter-Strike 2",
+    twitch: "https://www.twitch.tv/foxyycsgo_",
+    twitchLogin: "foxyycsgo_",
+    instagram: "https://www.instagram.com/foxyycsgo_/",
+    image: "/creators/foxyycsgo_.png",
+    accent: "#e85d3a",
+    accentRgb: "232,93,58",
+    tags: ["Entertainment", "Community"],
+    number: "07",
+  },
 ];
 
 /* ─── PAGE ────────────────────────────────────────────── */
