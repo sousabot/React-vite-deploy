@@ -93,24 +93,7 @@ const DEPARTMENTS = [
       },
     ],
   },
-  {
-    id: "media",
-    label: "MEDIA & SOCIAL",
-    icon: "📣",
-    members: [
-      {
-        id: "Sofyyy",
-        name: "Sofyyy",
-        role: "SOCIAL MEDIA MANAGER",
-        tags: ["Media", "Social"],
-        accent: "#e85d3a",
-        accentRgb: "232,93,58",
-        initials: "SM",
-        number: "07",
-        image: "/staff/socialmedia.png",
-      },
-    ],
-  },
+
 ];
 
 const ALL_MEMBERS = DEPARTMENTS.flatMap((d) => d.members);
@@ -159,6 +142,9 @@ export default function Staff() {
                 >
                   Join our Discord
                 </a>
+                <Link to="/partners" className="btnGhost">
+                  Partners
+                </Link>
                 <Link to="/work-with-us" className="btnGhost">
                   Work with us
                 </Link>

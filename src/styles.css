@@ -5517,3 +5517,70 @@ img, video, canvas, svg {
   opacity: 0.85;
   user-select: none;
 }
+
+/* ══════════════════════════════════════════════════
+   PARTNERS PAGE
+══════════════════════════════════════════════════ */
+
+.partnersEmpty {
+  text-align: center;
+  padding: 48px 28px 56px;
+  margin-bottom: 28px;
+  border-radius: 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.partnersEmptyIcon {
+  font-size: 40px;
+  margin-bottom: 14px;
+}
+
+.partnersEmptyTitle {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.partnersEmptyDesc {
+  margin: 0 auto 22px;
+  max-width: 42ch;
+  line-height: 1.65;
+}
+
+.partnerCard {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.partnerCardLink {
+  cursor: pointer;
+}
+
+.partnerCardImg {
+  aspect-ratio: 4 / 3;
+  cursor: default;
+}
+
+.partnerCardImg img {
+  object-fit: contain;
+  padding: 28px 24px;
+  object-position: center;
+}
+
+.partnerCardLink .partnerCardImg {
+  cursor: pointer;
+}
+
+.partnerCardDesc {
+  margin: 10px 0 0;
+  line-height: 1.55;
+}
+
+.partnerCardLinkLabel {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}

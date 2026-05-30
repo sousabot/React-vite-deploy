@@ -77,6 +77,7 @@ export default function Layout() {
             <NavLink to="/shop">SHOP</NavLink>
             <NavLink to="/creators">CREATORS</NavLink>
             <NavLink to="/staff">STAFF</NavLink>
+            <NavLink to="/partners">PARTNERS</NavLink>
             <NavLink to="/work-with-us">WORK WITH US</NavLink>
           </nav>
 
@@ -140,7 +141,7 @@ export default function Layout() {
           <div className="footerMeta">
             <span>© {new Date().getFullYear()} GD Esports</span>
             <span className="footerDot">•</span>
-            <span>Made by Sousa</span>
+            <span>Made by Sousa Developments</span>
           </div>
         </footer>
       </div>
