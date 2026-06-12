@@ -4079,6 +4079,15 @@ img, video, canvas, svg {
   margin-bottom: 12px;
 }
 
+.adminNotice.warn {
+  display: block;
+  border-radius: 14px;
+  border-color: rgba(255, 176, 0, 0.35);
+  background: rgba(255, 176, 0, 0.1);
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 12px;
+}
+
 .adminContentHead {
   display: flex;
   align-items: flex-start;

@@ -36,8 +36,8 @@ export async function fetchSiteContent({ force = false } = {}) {
 
   cachePromise = fetch("/.netlify/functions/site-content", { cache: "no-store" })
     .then(async (res) => {
-      if (!res.ok) return resolveSiteContent(null);
       const stored = await res.json().catch(() => ({}));
+      if (!res.ok || stored?.error) return resolveSiteContent(null);
       cachedContent = resolveSiteContent(stored);
       return cachedContent;
     })

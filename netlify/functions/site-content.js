@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { openBlobStore } from "./blob-store.js";
 
 const ADMIN_EMAILS = [
   "sousamospt@gmail.com",
@@ -63,7 +63,7 @@ async function authorizeAdmin(event) {
 
 export const handler = async (event) => {
   try {
-    const store = getStore("gd-esports");
+    const store = openBlobStore(event);
     const key = "site-content";
 
     if (event.httpMethod === "GET") {

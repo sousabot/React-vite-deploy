@@ -1,4 +1,4 @@
-import { getStore } from "@netlify/blobs";
+import { openBlobStore } from "./blob-store.js";
 
 const DEFAULT_CONFIG = {
   tryoutsOpen: true,
@@ -23,7 +23,7 @@ function json(statusCode, obj) {
 
 export const handler = async (event) => {
   try {
-    const store = getStore("gd-esports"); // namespace
+    const store = openBlobStore(event);
     const key = "site-config";
 
     // Public GET (no auth) so the website can read it

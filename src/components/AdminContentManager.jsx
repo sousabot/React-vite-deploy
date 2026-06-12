@@ -66,12 +66,17 @@ function Field({ label, children, hint }) {
   );
 }
 
+function snapshotContent(creators, staffDepartments, partnerGroups) {
+  return JSON.stringify({ creators, staffDepartments, partnerGroups });
+}
+
 export default function AdminContentManager() {
   const { user } = useAuth();
   const [tab, setTab] = useState("creators");
   const [creators, setCreators] = useState([]);
   const [staffDepartments, setStaffDepartments] = useState([]);
   const [partnerGroups, setPartnerGroups] = useState([]);
+  const [savedSnapshot, setSavedSnapshot] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -88,12 +93,27 @@ export default function AdminContentManager() {
       setCreators(content.creators);
       setStaffDepartments(content.staffDepartments);
       setPartnerGroups(content.partnerGroups);
+      setSavedSnapshot(
+        snapshotContent(
+          content.creators,
+          content.staffDepartments,
+          content.partnerGroups
+        )
+      );
       setLoading(false);
     });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const isDirty = useMemo(() => {
+    if (!savedSnapshot) return false;
+    return (
+      snapshotContent(creators, staffDepartments, partnerGroups) !==
+      savedSnapshot
+    );
+  }, [creators, staffDepartments, partnerGroups, savedSnapshot]);
 
   const departmentOptions = useMemo(
     () =>
@@ -152,7 +172,10 @@ export default function AdminContentManager() {
         { creators, staffDepartments, partnerGroups },
         token
       );
-      setMessage("Content saved. Public pages will update on refresh.");
+      setSavedSnapshot(
+        snapshotContent(creators, staffDepartments, partnerGroups)
+      );
+      setMessage("Content published. Public pages will update on refresh.");
       resetForms();
     } catch (e) {
       setError(e?.message || "Save failed");
@@ -170,6 +193,13 @@ export default function AdminContentManager() {
       setCreators(content.creators);
       setStaffDepartments(content.staffDepartments);
       setPartnerGroups(content.partnerGroups);
+      setSavedSnapshot(
+        snapshotContent(
+          content.creators,
+          content.staffDepartments,
+          content.partnerGroups
+        )
+      );
       resetForms();
       setMessage("Loaded built-in defaults into the editor.");
     });
@@ -229,6 +259,7 @@ export default function AdminContentManager() {
       if (editingId) return prev.map((c) => (c.id === editingId ? entry : c));
       return [...prev, entry];
     });
+    setMessage("Saved to draft. Click Publish changes to show on the live site.");
     resetForms();
   }
 
@@ -417,6 +448,12 @@ export default function AdminContentManager() {
 
       {message && <div className="adminNotice ok">{message}</div>}
       {error && <div className="adminNotice error">{error}</div>}
+      {isDirty && (
+        <div className="adminNotice warn">
+          You have unpublished changes. Click <strong>Publish changes</strong>{" "}
+          to update the live site.
+        </div>
+      )}
 
       <div className="adminTabRow">
         {TABS.map((t) => (
