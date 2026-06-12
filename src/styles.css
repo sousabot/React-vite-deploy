@@ -6076,6 +6076,19 @@ img, video, canvas, svg {
 
 .cx3Card:hover .cx3CardImg img { transform: scale(1.06); }
 
+.cx3CardImgPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: rgba(var(--ca-rgb), 0.55);
+  background: linear-gradient(180deg, rgba(var(--ca-rgb), 0.12), rgba(0,0,0,0.35));
+}
+
 /* bottom fade on image */
 .cx3CardImgFade {
   position: absolute;

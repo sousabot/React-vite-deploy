@@ -223,7 +223,11 @@ function CreatorCard({ creator: c, index, isLive, checked, onOpen }) {
 
       {/* image */}
       <div className="cx3CardImg" onClick={onOpen}>
-        <img src={c.image} alt={c.name} loading="lazy" />
+        {c.image ? (
+          <img src={c.image} alt={c.name} loading="lazy" />
+        ) : (
+          <div className="cx3CardImgPlaceholder">{c.name?.slice(0, 2)?.toUpperCase() || "?"}</div>
+        )}
         <div className="cx3CardImgFade" />
         <div className="cx3CardImgGlow" />
 
@@ -263,7 +267,7 @@ function CreatorCard({ creator: c, index, isLive, checked, onOpen }) {
         </div>
 
         <div className="cx3CardTags">
-          {c.tags.map((t) => <span key={t} className="cx3Tag">{t}</span>)}
+          {(c.tags || []).map((t) => <span key={t} className="cx3Tag">{t}</span>)}
         </div>
 
         <div className="cx3CardRule" />
@@ -334,7 +338,7 @@ function CreatorModal({ creator: c, isLive, onClose }) {
             <div className="cx3ModalSub muted">{c.role} · {c.game}</div>
 
             <div className="cx3CardTags" style={{ marginTop: 14, marginBottom: 0 }}>
-              {c.tags.map((t) => <span key={t} className="cx3Tag">{t}</span>)}
+              {(c.tags || []).map((t) => <span key={t} className="cx3Tag">{t}</span>)}
             </div>
 
             <p className="cx3ModalBio">{c.bio}</p>

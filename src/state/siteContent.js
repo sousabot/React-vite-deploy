@@ -34,7 +34,9 @@ export async function fetchSiteContent({ force = false } = {}) {
   if (!force && cachedContent) return cachedContent;
   if (!force && cachePromise) return cachePromise;
 
-  cachePromise = fetch("/.netlify/functions/site-content", { cache: "no-store" })
+  cachePromise = fetch(`/.netlify/functions/site-content?_=${Date.now()}`, {
+    cache: "no-store",
+  })
     .then(async (res) => {
       const stored = await res.json().catch(() => ({}));
       if (!res.ok || stored?.error) return resolveSiteContent(null);

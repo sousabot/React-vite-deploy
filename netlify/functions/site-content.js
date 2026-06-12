@@ -1,4 +1,4 @@
-import { openBlobStore } from "./blob-store.js";
+import { openBlobStore, readJsonBlob, writeJsonBlob } from "./blob-store.js";
 
 const ADMIN_EMAILS = [
   "sousamospt@gmail.com",
@@ -67,7 +67,7 @@ export const handler = async (event) => {
     const key = "site-content";
 
     if (event.httpMethod === "GET") {
-      const stored = await store.get(key, { type: "json" });
+      const stored = await readJsonBlob(store, key, {});
       return json(200, stored || {});
     }
 
@@ -88,7 +88,7 @@ export const handler = async (event) => {
         updatedBy: actor,
       };
 
-      await store.set(key, payload);
+      await writeJsonBlob(store, key, payload);
       return json(200, { ok: true, content: payload });
     }
 

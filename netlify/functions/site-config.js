@@ -1,4 +1,4 @@
-import { openBlobStore } from "./blob-store.js";
+import { openBlobStore, readJsonBlob, writeJsonBlob } from "./blob-store.js";
 
 const DEFAULT_CONFIG = {
   tryoutsOpen: true,
@@ -28,7 +28,7 @@ export const handler = async (event) => {
 
     // Public GET (no auth) so the website can read it
     if (event.httpMethod === "GET") {
-      const existing = await store.get(key, { type: "json" });
+      const existing = await readJsonBlob(store, key, null);
       return json(200, existing || DEFAULT_CONFIG);
     }
 
@@ -50,7 +50,7 @@ export const handler = async (event) => {
         },
       };
 
-      await store.set(key, next);
+      await writeJsonBlob(store, key, next);
       return json(200, { ok: true, config: next });
     }
 

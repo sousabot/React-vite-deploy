@@ -29,3 +29,29 @@ export function openBlobStore(event, name = BLOB_STORE_NAME) {
 
   return getStore(name);
 }
+
+/** Read JSON from a blob, tolerating legacy bad writes like "[object Object]". */
+export async function readJsonBlob(store, key, fallback = null) {
+  try {
+    const data = await store.get(key, { type: "json" });
+    if (data && typeof data === "object") return data;
+  } catch {
+    // Fall through to text parse.
+  }
+
+  try {
+    const text = await store.get(key, { type: "text" });
+    if (!text) return fallback;
+    return JSON.parse(text);
+  } catch {
+    return fallback;
+  }
+}
+
+/** Write JSON to a blob using the proper JSON serializer. */
+export async function writeJsonBlob(store, key, data) {
+  if (typeof store.setJSON === "function") {
+    return store.setJSON(key, data);
+  }
+  return store.set(key, JSON.stringify(data));
+}
