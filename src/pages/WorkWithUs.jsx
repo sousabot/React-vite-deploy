@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  FaDiscord,
+  FaGamepad,
+  FaHandshake,
+  FaUsers,
+  FaVideo,
+} from "react-icons/fa";
 import PageMotion from "../components/PageMotion.jsx";
+import { DISCORD_INVITE } from "../data/links.js";
 import { track } from "../state/track.js";
 
 function encodeForm(data) {
@@ -12,21 +20,61 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
+const ROLES = [
+  {
+    id: "player",
+    label: "Player",
+    icon: FaGamepad,
+    help: "Competitive teams, tryouts, scrims, tournaments.",
+  },
+  {
+    id: "creator",
+    label: "Creator",
+    icon: FaVideo,
+    help: "Streamers, TikTok/IG creators, editors, community content.",
+  },
+  {
+    id: "staff",
+    label: "Staff",
+    icon: FaUsers,
+    help: "Coaches, analysts, managers, moderators, designers.",
+  },
+  {
+    id: "sponsor",
+    label: "Sponsor",
+    icon: FaHandshake,
+    help: "Brands, partnerships, event collabs.",
+  },
+];
+
+const STEPS = [
+  { num: "01", title: "Apply", text: "Pick your path and tell us who you are." },
+  { num: "02", title: "Review", text: "The team reads every serious application." },
+  { num: "03", title: "Follow-up", text: "Shortlisted entries get a Discord message." },
+];
+
+function WorkField({ label, hint, children, required }) {
+  return (
+    <label className="workField">
+      <span className="workFieldLabel">
+        {label}
+        {required ? <span className="workFieldReq">*</span> : null}
+      </span>
+      {children}
+      {hint ? <span className="workFieldHint muted small">{hint}</span> : null}
+    </label>
+  );
+}
+
 export default function WorkWithUs() {
   const [error, setError] = useState("");
   const [ok, setOk] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState("player");
 
-  const [role, setRole] = useState("player"); // player | creator | staff | sponsor
-
-  const ROLE_HELP = useMemo(
-    () => ({
-      player: "Competitive teams, tryouts, scrims, tournaments.",
-      creator: "Streamers, TikTok/IG creators, editors, community content.",
-      staff: "Coaches, analysts, managers, moderators, designers.",
-      sponsor: "Brands, partnerships, event collabs.",
-    }),
-    []
+  const activeRole = useMemo(
+    () => ROLES.find((r) => r.id === role) || ROLES[0],
+    [role]
   );
 
   async function onSubmit(e) {
@@ -38,7 +86,6 @@ export default function WorkWithUs() {
     const formData = new FormData(form);
     const entriesObj = Object.fromEntries(formData.entries());
 
-    // Basic required validation
     const firstName = String(entriesObj.firstName || "").trim();
     const lastName = String(entriesObj.lastName || "").trim();
     const age = String(entriesObj.age || "").trim();
@@ -53,34 +100,25 @@ export default function WorkWithUs() {
     setLoading(true);
 
     try {
-      // ✅ Send to Discord
       const payloadObj = {
         type: "work_with_us",
-        // ✅ keep role but also provide applyRole to avoid conflicts with tryouts
         role: entriesObj.role || role,
         applyRole: entriesObj.role || role,
-
         firstName: entriesObj.firstName,
         lastName: entriesObj.lastName,
         age: entriesObj.age,
         email: entriesObj.email || "",
         discord: entriesObj.discord,
-
         country: entriesObj.country || "",
         timezone: entriesObj.timezone || "",
-
         about: entriesObj.about,
         tournaments: entriesObj.tournaments || "",
-
         game: entriesObj.game || "",
         rank: entriesObj.rank || "",
-
         socials: entriesObj.socials || "",
         portfolio: entriesObj.portfolio || "",
-
         brand: entriesObj.brand || "",
         budget: entriesObj.budget || "",
-
         message: entriesObj.message || "",
       };
 
@@ -98,11 +136,10 @@ export default function WorkWithUs() {
       }
 
       track("work_with_us_submit", { role });
-
-      // ✅ Stay on same page + show success
       setOk(true);
       form.reset();
-      setRole("player"); // optional: reset role
+      setRole("player");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error(err);
       setError(err?.message || "Something went wrong. Please try again.");
@@ -114,27 +151,78 @@ export default function WorkWithUs() {
   return (
     <PageMotion>
       <div className="workPage">
-        {/* HERO */}
         <section className="workHero">
-          <div className="workHeroOverlay" />
+          <div className="workHeroBg" aria-hidden="true">
+            <div className="workHeroBgGrad" />
+            <div className="workHeroBgGrid" />
+          </div>
+
           <motion.div
             className="workHeroInner"
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="workBadge">🧩 WORK WITH US</div>
-            <h1 className="workTitle">Join GD Esports</h1>
-            <p className="workSubtitle">
-              Apply for collaborations, competitive teams, or staff roles. We’ll
-              review every serious entry.
+            <div className="workHeroKicker">
+              <span className="workKickerDot" aria-hidden="true" />
+              GD ESPORTS · APPLICATIONS
+            </div>
+            <h1 className="workHeroTitle">
+              Join the<br />
+              <em className="workHeroTitleAccent">next chapter.</em>
+            </h1>
+            <p className="workHeroDesc muted">
+              Players, creators, staff, and partners — one form, serious review
+              for every entry that fits GD.
             </p>
           </motion.div>
         </section>
 
-        {/* FORM */}
-        <section className="workSection">
+        <div className="workLayout">
+          <motion.aside
+            className="workAside"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.35, delay: 0.05 }}
+          >
+            <div className="workAsideCard">
+              <div className="workAsideTitle">How it works</div>
+              <div className="workSteps">
+                {STEPS.map((step) => (
+                  <div key={step.num} className="workStep">
+                    <span className="workStepNum">{step.num}</span>
+                    <div>
+                      <div className="workStepTitle">{step.title}</div>
+                      <div className="workStepText muted small">{step.text}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="workAsideCard workAsideRole">
+              <div className="workAsideTitle">Applying as</div>
+              <div className="workAsideRoleName">{activeRole.label}</div>
+              <p className="muted small">{activeRole.help}</p>
+            </div>
+
+            <a
+              href={DISCORD_INVITE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="workDiscordCard"
+            >
+              <FaDiscord className="workDiscordIcon" aria-hidden="true" />
+              <div>
+                <div className="workDiscordTitle">Questions first?</div>
+                <div className="muted small">Jump into our Discord before you apply.</div>
+              </div>
+            </a>
+          </motion.aside>
+
           <motion.form
             className="workForm"
             name="work-with-us"
@@ -145,250 +233,273 @@ export default function WorkWithUs() {
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
           >
-            {/* Netlify form name */}
             <input type="hidden" name="form-name" value="work-with-us" />
-
-            {/* Honeypot */}
             <p style={{ display: "none" }}>
               <label>
                 Don’t fill this out if you’re human: <input name="bot-field" />
               </label>
             </p>
 
-            {/* ROLE PICKER */}
+            <AnimatePresence mode="wait">
+              {ok ? (
+                <motion.div
+                  key="success"
+                  className="workSuccessCard"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                >
+                  <div className="workSuccessIcon">✓</div>
+                  <div className="workSuccessTitle">Application sent</div>
+                  <p className="muted">
+                    Thanks for applying. If you&apos;re shortlisted, we&apos;ll reach
+                    out on Discord.
+                  </p>
+                  <button
+                    type="button"
+                    className="btnGhost"
+                    onClick={() => setOk(false)}
+                  >
+                    Submit another
+                  </button>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
             <div className="workCard">
-              <div className="workCardTitle">What are you applying for?</div>
-
-              <div className="workRoleRow">
-                <button
-                  type="button"
-                  className={`workRoleChip ${role === "player" ? "active" : ""}`}
-                  onClick={() => setRole("player")}
-                >
-                  Player
-                </button>
-                <button
-                  type="button"
-                  className={`workRoleChip ${role === "creator" ? "active" : ""}`}
-                  onClick={() => setRole("creator")}
-                >
-                  Creator
-                </button>
-                <button
-                  type="button"
-                  className={`workRoleChip ${role === "staff" ? "active" : ""}`}
-                  onClick={() => setRole("staff")}
-                >
-                  Staff
-                </button>
-                <button
-                  type="button"
-                  className={`workRoleChip ${role === "sponsor" ? "active" : ""}`}
-                  onClick={() => setRole("sponsor")}
-                >
-                  Sponsor
-                </button>
+              <div className="workCardHead">
+                <span className="workCardStep">01</span>
+                <div className="workCardTitle">What are you applying for?</div>
               </div>
 
-              <div className="muted small" style={{ marginTop: 10 }}>
-                {ROLE_HELP[role]}
+              <div className="workRoleGrid">
+                {ROLES.map((r) => {
+                  const Icon = r.icon;
+                  const active = role === r.id;
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      className={`workRoleCard ${active ? "active" : ""}`}
+                      onClick={() => setRole(r.id)}
+                    >
+                      <span className="workRoleCardIcon" aria-hidden="true">
+                        <Icon />
+                      </span>
+                      <span className="workRoleCardLabel">{r.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* ✅ store role value for form submission */}
+              <p className="workRoleHelp muted small">{activeRole.help}</p>
               <input type="hidden" name="role" value={role} />
             </div>
 
-            {/* BASIC INFO */}
             <div className="workCard">
-              <div className="workCardTitle">Basic Info</div>
-
-              <div className="formRow">
-                <input
-                  name="firstName"
-                  className="input"
-                  placeholder="First Name"
-                  autoComplete="given-name"
-                  required
-                />
-                <input
-                  name="lastName"
-                  className="input"
-                  placeholder="Last Name"
-                  autoComplete="family-name"
-                  required
-                />
+              <div className="workCardHead">
+                <span className="workCardStep">02</span>
+                <div className="workCardTitle">Basic info</div>
               </div>
 
-              <div className="formRow">
-                <input
-                  name="age"
-                  className="input"
-                  type="number"
-                  placeholder="Age"
-                  min="13"
-                  required
-                />
-                <input
-                  name="email"
-                  className="input"
-                  type="email"
-                  placeholder="Email (optional but recommended)"
-                  autoComplete="email"
-                />
-              </div>
-
-              <div className="formRow">
-                <input
-                  name="discord"
-                  className="input"
-                  placeholder="Discord (e.g. user#1234 or @user)"
-                  required
-                />
-              </div>
-
-              <div className="formRow">
-                <input name="country" className="input" placeholder="Country (optional)" />
-                <input
-                  name="timezone"
-                  className="input"
-                  placeholder="Timezone (optional, e.g. GMT)"
-                />
+              <div className="workFieldGrid">
+                <WorkField label="First name" required>
+                  <input
+                    name="firstName"
+                    className="input"
+                    placeholder="Alex"
+                    autoComplete="given-name"
+                    required
+                  />
+                </WorkField>
+                <WorkField label="Last name" required>
+                  <input
+                    name="lastName"
+                    className="input"
+                    placeholder="Silva"
+                    autoComplete="family-name"
+                    required
+                  />
+                </WorkField>
+                <WorkField label="Age" required>
+                  <input
+                    name="age"
+                    className="input"
+                    type="number"
+                    placeholder="18"
+                    min="13"
+                    required
+                  />
+                </WorkField>
+                <WorkField label="Email" hint="Optional but recommended">
+                  <input
+                    name="email"
+                    className="input"
+                    type="email"
+                    placeholder="you@email.com"
+                    autoComplete="email"
+                  />
+                </WorkField>
+                <WorkField label="Discord" required>
+                  <input
+                    name="discord"
+                    className="input"
+                    placeholder="username or @user"
+                    required
+                  />
+                </WorkField>
+                <WorkField label="Country">
+                  <input name="country" className="input" placeholder="Portugal" />
+                </WorkField>
+                <WorkField label="Timezone">
+                  <input name="timezone" className="input" placeholder="GMT / WET" />
+                </WorkField>
               </div>
             </div>
 
-            {/* ABOUT */}
             <div className="workCard">
-              <div className="workCardTitle">Tell us about you</div>
+              <div className="workCardHead">
+                <span className="workCardStep">03</span>
+                <div className="workCardTitle">Tell us about you</div>
+              </div>
 
-              <textarea
-                name="about"
-                className="input textarea"
-                placeholder="Who are you, what do you do, and what are you looking for?"
-                rows={5}
-                required
-              />
+              <WorkField label="About you" required>
+                <textarea
+                  name="about"
+                  className="input textarea"
+                  placeholder="Who are you, what do you do, and what are you looking for?"
+                  rows={5}
+                  required
+                />
+              </WorkField>
 
-              <textarea
-                name="tournaments"
-                className="input textarea"
-                placeholder="Tournaments / teams / achievements (optional)"
-                rows={3}
-              />
+              <WorkField label="Experience" hint="Teams, tournaments, achievements">
+                <textarea
+                  name="tournaments"
+                  className="input textarea"
+                  placeholder="Past teams, events, or relevant wins"
+                  rows={3}
+                />
+              </WorkField>
             </div>
 
-            {/* PLAYER */}
-            {role === "player" && (
-              <div className="workCard">
-                <div className="workCardTitle">Player Details</div>
-
-                <div className="formRow">
-                  <input name="game" className="input" placeholder="Main Game (e.g. LoL, Valorant)" />
-                  <input name="rank" className="input" placeholder="Rank / Role (e.g. Diamond, ADC)" />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={role}
+                className="workCard"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.22 }}
+              >
+                <div className="workCardHead">
+                  <span className="workCardStep">04</span>
+                  <div className="workCardTitle">{activeRole.label} details</div>
                 </div>
 
-                <textarea
-                  name="message"
-                  className="input textarea"
-                  placeholder="Availability, scrim times, goals (optional)"
-                  rows={3}
-                />
-              </div>
-            )}
+                {role === "player" && (
+                  <div className="workFieldGrid">
+                    <WorkField label="Main game">
+                      <input name="game" className="input" placeholder="LoL, Valorant, CS2…" />
+                    </WorkField>
+                    <WorkField label="Rank / role">
+                      <input name="rank" className="input" placeholder="Diamond · ADC" />
+                    </WorkField>
+                    <WorkField label="Availability">
+                      <textarea
+                        name="message"
+                        className="input textarea"
+                        placeholder="Scrim times, goals, schedule"
+                        rows={3}
+                      />
+                    </WorkField>
+                  </div>
+                )}
 
-            {/* CREATOR */}
-            {role === "creator" && (
-              <div className="workCard">
-                <div className="workCardTitle">Creator Details</div>
+                {role === "creator" && (
+                  <div className="workFieldGrid">
+                    <WorkField label="Social links">
+                      <input
+                        name="socials"
+                        className="input"
+                        placeholder="Twitch, TikTok, IG, YouTube"
+                      />
+                    </WorkField>
+                    <WorkField label="Portfolio / clips">
+                      <input
+                        name="portfolio"
+                        className="input"
+                        placeholder="Channel or highlight reel"
+                      />
+                    </WorkField>
+                    <WorkField label="Why GD?">
+                      <textarea
+                        name="message"
+                        className="input textarea"
+                        placeholder="Content style and why you want to join"
+                        rows={3}
+                      />
+                    </WorkField>
+                  </div>
+                )}
 
-                <div className="formRow">
-                  <input
-                    name="socials"
-                    className="input"
-                    placeholder="Social links (Twitch / TikTok / IG / YouTube)"
-                  />
-                </div>
+                {role === "staff" && (
+                  <div className="workFieldGrid">
+                    <WorkField label="Portfolio / CV">
+                      <input
+                        name="portfolio"
+                        className="input"
+                        placeholder="Link to experience or work"
+                      />
+                    </WorkField>
+                    <WorkField label="Role & experience">
+                      <textarea
+                        name="message"
+                        className="input textarea"
+                        placeholder="What role you want and relevant background"
+                        rows={3}
+                      />
+                    </WorkField>
+                  </div>
+                )}
 
-                <div className="formRow">
-                  <input
-                    name="portfolio"
-                    className="input"
-                    placeholder="Portfolio / clips / channel link (optional)"
-                  />
-                </div>
+                {role === "sponsor" && (
+                  <div className="workFieldGrid">
+                    <WorkField label="Brand / company">
+                      <input name="brand" className="input" placeholder="Company name" />
+                    </WorkField>
+                    <WorkField label="Budget / proposal">
+                      <input name="budget" className="input" placeholder="Optional range or scope" />
+                    </WorkField>
+                    <WorkField label="Partnership idea">
+                      <textarea
+                        name="message"
+                        className="input textarea"
+                        placeholder="What kind of collab are you looking for?"
+                        rows={3}
+                      />
+                    </WorkField>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
 
-                <textarea
-                  name="message"
-                  className="input textarea"
-                  placeholder="What content do you make + why GD? (optional)"
-                  rows={3}
-                />
-              </div>
-            )}
+            {error ? <div className="formError workFormError">{error}</div> : null}
 
-            {/* STAFF */}
-            {role === "staff" && (
-              <div className="workCard">
-                <div className="workCardTitle">Staff Details</div>
-
-                <div className="formRow">
-                  <input
-                    name="portfolio"
-                    className="input"
-                    placeholder="Portfolio / experience link (optional)"
-                  />
-                </div>
-
-                <textarea
-                  name="message"
-                  className="input textarea"
-                  placeholder="Role you want + relevant experience (optional)"
-                  rows={3}
-                />
-              </div>
-            )}
-
-            {/* SPONSOR */}
-            {role === "sponsor" && (
-              <div className="workCard">
-                <div className="workCardTitle">Sponsor / Partner Details</div>
-
-                <div className="formRow">
-                  <input name="brand" className="input" placeholder="Brand / Company name" />
-                  <input name="budget" className="input" placeholder="Budget / proposal (optional)" />
-                </div>
-
-                <textarea
-                  name="message"
-                  className="input textarea"
-                  placeholder="What kind of partnership are you looking for?"
-                  rows={3}
-                />
-              </div>
-            )}
-
-            {/* FEEDBACK */}
-            {error && <div className="formError">{error}</div>}
-            {ok && (
-              <div className="formSuccess">
-                Submitted ✅ We’ll be in touch soon.
-              </div>
-            )}
-
-            {/* SUBMIT */}
             <motion.button
-              className="btnPrimary"
-              whileHover={{ scale: 1.03 }}
+              className="btnPrimary workSubmitBtn"
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              disabled={loading}
+              disabled={loading || ok}
             >
-              {loading ? "Submitting..." : "Submit Application"}
+              {loading ? "Submitting…" : "Submit application"}
             </motion.button>
           </motion.form>
-        </section>
+        </div>
       </div>
     </PageMotion>
   );

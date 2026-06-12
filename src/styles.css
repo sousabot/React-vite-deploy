@@ -1518,9 +1518,9 @@ textarea.input {
   z-index: 2;
 }
 .workPage{
-  max-width: 720px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 0 16px 90px;
 }
 
 .pageTitle{
@@ -1537,11 +1537,7 @@ textarea.input {
 .workForm{
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 22px;
-  border-radius: 18px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.12);
+  gap: 16px;
 }
 
 .textarea{
@@ -2367,7 +2363,7 @@ img, video, canvas, svg {
 
 /* Work with us form */
 @media (max-width: 700px) {
-  .workForm .formRow {
+  .workFieldGrid {
     grid-template-columns: 1fr !important;
   }
 
@@ -4312,169 +4308,424 @@ img, video, canvas, svg {
 }
 
 /* =========================
-   WORK WITH US (Improved)
+   WORK WITH US
    ========================= */
 
 .workPage {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 28px 18px 90px;
+  padding: 0 18px 90px;
 }
 
 /* HERO */
 .workHero {
   position: relative;
-  border-radius: 22px;
+  border-radius: 24px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(0, 0, 0, 0.25);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38);
-  margin-bottom: 18px;
+  background: rgba(0, 0, 0, 0.28);
+  margin-bottom: 22px;
+  min-height: 220px;
 }
 
-.workHeroOverlay {
+.workHeroBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.workHeroBgGrad {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(700px 300px at 20% 30%, rgba(255, 140, 0, 0.25), transparent 60%),
-    radial-gradient(650px 260px at 80% 60%, rgba(255, 90, 90, 0.10), transparent 60%),
-    linear-gradient(to bottom, rgba(255,255,255,0.03), rgba(0,0,0,0.15));
-  pointer-events: none;
+    radial-gradient(700px 320px at 12% 20%, rgba(255, 122, 0, 0.28), transparent 62%),
+    radial-gradient(560px 280px at 88% 70%, rgba(255, 45, 85, 0.12), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.22));
+}
+
+.workHeroBgGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent);
 }
 
 .workHeroInner {
   position: relative;
-  padding: 34px 28px;
+  padding: 38px 34px 34px;
+  max-width: 640px;
 }
 
-.workBadge {
+.workHeroKicker {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border-radius: 999px;
-  padding: 7px 12px;
-  border: 1px solid rgba(255, 140, 0, 0.35);
-  background: rgba(255, 140, 0, 0.10);
-  color: rgba(255, 220, 180, 0.95);
-  font-weight: 800;
-  letter-spacing: 0.12em;
   font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: rgba(255, 122, 0, 0.92);
 }
 
-.workTitle {
-  margin: 14px 0 6px;
-  font-size: 44px;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
+.workKickerDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #ff7a00;
+  box-shadow: 0 0 12px rgba(255, 122, 0, 0.65);
 }
 
-.workSubtitle {
+.workHeroTitle {
+  margin: 14px 0 10px;
+  font-size: clamp(34px, 5vw, 52px);
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+
+.workHeroTitleAccent {
+  font-style: normal;
+  color: #ff7a00;
+}
+
+.workHeroDesc {
   margin: 0;
-  max-width: 62ch;
-  color: rgba(255, 255, 255, 0.72);
-  line-height: 1.6;
+  max-width: 52ch;
+  line-height: 1.65;
+  font-size: 15px;
 }
 
-/* SECTION */
-.workSection {
+/* LAYOUT */
+.workLayout {
+  display: grid;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.workAside {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 92px;
+}
+
+.workAsideCard {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.26);
+  padding: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+.workAsideTitle {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.58);
+  margin-bottom: 12px;
+}
+
+.workSteps {
+  display: grid;
+  gap: 12px;
+}
+
+.workStep {
   display: flex;
-  justify-content: center;
+  gap: 12px;
+  align-items: flex-start;
 }
 
-/* FORM CONTAINER */
+.workStepNum {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: rgba(255, 122, 0, 0.85);
+  padding-top: 2px;
+}
+
+.workStepTitle {
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.workAsideRoleName {
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  color: #ff7a00;
+}
+
+.workDiscordCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(88, 101, 242, 0.28);
+  background: rgba(88, 101, 242, 0.10);
+  transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.workDiscordCard:hover {
+  transform: translateY(-1px);
+  border-color: rgba(88, 101, 242, 0.45);
+  background: rgba(88, 101, 242, 0.16);
+}
+
+.workDiscordIcon {
+  font-size: 22px;
+  color: #7289da;
+  flex-shrink: 0;
+}
+
+.workDiscordTitle {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+/* FORM */
 .workForm {
   width: 100%;
-  max-width: 720px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-/* CARDS INSIDE FORM */
 .workCard {
-  border-radius: 18px;
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(0, 0, 0, 0.26);
-  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
-  padding: 16px 16px 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+  padding: 18px;
+}
+
+.workCardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.workCardStep {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: rgba(255, 122, 0, 0.8);
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 122, 0, 0.25);
+  background: rgba(255, 122, 0, 0.08);
 }
 
 .workCardTitle {
-  margin: 0 0 12px;
-  font-size: 12px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.82);
 }
 
-/* ROLE CHIPS */
-.workRoleRow {
+/* ROLE CARDS */
+.workRoleGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.workRoleCard {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
-}
-
-.workRoleChip {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(0, 0, 0, 0.28);
+  padding: 14px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.22);
   color: rgba(255, 255, 255, 0.86);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.2s ease,
-    background 0.2s ease;
+  transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.workRoleChip:hover {
-  transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.25);
+.workRoleCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
-.workRoleChip.active {
-  border-color: rgba(255, 140, 0, 0.55);
-  background: rgba(255, 140, 0, 0.12);
-  color: rgba(255, 255, 255, 0.95);
+.workRoleCard.active {
+  border-color: rgba(255, 122, 0, 0.55);
+  background: rgba(255, 122, 0, 0.10);
+  box-shadow: 0 0 0 1px rgba(255, 122, 0, 0.18), 0 12px 30px rgba(255, 122, 0, 0.10);
 }
 
-/* Ensure existing form inputs look nice in this page */
+.workRoleCardIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.workRoleCard.active .workRoleCardIcon {
+  color: #ff7a00;
+  border-color: rgba(255, 122, 0, 0.28);
+  background: rgba(255, 122, 0, 0.12);
+}
+
+.workRoleCardLabel {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.workRoleHelp {
+  margin: 12px 0 0;
+}
+
+/* FIELDS */
+.workFieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workField {
+  display: grid;
+  gap: 6px;
+}
+
+.workFieldGrid .workField:has(textarea) {
+  grid-column: 1 / -1;
+}
+
+.workFieldLabel {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.workFieldReq {
+  color: #ff7a00;
+  margin-left: 3px;
+}
+
+.workFieldHint {
+  margin-top: -2px;
+}
+
 .workForm .input {
   width: 100%;
 }
 
+.workForm .input:focus {
+  border-color: rgba(255, 122, 0, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.12);
+}
+
 .workForm .textarea {
-  min-height: 130px;
+  min-height: 110px;
   resize: vertical;
 }
 
-/* Make button full width and consistent */
-.workForm .btnPrimary {
+.workSubmitBtn {
   width: 100%;
-  margin-top: 6px;
+  margin-top: 4px;
+  padding: 14px 18px;
+  font-size: 15px;
 }
 
-/* Success message (if you don't already have .formSuccess globally) */
+.workFormError {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 90, 90, 0.28);
+  background: rgba(255, 90, 90, 0.08);
+}
+
+.workSuccessCard {
+  border-radius: 20px;
+  border: 1px solid rgba(70, 255, 170, 0.28);
+  background: rgba(70, 255, 170, 0.08);
+  padding: 22px 18px;
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.workSuccessIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: #46ffaa;
+  border: 1px solid rgba(70, 255, 170, 0.35);
+  background: rgba(70, 255, 170, 0.12);
+}
+
+.workSuccessTitle {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
 .formSuccess {
   border-radius: 14px;
-  padding: 12px 12px;
+  padding: 12px 14px;
   border: 1px solid rgba(70, 255, 170, 0.25);
   background: rgba(70, 255, 170, 0.10);
   color: rgba(215, 255, 235, 0.95);
   font-weight: 700;
 }
 
-/* Responsive */
+@media (max-width: 900px) {
+  .workLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .workAside {
+    position: static;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workDiscordCard {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 720px) {
-  .workTitle {
-    font-size: 36px;
-  }
   .workHeroInner {
-    padding: 28px 18px;
+    padding: 28px 20px 24px;
   }
-  .workForm {
-    max-width: 100%;
+
+  .workRoleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workFieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .workAside {
+    grid-template-columns: 1fr;
   }
 }
 /* =========================
