@@ -1562,212 +1562,355 @@ textarea.input {
 /* ========= ABOUT PAGE ========= */
 
 .aboutPage {
-  position: relative;
-  min-height: 100svh;
-  padding: 0;
-  overflow: hidden;
-  background: transparent; /* REMOVE big flat panel */
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 18px 90px;
 }
-
-/* Logo watermark (About) */
-.aboutWatermark{
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.10;
-  mix-blend-mode: screen;
-
-  background-image:
-    radial-gradient(900px 500px at 50% 18%, rgba(255,255,255,0.07), transparent 60%),
-    url("/logo.png");
-
-  background-repeat: no-repeat;
-  background-position: center 45%;
-  background-size: clamp(320px, 52vw, 640px) auto;
-
-  filter: saturate(1.05);
-}
-
-@media (max-width: 640px){
-  .aboutWatermark{
-    background-position: center 40%;
-    background-size: clamp(260px, 72vw, 420px) auto;
-    opacity: 0.09;
-  }
-}
-
-/* ========= HERO ========= */
 
 .aboutHero {
   position: relative;
-  padding: 5rem 1.5rem 2.25rem;
-  display: flex;
-  justify-content: center;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.28);
+  margin-bottom: 22px;
+  min-height: 280px;
+}
+
+.aboutHeroBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.aboutHeroBgGrad {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(720px 340px at 15% 25%, rgba(255, 122, 0, 0.26), transparent 62%),
+    radial-gradient(520px 260px at 85% 75%, rgba(255, 45, 85, 0.10), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.24));
+}
+
+.aboutHeroBgGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.85), transparent);
+}
+
+.aboutHeroLogo {
+  position: absolute;
+  right: -4%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(340px, 42vw);
+  height: min(340px, 42vw);
+  background: url("/logo.png") center / contain no-repeat;
+  opacity: 0.08;
+  filter: saturate(1.1);
 }
 
 .aboutHeroInner {
-  width: 100%;
-  max-width: 1000px;
-  text-align: center;
-}
-
-.aboutKicker {
-  letter-spacing: 0.22em;
-  font-weight: 700;
-  font-size: 0.9rem;
-  opacity: 0.85;
-  text-transform: uppercase;
-}
-
-.aboutTitle {
-  margin: 1rem 0 0.75rem;
-  font-size: clamp(2.0rem, 4vw, 3.2rem);
-  font-weight: 900;
-  line-height: 1.05;
-  color: #e5e7eb;
-}
-
-.aboutSubtitle {
-  margin: 0 auto;
-  max-width: 720px;
-  color: rgba(229, 231, 235, 0.85);
-  font-size: 1.05rem;
-  line-height: 1.6;
-}
-
-/* ========= Divider under hero (animated) ========= */
-
-.dividerWrap {
-  margin: 2rem auto 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  max-width: 720px;
-}
-
-.dividerLine {
-  height: 1px;
-  flex: 1;
-  background: linear-gradient(90deg, transparent, rgba(229, 231, 235, 0.35), transparent);
-}
-
-.dividerPulse {
-  height: 10px;
-  width: 10px;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.9);
-  box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.65);
-  animation: dividerPulse 1.8s ease-in-out infinite;
-}
-
-@keyframes dividerPulse {
-  0% {
-    transform: scale(0.9);
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.55);
-  }
-  60% {
-    transform: scale(1.12);
-    box-shadow: 0 0 0 14px rgba(99, 102, 241, 0.0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.0);
-  }
-}
-
-/* ========= MAIN ========= */
-
-.aboutMain {
   position: relative;
-  padding: 0 1.5rem 5rem;
-  display: flex;
-  justify-content: center;
-  overflow-x: clip;
+  padding: 42px 34px 36px;
+  max-width: 620px;
 }
 
-.aboutCard {
-  width: 100%;
-  max-width: 900px;
-  padding: 2rem 1.75rem;
-  border-radius: 18px;
-  background: rgba(17, 24, 39, 0.55);
-  border: 1px solid rgba(229, 231, 235, 0.10);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
-   overflow: hidden;
+.aboutHeroKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 122, 0, 0.92);
+}
+
+.aboutKickerDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #ff7a00;
+  box-shadow: 0 0 12px rgba(255, 122, 0, 0.65);
+}
+
+.aboutHeroTitle {
+  margin: 14px 0 10px;
+  font-size: clamp(34px, 5vw, 54px);
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+
+.aboutHeroTitleAccent {
+  font-style: normal;
+  color: #ff7a00;
+}
+
+.aboutHeroDesc {
+  margin: 0;
+  max-width: 48ch;
+  line-height: 1.65;
+  font-size: 15px;
+}
+
+.aboutMission {
+  margin-bottom: 22px;
 }
 
 .aboutLead {
-  color: rgba(229, 231, 235, 0.90);
-  font-size: 1.12rem;
-  line-height: 1.75;
   margin: 0;
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 122, 0, 0.18);
+  background: rgba(255, 122, 0, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(17px, 2.2vw, 20px);
+  font-weight: 700;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+}
+
+.aboutSection,
+.aboutStory {
+  margin-bottom: 22px;
+}
+
+.aboutSectionHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.aboutSectionNum {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: rgba(255, 122, 0, 0.8);
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 122, 0, 0.25);
+  background: rgba(255, 122, 0, 0.08);
+}
+
+.aboutSectionTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.aboutValuesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aboutValueCard {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.26);
+  padding: 18px 16px 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.aboutValueCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 122, 0, 0.28);
+}
+
+.aboutValueNum {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.aboutValueIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  color: #ff7a00;
+  background: rgba(255, 122, 0, 0.10);
+  border: 1px solid rgba(255, 122, 0, 0.22);
+  margin-bottom: 12px;
+}
+
+.aboutValueTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.aboutValueDesc {
+  margin: 0;
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.aboutStoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .aboutText {
-  color: rgba(229, 231, 235, 0.84);
-  line-height: 1.8;
-  margin: 1.15rem 0 0;
+  margin: 0;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 1.75;
+  font-size: 15px;
 }
 
-/* ========= Animated dividers inside card ========= */
+.aboutRoadmap {
+  display: grid;
+  gap: 10px;
+}
 
-.animatedDivider {
+.aboutRoadmapItem {
   position: relative;
-  height: 18px;
-  margin: 1.4rem 0 0.2rem;
-   overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.15s ease;
 }
 
-.animatedDividerTrack {
+.aboutRoadmapItem:hover {
+  transform: translateX(3px);
+  border-color: rgba(255, 122, 0, 0.22);
+}
+
+.aboutRoadmapIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  color: #46ffaa;
+  background: rgba(70, 255, 170, 0.08);
+  border: 1px solid rgba(70, 255, 170, 0.18);
+}
+
+.aboutRoadmapTitle {
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.aboutRoadmapDesc {
+  line-height: 1.5;
+}
+
+.aboutRoadmapLine {
   position: absolute;
   left: 0;
-  right: 0;
-  top: 50%;
-  height: 1px;
-  transform: translateY(-50%);
-  background: linear-gradient(90deg, transparent, rgba(229, 231, 235, 0.18), transparent);
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, rgba(255, 122, 0, 0.7), rgba(255, 122, 0, 0.05));
+  border-radius: 0 4px 4px 0;
 }
 
-.animatedDividerGlow {
-  position: absolute;
-  top: 50%;
-  height: 2px;
-  width: 120px;
-  transform: translateY(-50%);
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.85), transparent);
-  left: -140px;
-  animation: sweep 2.6s ease-in-out infinite;
-}
-
-@keyframes sweep {
-  0%   { left: -160px; opacity: 0.0; }
-  15%  { opacity: 1.0; }
-  50%  { left: calc(100% - 60px); opacity: 0.85; }
-  85%  { opacity: 1.0; }
-  100% { left: calc(100% + 160px); opacity: 0.0; }
-}
-
-/* ========= Closing ========= */
-
-.aboutClosing {
-  margin-top: 2rem;
+.aboutCta {
+  position: relative;
   text-align: center;
+  padding: 32px 24px 28px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 122, 0, 0.22);
+  background: rgba(0, 0, 0, 0.30);
+  overflow: hidden;
+}
+
+.aboutCtaGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(500px 200px at 50% 0%, rgba(255, 122, 0, 0.18), transparent 70%);
 }
 
 .aboutCommitment {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: rgba(229, 231, 235, 0.92);
+  position: relative;
   margin: 0;
+  font-weight: 900;
+  font-size: clamp(18px, 2.5vw, 22px);
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .aboutTagline {
-  margin: 0.7rem 0 0;
+  position: relative;
+  margin: 10px 0 20px;
   font-style: italic;
-  opacity: 0.85;
-  color: rgba(229, 231, 235, 0.85);
+  font-size: 15px;
+  color: rgba(255, 122, 0, 0.88);
+}
+
+.aboutCtaActions {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 860px) {
+  .aboutValuesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .aboutStoryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .aboutHeroLogo {
+    opacity: 0.05;
+    right: -10%;
+  }
+}
+
+@media (max-width: 700px) {
+  .aboutHeroInner {
+    padding: 30px 20px 26px;
+  }
+
+  .aboutHeroLogo {
+    display: none;
+  }
+
+  .aboutCtaActions .btnPrimary,
+  .aboutCtaActions .btnGhost {
+    width: 100%;
+  }
 }
 
 .offlineBadge {
@@ -2346,20 +2489,7 @@ img, video, canvas, svg {
   }
 }
 
-/* About page */
-@media (max-width: 700px) {
-  .aboutHero {
-    padding: 4rem 1rem 1.6rem;
-  }
-
-  .aboutTitle {
-    font-size: 2rem;
-  }
-
-  .aboutCard {
-    padding: 1.4rem 1.1rem;
-  }
-}
+/* About page — handled in main ABOUT PAGE block */
 
 /* Work with us form */
 @media (max-width: 700px) {
@@ -3518,28 +3648,6 @@ img, video, canvas, svg {
     font-size: 20px;
   }
 }
-/* ABOUT: values grid */
-.aboutValuesGrid{
-  margin-top: 14px;
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-@media (max-width: 860px){
-  .aboutValuesGrid{
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Remove ellipsis for About value cards only */
-.aboutValueCard .statusValue{
-  white-space: normal !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  line-height: 1.35;
-}
-
 .jerseyRevealImg{
   width: 100%;
   height: 260px;                 /* 👈 fixed, consistent */
