@@ -1,27 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useInView, useMotionValue, animate } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionValue, animate } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import Modal from "../components/Modal.jsx";
 import { Link } from "react-router-dom";
+import { FaDiscord } from "react-icons/fa";
 import { track } from "../state/track.js";
+import { CREATORS } from "../data/creators.js";
+import { DISCORD_INVITE } from "../data/links.js";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0 },
 };
-
-/* ======================
-   CREATORS (add more)
-   ====================== */
-const CREATORS = [
-  {
-    twitchLogin: "mewtzu",
-    name: "Mewtzu",
-    role: "Creator",
-    tagline: "Live gameplay • highlights • community vibes",
-    twitchUrl: "https://twitch.tv/mewtzu",
-  },
-];
 
 /* ======================
    JERSEYS (add more)
@@ -45,6 +35,32 @@ const JERSEYS = [
 
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
+}
+
+function formatViewers(count) {
+  if (!count || count < 1) return null;
+  if (count >= 1_000_000) {
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  }
+  if (count >= 1_000) {
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
+  }
+  return count.toLocaleString();
+}
+
+function sortLiveCreators(streams) {
+  return CREATORS.filter((c) => streams[c.twitchLogin]?.isLive).sort((a, b) => {
+    const diff =
+      (streams[b.twitchLogin]?.viewerCount || 0) -
+      (streams[a.twitchLogin]?.viewerCount || 0);
+    if (diff !== 0) return diff;
+    return CREATORS.indexOf(a) - CREATORS.indexOf(b);
+  });
+}
+
+function pickFeaturedCreator(streams) {
+  const live = sortLiveCreators(streams);
+  return live[0] || CREATORS[0];
 }
 
 /* ======================
@@ -145,7 +161,8 @@ export default function Home() {
      LIVE CREATOR STATUS
      ====================== */
   const [liveCount, setLiveCount] = useState(0);
-  const [liveMap, setLiveMap] = useState({});
+  const [streamMap, setStreamMap] = useState({});
+  const [liveChecked, setLiveChecked] = useState(false);
   const [featured, setFeatured] = useState(CREATORS[0]);
 
   useEffect(() => {
@@ -159,29 +176,45 @@ export default function Home() {
               const res = await fetch(
                 `/.netlify/functions/twitch-live?user=${encodeURIComponent(
                   c.twitchLogin
-                )}`
+                )}&_=${Date.now()}`,
+                { cache: "no-store" }
               );
-              if (!res.ok) return [c.twitchLogin, false];
+              if (!res.ok) {
+                return [
+                  c.twitchLogin,
+                  { isLive: false, viewerCount: 0, title: "", streamGame: "" },
+                ];
+              }
               const data = await res.json();
-              return [c.twitchLogin, !!data?.isLive];
+              return [
+                c.twitchLogin,
+                {
+                  isLive: !!data?.isLive,
+                  viewerCount: data?.viewerCount || 0,
+                  title: data?.title || "",
+                  streamGame: data?.game || "",
+                },
+              ];
             } catch {
-              return [c.twitchLogin, false];
+              return [
+                c.twitchLogin,
+                { isLive: false, viewerCount: 0, title: "", streamGame: "" },
+              ];
             }
           })
         );
 
         if (!cancelled) {
           const map = Object.fromEntries(entries);
-          setLiveMap(map);
+          setStreamMap(map);
 
-          const count = Object.values(map).filter(Boolean).length;
-          setLiveCount(count);
-
-          const liveCreator = CREATORS.find((c) => map[c.twitchLogin]);
-          setFeatured(liveCreator || CREATORS[0]);
+          const live = sortLiveCreators(map);
+          setLiveCount(live.length);
+          setFeatured(pickFeaturedCreator(map));
+          setLiveChecked(true);
         }
       } catch {
-        // ignore
+        if (!cancelled) setLiveChecked(true);
       }
     }
 
@@ -193,10 +226,28 @@ export default function Home() {
     };
   }, []);
 
-  const creatorStatus =
-    liveCount > 0
-      ? `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now`
-      : "No one Live Right Now";
+  const liveCreators = useMemo(
+    () => sortLiveCreators(streamMap),
+    [streamMap]
+  );
+
+  const otherLiveCreators = useMemo(
+    () => liveCreators.filter((c) => c.id !== featured?.id),
+    [liveCreators, featured]
+  );
+
+  const featuredStream = streamMap[featured?.twitchLogin];
+  const featuredIsLive = !!featuredStream?.isLive;
+  const featuredViewers = featuredStream?.viewerCount || 0;
+  const featuredViewerLabel = formatViewers(featuredViewers);
+
+  const creatorStatus = !liveChecked
+    ? "Checking live status…"
+    : liveCount > 0
+      ? featuredViewerLabel
+        ? `${liveCount} live · top stream ${featuredViewerLabel} viewers`
+        : `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now`
+      : "No one live right now";
 
   /* ======================
      TRYOUT FORM STATE
@@ -261,78 +312,113 @@ export default function Home() {
     }
   }
 
-  const featuredIsLive = !!liveMap?.[featured?.twitchLogin];
-
   return (
     <PageMotion>
       <div className="homePro">
-        <section className="sectionPro">
+        {/* ======================
+            HERO
+           ====================== */}
+        <section className="heroPro">
           <motion.div
-            className="announceCard"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
+            className="homeHero"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
           >
-            <div className="announceTop">
-              <span className="announceBadge">🚨 ANNOUNCEMENT</span>
-              <span className="announceSmall muted">
-                {revealReady ? "Live now" : "Stay locked in"}
-              </span>
+            <img
+              src="/logo.png"
+              alt="GD Esports"
+              className="homeHeroLogo"
+              loading="eager"
+            />
+
+            <h1 className="heroTitle">
+              Built to <span className="accentText">Compete.</span>
+              <br />
+              Built to Last.
+            </h1>
+
+            <p className="heroDesc">
+              Structure, discipline, and community — from tryouts to creators to
+              the squad.
+            </p>
+
+            <div className="heroCTA">
+              <Link to="/shop" className="btnPrimary">
+                Shop Jerseys
+              </Link>
+              <Link to="/creators" className="btnGhost">
+                Meet Creators
+              </Link>
             </div>
 
-            {/* Jerseys always live now */}
-            <div className="announceTitle">Jerseys are Here 🟠⚫</div>
-
-            {/* ✅ SHOWCASE LAYOUT */}
-            <div className="jerseyShowcase">
-              <div className="jerseyShowcase__head">
-                <div className="jerseyShowcase__kicker muted">
-                  Official reveal
-                </div>
-                <div className="jerseyShowcase__sub">
-                  Click a jersey to open the Spized preview.
-                </div>
-              </div>
-
-              <div className="jerseyShowcase__grid">
-                {JERSEYS.map((j) => (
-                  <a
-                    key={j.id}
-                    href={j.previewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="jerseyTile"
-                    onClick={() => track("jersey_view", { id: j.id })}
-                  >
-                    <div
-                      className={`jerseyTile__img jerseyTile__img--${j.id}`}
-                      style={{ backgroundImage: `url(${j.image})` }}
-                    />
-
-                    <div className="jerseyTile__meta">
-                      <div className="jerseyTile__title">{j.title}</div>
-                      <div className="jerseyTile__cta">
-                        <span>View</span>
-                        <span className="jerseyTile__arrow">↗</span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-
-              <div className="jerseyShowcase__footer">
-                <div className="jerseyShowcase__note muted">
-                  Limited runs. Creator drops + team stock update in Discord.
-                </div>
-
-                <Link to="/shop" className="btnGhost">
-                  Shop
-                </Link>
-              </div>
-            </div>
+            <div className="heroDivider" aria-hidden="true" />
           </motion.div>
         </section>
+
+        {/* ======================
+            LIVE BANNER
+           ====================== */}
+        <AnimatePresence>
+          {liveChecked && liveCreators.length > 0 && (
+            <motion.section
+              className="sectionPro liveBannerSection"
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <a
+                href={featured?.twitch}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="liveBanner"
+                style={{
+                  "--lb-accent": featured?.accent || "#ff7a00",
+                  "--lb-accent-rgb": featured?.accentRgb || "255,122,0",
+                }}
+                onClick={() =>
+                  track("twitch_watch", {
+                    source: "home_live_banner",
+                    creator: featured?.id,
+                  })
+                }
+              >
+                <div className="liveBannerPulse" aria-hidden="true" />
+
+                <div className="liveBannerAvatars">
+                  {liveCreators.slice(0, 3).map((c) => (
+                    <img
+                      key={c.id}
+                      src={c.image}
+                      alt={c.name}
+                      className="liveBannerAvatar"
+                    />
+                  ))}
+                </div>
+
+                <div className="liveBannerCopy">
+                  <span className="liveBannerKicker">
+                    <span className="liveBannerDot" aria-hidden="true" />
+                    Live now
+                  </span>
+                  <span className="liveBannerTitle">
+                    {liveCount === 1
+                      ? `${featured.name} is streaming`
+                      : `${featured.name} has the most viewers`}
+                  </span>
+                  <span className="liveBannerSub muted">
+                    {featuredViewerLabel
+                      ? `${featuredViewerLabel} watching · ${featuredStream?.streamGame || featured.game}`
+                      : featuredStream?.title || featured.game}
+                  </span>
+                </div>
+
+                <span className="liveBannerCta">Watch on Twitch ↗</span>
+              </a>
+            </motion.section>
+          )}
+        </AnimatePresence>
 
         {/* ======================
             WHAT’S HAPPENING NOW
@@ -413,41 +499,193 @@ export default function Home() {
            ====================== */}
         <section className="sectionPro">
           <motion.div
-            className="featuredCreatorCard"
+            className={`featuredCreatorCard ${
+              featuredIsLive ? "featuredCreatorCard--live" : ""
+            }`}
+            style={{
+              "--fc-accent": featured?.accent || "#ff7a00",
+              "--fc-accent-rgb": featured?.accentRgb || "255,122,0",
+            }}
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
           >
-            <div className="featuredTop">
-              <span className="featuredBadge">⭐ FEATURED CREATOR</span>
+            <div className="featuredBody">
+              <div className="featuredAvatarWrap">
+                <img
+                  src={featured?.image}
+                  alt={featured?.name}
+                  className="featuredAvatar"
+                  loading="lazy"
+                />
+                {featuredIsLive && (
+                  <span className="featuredAvatarLive" aria-hidden="true" />
+                )}
+              </div>
 
-              <span className={`featuredLive ${featuredIsLive ? "on" : ""}`}>
-                <span className="featuredLiveDot" />
-                {featuredIsLive ? "LIVE NOW" : "OFFLINE"}
+              <div className="featuredInfo">
+                <div className="featuredTop">
+                  <span className="featuredBadge">
+                    {featuredIsLive
+                      ? featuredViewerLabel
+                        ? `🔴 TOP STREAM · ${featuredViewerLabel}`
+                        : "🔴 MOST WATCHED"
+                      : "⭐ FEATURED CREATOR"}
+                  </span>
+
+                  <span className={`featuredLive ${featuredIsLive ? "on" : ""}`}>
+                    <span className="featuredLiveDot" />
+                    {!liveChecked
+                      ? "CHECKING…"
+                      : featuredIsLive
+                        ? featuredViewerLabel
+                          ? `${featuredViewerLabel} LIVE`
+                          : "LIVE NOW"
+                        : "OFFLINE"}
+                  </span>
+                </div>
+
+                <div className="featuredHandle muted small">
+                  {featured?.handle}
+                </div>
+
+                <div className="featuredNameRow">
+                  <div className="featuredName">{featured?.name}</div>
+                  <div className="featuredRole">{featured?.role}</div>
+                </div>
+
+                <div className="featuredTagline muted">
+                  {featuredIsLive && featuredStream?.streamGame
+                    ? featuredStream.streamGame
+                    : featured?.game}
+                </div>
+
+                {featuredIsLive && featuredStream?.title && (
+                  <div className="featuredStreamTitle muted small">
+                    {featuredStream.title}
+                  </div>
+                )}
+
+                {featured?.tags?.length > 0 && (
+                  <div className="featuredTags">
+                    {featured.tags.map((tag) => (
+                      <span key={tag} className="featuredTag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="featuredActions">
+                  <a
+                    className="btnPrimary"
+                    href={featured?.twitch}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      track("twitch_watch", {
+                        source: "home_featured",
+                        creator: featured?.id,
+                      })
+                    }
+                  >
+                    {featuredIsLive ? "Watch Live" : "Watch on Twitch"}
+                  </a>
+
+                  <Link className="btnGhost" to="/creators">
+                    View Creators
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {otherLiveCreators.length > 0 && (
+              <div className="featuredAlsoLive muted small">
+                Also live:{" "}
+                {otherLiveCreators.map((c, i) => (
+                  <span key={c.id}>
+                    {i > 0 && ", "}
+                    <a
+                      href={c.twitch}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="featuredAlsoLiveLink"
+                    >
+                      {c.name}
+                      {formatViewers(streamMap[c.twitchLogin]?.viewerCount)
+                        ? ` (${formatViewers(streamMap[c.twitchLogin]?.viewerCount)})`
+                        : ""}
+                    </a>
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </section>
+
+        <section className="sectionPro">
+          <motion.div
+            className="announceCard"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="announceTop">
+              <span className="announceBadge">🚨 ANNOUNCEMENT</span>
+              <span className="announceSmall muted">
+                {revealReady ? "Live now" : "Stay locked in"}
               </span>
             </div>
 
-            <div className="featuredNameRow">
-              <div className="featuredName">{featured?.name}</div>
-              <div className="featuredRole">{featured?.role}</div>
-            </div>
+            <div className="announceTitle">Jerseys are Here 🟠⚫</div>
 
-            <div className="featuredTagline muted">{featured?.tagline}</div>
+            <div className="jerseyShowcase">
+              <div className="jerseyShowcase__head">
+                <div className="jerseyShowcase__kicker muted">
+                  Official reveal
+                </div>
+                <div className="jerseyShowcase__sub">
+                  Click a jersey to open the Spized preview.
+                </div>
+              </div>
 
-            <div className="featuredActions">
-              <a
-                className="btnPrimary"
-                href={featured?.twitchUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Watch on Twitch
-              </a>
+              <div className="jerseyShowcase__grid">
+                {JERSEYS.map((j) => (
+                  <a
+                    key={j.id}
+                    href={j.previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="jerseyTile"
+                    onClick={() => track("jersey_view", { id: j.id })}
+                  >
+                    <div
+                      className={`jerseyTile__img jerseyTile__img--${j.id}`}
+                      style={{ backgroundImage: `url(${j.image})` }}
+                    />
 
-              <Link className="btnGhost" to="/creators">
-                View Creators
-              </Link>
+                    <div className="jerseyTile__meta">
+                      <div className="jerseyTile__title">{j.title}</div>
+                      <div className="jerseyTile__cta">
+                        <span>View</span>
+                        <span className="jerseyTile__arrow">↗</span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+
+              <div className="jerseyShowcase__footer">
+                <div className="jerseyShowcase__note muted">
+                  Limited runs. Creator drops + team stock update in Discord.
+                </div>
+
+                <Link to="/shop" className="btnGhost">
+                  Shop
+                </Link>
+              </div>
             </div>
           </motion.div>
         </section>
@@ -475,21 +713,49 @@ export default function Home() {
                 <StatCard key={s.label} {...s} />
               ))}
             </div>
+
+            <div className="discordCtaRow">
+              <div className="discordCtaCopy">
+                <div className="discordCtaTitle">Join the squad on Discord</div>
+                <div className="discordCtaSub muted">
+                  {discordMembers > 0
+                    ? `${discordMembers.toLocaleString()}+ members — updates, drops, and events.`
+                    : "Updates, jersey drops, scrims, and community events."}
+                </div>
+              </div>
+
+              <a
+                href={DISCORD_INVITE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnPrimary discordCtaBtn"
+                onClick={() => track("discord_click", { source: "home_stats" })}
+              >
+                <FaDiscord aria-hidden="true" />
+                Join Discord
+              </a>
+            </div>
           </motion.div>
         </section>
 
         {/* ======================
-            CREATOR CTA
+            DISCORD CTA
            ====================== */}
         <section className="sectionPro shopCtaSection">
-          <Link to="/creators" className="shopCtaCard">
+          <a
+            href={DISCORD_INVITE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shopCtaCard discordCtaCard"
+            onClick={() => track("discord_click", { source: "home_banner" })}
+          >
             <span className="shopCtaText">
-              MEET OUR
+              JOIN OUR
               <br />
-              CREATORS
+              DISCORD
             </span>
             <span className="shopCtaArrow">›</span>
-          </Link>
+          </a>
         </section>
 
         {/* ======================

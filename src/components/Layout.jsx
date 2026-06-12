@@ -60,14 +60,10 @@ export default function Layout() {
             }}
           >
             <img
-              src="/gd-logo.svg"
+              src="/logo.png"
               alt="GD Esports"
               className="brandLogo"
               loading="eager"
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = "/logo.svg";
-              }}
             />
           </motion.div>
 

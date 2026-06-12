@@ -50,7 +50,7 @@ export default function LoadingScreen({ show = true, label = "Loading" }) {
                 transition={{ duration: 1.6, ease: "linear", repeat: Infinity }}
                 aria-hidden="true"
               />
-              <img className="loadingLogo" src="/vite.svg" alt="GD Esports" />
+              <img className="loadingLogo" src="/logo.png" alt="GD Esports" />
             </div>
 
             <motion.div

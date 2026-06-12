@@ -3,118 +3,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import { FaTwitch, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-
-/* ─── DATA ───────────────────────────────────────────── */
-
-const CREATORS = [
-  {
-    id: "mewtzu",
-    name: "Mewtzu",
-    handle: "@mewtzu_",
-    role: "Streamer",
-    game: "League of Legends · Pokémon",
-    twitch: "https://www.twitch.tv/mewtzu",
-    twitchLogin: "mewtzu",
-    instagram: "https://www.instagram.com/mewtzu_lol/",
-    twitter: "https://x.com/mewtzu_",
-    image: "/creators/mewtzu.png",
-    accent: "#ff7a00",
-    accentRgb: "255,122,0",
-    tags: ["Entertainment", "Community"],
-    number: "01",
-  },
-  {
-    id: "Kaymael",
-    name: "Kaymael",
-    handle: "@kaymael",
-    role: "Streamer",
-    game: "League of Legends · Arc Raiders",
-    twitch: "https://www.twitch.tv/kaymael",
-    twitchLogin: "kaymael",
-    instagram: "https://www.instagram.com/samirawashere/",
-    image: "/creators/kaymael.png",
-    accent: "#ffb000",
-    accentRgb: "255,176,0",
-    tags: ["Entertainment", "Community"],
-    number: "02",
-  },
-  {
-    id: "Apheliom13",
-    name: "Apheliom13",
-    handle: "@f_martins1308", 
-    role: "Streamer",
-    game: "League of Legends",
-    twitch: "https://www.twitch.tv/apheliom13",
-    twitchLogin: "apheliom13",
-    instagram: "https://www.instagram.com/f_martins13/",
-    twitter: "https://x.com/f_martins1308",
-    image: "/creators/apheliom13.png",
-    accent: "#e85d3a",
-    accentRgb: "232,93,58",
-    tags: ["Entertainment", "Community"],
-    number: "03",
-  },
-  {
-    id: "KTenology",
-    name: "KTenology",
-    handle: "@KTenology", 
-    role: "Streamer",
-    game: "Counter-Strike",
-    twitch: "https://www.twitch.tv/ktenologytv",
-    twitchLogin: "KTenology",
-    instagram: "https://www.instagram.com/vemunde95",
-    image: "/creators/KTenology.png",
-    accent: "#e85d3a",
-    accentRgb: "232,93,58",
-    tags: ["Entertainment", "Community"],
-    number: "04",
-  },
-  {
-    id: "Rodri_killofc",
-    name: "Rodri",
-    handle: "@Rodri_killofc", 
-    role: "Streamer",
-    game: " IT TAKES TWO",
-    twitch: "https://www.twitch.tv/rodri_killofc",
-    twitchLogin: "Rodri_killof",
-    instagram: "https://www.instagram.com/rodri_killl/",
-    image: "/creators/rodri_killofc.png",
-    accent: "#e85d3a",
-    accentRgb: "232,93,58",
-    tags: ["Entertainment", "Community"],
-    number: "05",
-  },
-    {
-    id: "Fmmarques3",
-    name: "Fmmarques3",
-    handle: "@Fmmarques3", 
-    role: "Streamer",
-    game: " Football Manager 26",
-    twitch: "https://www.twitch.tv/fmmarques3",
-    twitchLogin: "fmmarques3",
-    instagram: "https://www.instagram.com/fm.marques3",
-    image: "/creators/fmmarques3.png",
-    accent: "#e85d3a",
-    accentRgb: "232,93,58",
-    tags: ["Entertainment", "Community"],
-    number: "06",
-  },
-  {
-    id: "foxyycsgo_",
-    name: "foxyycsgo_",
-    handle: "@foxyycsgo_", 
-    role: "Streamer",
-    game: " Counter-Strike 2",
-    twitch: "https://www.twitch.tv/foxyycsgo_",
-    twitchLogin: "foxyycsgo_",
-    instagram: "https://www.instagram.com/foxyycsgo_/",
-    image: "/creators/foxyycsgo_.png",
-    accent: "#e85d3a",
-    accentRgb: "232,93,58",
-    tags: ["Entertainment", "Community"],
-    number: "07",
-  },
-];
+import { CREATORS } from "../data/creators.js";
 
 /* ─── PAGE ────────────────────────────────────────────── */
 
@@ -192,7 +81,7 @@ export default function Creators() {
               </h1>
 
               <p className="cx3HeroDesc muted">
-                Three creators. One org. Building the brand live — every session, every clip, every win.
+                {CREATORS.length} creators. One org. Building the brand live — every session, every clip, every win.
               </p>
 
               <div className="cx3HeroActions">
