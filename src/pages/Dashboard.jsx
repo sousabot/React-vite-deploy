@@ -23,18 +23,6 @@ const cardVariant = {
   show: { opacity: 1, y: 0 },
 };
 
-const LS = {
-  focus: "gd_dash_focus_v2",
-};
-
-const DEFAULT_FOCUS = [
-  "Post 1 short clip",
-  "Check Discord announcements",
-  "Share shop or jersey update",
-  "Reply to creator messages",
-  "Review live schedule",
-];
-
 function formatViewers(count) {
   if (!count || count < 1) return null;
   if (count >= 1_000_000) {
@@ -55,34 +43,6 @@ function sortLiveCreators(streams, creators) {
     return creators.indexOf(a) - creators.indexOf(b);
   });
 }
-
-function useLocalStorageState(key, initialValue) {
-  const [value, setValue] = useState(() => {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw == null) return initialValue;
-      return JSON.parse(raw);
-    } catch {
-      return initialValue;
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch {
-      // ignore
-    }
-  }, [key, value]);
-
-  return [value, setValue];
-}
-
-function cryptoRandomId() {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
-  return Math.random().toString(16).slice(2) + Date.now().toString(16);
-}
-
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -223,8 +183,7 @@ export default function Dashboard() {
           <div className="dashHeroKicker">GD ESPORTS · COMMAND CENTER</div>
           <h1 className="dashHeroTitle">{greeting}</h1>
           <p className="dashHeroSub muted">
-            Org pulse, live creators, content tasks, and quick links — built for
-            the team.
+            Org pulse, live creators, and quick links — built for the team.
           </p>
         </motion.header>
 
@@ -255,14 +214,6 @@ export default function Dashboard() {
 
           <motion.section className="dashCard" variants={cardVariant}>
             <QuickActionsPanel isAdmin={isAdmin} />
-          </motion.section>
-
-          <motion.section className="dashCard dashCardWide" variants={cardVariant}>
-            <RecentClipsPanel creators={creators} />
-          </motion.section>
-
-          <motion.section className="dashCard" variants={cardVariant}>
-            <FocusList />
           </motion.section>
 
           <motion.section className="dashCard dashCardFull" variants={cardVariant}>
@@ -454,189 +405,6 @@ function QuickActionsPanel({ isAdmin }) {
           );
         })}
       </div>
-    </>
-  );
-}
-
-function RecentClipsPanel({ creators }) {
-  const creatorLogins = creators.map((c) => c.twitchLogin).join(",");
-  const [clips, setClips] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setLoading(true);
-      setErr("");
-
-      try {
-        const url = `/.netlify/functions/twitch-clips?users=${encodeURIComponent(
-          creatorLogins
-        )}&days=7&first=8`;
-
-        const res = await fetch(url, { cache: "no-store" });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data?.error || "Failed to load clips");
-        if (cancelled) return;
-        setClips(Array.isArray(data.clips) ? data.clips.slice(0, 8) : []);
-      } catch (e) {
-        if (!cancelled) setErr(e?.message || "Failed to load clips");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    if (!creatorLogins) {
-      setLoading(false);
-      return undefined;
-    }
-
-    load();
-    const t = setInterval(load, 5 * 60_000);
-    return () => {
-      cancelled = true;
-      clearInterval(t);
-    };
-  }, [creatorLogins]);
-
-  return (
-    <>
-      <div className="dashCardHead">
-        <div>
-          <h2 className="dashCardTitle">Recent Clips</h2>
-          <p className="dashCardSub muted">
-            Last 7 days from all GD creators — refreshed every 5 min.
-          </p>
-        </div>
-        <Link to="/clips" className="dashCardLink">
-          View all
-        </Link>
-      </div>
-
-      {loading && <div className="dashEmpty muted">Loading clips…</div>}
-      {err && <div className="dashEmpty muted">❌ {err}</div>}
-
-      {!loading && !err && clips.length === 0 && (
-        <div className="dashEmpty muted">No clips found in the last 7 days.</div>
-      )}
-
-      <div className="dashClipsGrid">
-        {clips.map((clip) => {
-          const thumb = clip.thumbnail_url || clip.thumbnailUrl || "";
-          const title = clip.title || "Untitled clip";
-          const creator = clip.broadcaster_name || clip.broadcasterName || "";
-          const views = clip.view_count ?? clip.views ?? 0;
-          const url = clip.url || clip.clip_url || "#";
-
-          return (
-            <a
-              key={clip.id || url}
-              className="dashClipCard"
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="dashClipThumb">
-                {thumb ? <img src={thumb} alt="" loading="lazy" /> : null}
-                <span className="dashClipPlay" aria-hidden="true">
-                  ▶
-                </span>
-              </div>
-              <div className="dashClipMeta">
-                <div className="dashClipTitle">{title}</div>
-                <div className="dashClipSub muted small">
-                  {creator} · {Number(views).toLocaleString()} views
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-function FocusList() {
-  const [items, setItems] = useLocalStorageState(
-    LS.focus,
-    DEFAULT_FOCUS.map((text) => ({
-      id: cryptoRandomId(),
-      text,
-      done: false,
-    }))
-  );
-  const [text, setText] = useState("");
-
-  const doneCount = items.filter((i) => i.done).length;
-  const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
-
-  function toggle(id) {
-    setItems((prev) =>
-      prev.map((x) => (x.id === id ? { ...x, done: !x.done } : x))
-    );
-  }
-
-  function add() {
-    if (!text.trim()) return;
-    setItems((prev) => [
-      ...prev,
-      { id: cryptoRandomId(), text: text.trim(), done: false },
-    ]);
-    setText("");
-  }
-
-  function clearDone() {
-    setItems((prev) => prev.filter((x) => !x.done));
-  }
-
-  return (
-    <>
-      <div className="dashCardHead">
-        <div>
-          <h2 className="dashCardTitle">Content Tasks</h2>
-          <p className="dashCardSub muted">
-            Daily checklist for social and content — saves in this browser.
-          </p>
-        </div>
-      </div>
-
-      <div className="dashProgress">
-        <div className="progressFill" style={{ width: `${pct}%` }} />
-      </div>
-      <div className="muted small dashProgressLabel">
-        {pct}% complete · {doneCount}/{items.length} done
-      </div>
-
-      <div className="dashFocusList">
-        {items.map((it) => (
-          <label key={it.id} className={`dashFocusItem ${it.done ? "done" : ""}`}>
-            <input
-              type="checkbox"
-              checked={it.done}
-              onChange={() => toggle(it.id)}
-            />
-            <span>{it.text}</span>
-          </label>
-        ))}
-      </div>
-
-      <div className="dashFocusAdd">
-        <input
-          className="input"
-          placeholder="Add a task…"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
-        />
-        <button type="button" className="btnPrimary" onClick={add}>
-          Add
-        </button>
-      </div>
-      <button type="button" className="btnGhost dashClearBtn" onClick={clearDone}>
-        Clear done
-      </button>
     </>
   );
 }

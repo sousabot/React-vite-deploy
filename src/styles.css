@@ -13,6 +13,49 @@
 }
 
 /* =========================
+   CUSTOM SCROLLBARS
+   ========================= */
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 122, 0, 0.42) rgba(255, 255, 255, 0.05);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 122, 0, 0.38);
+  border-radius: 999px;
+  border: 2px solid rgba(7, 8, 18, 0.85);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 122, 0, 0.58);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.gdScroll,
+.dashLiveList,
+.cx3LiveList,
+.adminContentItems,
+.adminContentList,
+.cartBody,
+.shopV2DrawerBody {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 122, 0, 0.42) rgba(255, 255, 255, 0.05);
+}
+
+/* =========================
    iOS SAFE-AREA FIX
    ========================= */
 
@@ -4154,6 +4197,12 @@ img, video, canvas, svg {
   min-height: 320px;
 }
 
+.adminContentList {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .adminContentItems,
 .adminContentGroup {
   display: grid;
@@ -5940,6 +5989,9 @@ img, video, canvas, svg {
 .cx3LiveList {
   display: flex;
   flex-direction: column;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .cx3LiveRow {
