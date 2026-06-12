@@ -1766,11 +1766,522 @@ img, video, canvas, svg {
 
 /* Main page padding */
 .dash,
+.dashV2,
 .creatorsPage,
 .aboutPage,
 .workPage {
   padding-left: 16px;
   padding-right: 16px;
+}
+
+/* =========================
+   DASHBOARD V2
+   ========================= */
+
+.dashV2{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+.dashHero{
+  margin-bottom: 18px;
+}
+
+.dashHeroKicker{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255,122,0,.9);
+  margin-bottom: 8px;
+}
+
+.dashHeroTitle{
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.dashHeroSub{
+  margin: 0;
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+.dashStatusStrip{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.dashStatPill{
+  padding: 14px 16px;
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255,122,0,.08), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 14px 40px rgba(0,0,0,.28);
+  display: grid;
+  gap: 4px;
+}
+
+.dashStatPillLive{
+  border-color: rgba(255,45,85,.28);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255,45,85,.12), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+}
+
+.dashStatPillOpen{
+  border-color: rgba(34,197,94,.28);
+}
+
+.dashStatLabel{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.62);
+}
+
+.dashStatValue{
+  font-size: 24px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.dashStatSub{
+  line-height: 1.4;
+}
+
+.dashGrid{
+  display: grid;
+  grid-template-columns: 1.35fr 0.85fr;
+  gap: 16px;
+}
+
+.dashCard{
+  border-radius: 20px;
+  padding: 18px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255,122,0,.08), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 55px rgba(0,0,0,.30);
+}
+
+.dashCardWide{
+  grid-column: 1;
+}
+
+.dashCardFull{
+  grid-column: 1 / -1;
+}
+
+.dashCardHead{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dashCardTitle{
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.dashCardSub{
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dashCardLink{
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  transition: background .15s ease, border .15s ease;
+}
+
+.dashCardLink:hover{
+  background: rgba(255,122,0,.14);
+  border-color: rgba(255,122,0,.28);
+}
+
+.dashLiveBadge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.72);
+}
+
+.dashLiveBadge.on{
+  background: rgba(255,45,85,.14);
+  border-color: rgba(255,45,85,.30);
+  color: #fff;
+}
+
+.dashLiveDot{
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.45);
+}
+
+.dashLiveBadge.on .dashLiveDot{
+  background: #ff2d55;
+  box-shadow: 0 0 0 6px rgba(255,45,85,.16);
+  animation: pulseLive 1.2s infinite;
+}
+
+.dashLiveList{
+  display: grid;
+  gap: 8px;
+  max-height: 420px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.dashLiveRow{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+  transition: transform .15s ease, border .15s ease, background .15s ease;
+}
+
+.dashLiveRow:hover{
+  transform: translateY(-1px);
+  border-color: rgba(var(--ca-rgb), .35);
+  background: rgba(255,255,255,.04);
+}
+
+.dashLiveRow.live{
+  border-color: rgba(255,45,85,.24);
+  background: rgba(255,45,85,.06);
+}
+
+.dashLiveRowImg{
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dashLiveRowImg img{
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(var(--ca-rgb), .35);
+}
+
+.dashLiveRowDot{
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #ff2d55;
+  border: 2px solid rgba(7,8,18,.95);
+}
+
+.dashLiveRowInfo{
+  flex: 1;
+  min-width: 0;
+}
+
+.dashLiveRowName{
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.dashLiveRowSub{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashLiveRowStatus{
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.62);
+}
+
+.dashLiveRowStatus.on{
+  background: rgba(255,45,85,.16);
+  color: #fff;
+}
+
+.dashActionGrid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashActionTile{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+  font-weight: 800;
+  font-size: 13px;
+  transition: transform .15s ease, border .15s ease, background .15s ease;
+}
+
+.dashActionTile:hover{
+  transform: translateY(-2px);
+  border-color: rgba(255,122,0,.30);
+  background: rgba(255,122,0,.08);
+}
+
+.dashActionIcon{
+  font-size: 18px;
+  color: rgba(255,122,0,.95);
+}
+
+.dashClipsGrid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashClipCard{
+  display: grid;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+  transition: transform .15s ease, border .15s ease;
+}
+
+.dashClipCard:hover{
+  transform: translateY(-2px);
+  border-color: rgba(255,122,0,.28);
+}
+
+.dashClipThumb{
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: rgba(0,0,0,.35);
+}
+
+.dashClipThumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dashClipPlay{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: #fff;
+  background: rgba(0,0,0,.28);
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+
+.dashClipCard:hover .dashClipPlay{
+  opacity: 1;
+}
+
+.dashClipMeta{
+  padding: 0 10px 10px;
+}
+
+.dashClipTitle{
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dashClipSub{
+  margin-top: 4px;
+}
+
+.dashProgress{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  overflow: hidden;
+}
+
+.dashProgress .progressFill{
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,122,0,.95), rgba(255,176,0,.85));
+}
+
+.dashProgressLabel{
+  margin: 8px 0 12px;
+}
+
+.dashFocusList{
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dashFocusItem{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.16);
+  border: 1px solid rgba(255,255,255,.10);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dashFocusItem.done span{
+  opacity: .55;
+  text-decoration: line-through;
+}
+
+.dashFocusAdd{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dashFocusAdd .input{
+  flex: 1 1 180px;
+}
+
+.dashClearBtn{
+  margin-top: 10px;
+  width: 100%;
+}
+
+.dashCopyGrid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashCopyBtn{
+  position: relative;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.10);
+  color: inherit;
+  cursor: pointer;
+  transition: border .15s ease, background .15s ease;
+}
+
+.dashCopyBtn:hover{
+  border-color: rgba(255,122,0,.30);
+  background: rgba(255,122,0,.08);
+}
+
+.dashCopyBtn svg{
+  color: rgba(255,122,0,.95);
+}
+
+.dashCopyLabel{
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.dashCopyValue{
+  word-break: break-all;
+  line-height: 1.35;
+}
+
+.dashCopyToast{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #22c55e;
+}
+
+.dashEmpty{
+  padding: 20px 0;
+  text-align: center;
+}
+
+@media (max-width: 980px){
+  .dashGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .dashCardWide,
+  .dashCardFull{
+    grid-column: auto;
+  }
+
+  .dashClipsGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashCopyGrid{
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px){
+  .dashStatusStrip{
+    grid-template-columns: 1fr;
+  }
+
+  .dashActionGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .dashClipsGrid{
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Stack grids */

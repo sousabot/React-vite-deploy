@@ -1,4 +1,4 @@
-const DEFAULT_INVITE_CODE = "5fZ7UEnnzn";
+const DEFAULT_INVITE_CODE = "ZDXbyXX2rq";
 
 function json(statusCode, body, cache = true) {
   return {
@@ -14,7 +14,7 @@ function json(statusCode, body, cache = true) {
 function getInviteCode() {
   const raw = (process.env.DISCORD_INVITE_CODE || DEFAULT_INVITE_CODE).trim();
 
-  // Accept "5fZ7UEnnzn" or a full discord.gg URL.
+  // Accept "ZDXbyXX2rq" or a full discord.gg URL.
   const match = raw.match(
     /(?:discord\.gg\/|discord\.com\/invite\/)?([A-Za-z0-9-]+)/i
   );

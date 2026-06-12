@@ -1,464 +1,696 @@
-  import React, { useEffect, useMemo, useState } from "react";
-  import { motion } from "framer-motion";
-  import PageMotion from "../components/PageMotion.jsx";
-  import { useAuth } from "../state/auth.jsx";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  FaDiscord,
+  FaInstagram,
+  FaCopy,
+  FaShoppingBag,
+  FaNewspaper,
+  FaUsers,
+  FaFilm,
+  FaCog,
+} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import PageMotion from "../components/PageMotion.jsx";
+import { useAuth } from "../state/auth.jsx";
+import { ADMIN_EMAILS } from "../state/admins.js";
+import { CREATORS } from "../data/creators.js";
+import { DISCORD_INVITE } from "../data/links.js";
 
-  const cardVariant = {
-    hidden: { opacity: 0, y: 14 },
-    show: { opacity: 1, y: 0 },
-  };
+const cardVariant = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0 },
+};
 
-  const LS = {
-    focus: "gd_dash_focus",
-    notes: "gd_dash_notes",
-    creators: "gd_dash_creators",
-  };
+const LS = {
+  focus: "gd_dash_focus_v2",
+};
 
-  function useLocalStorageState(key, initialValue) {
-    const [value, setValue] = useState(() => {
+const DEFAULT_FOCUS = [
+  "Post 1 short clip",
+  "Check Discord announcements",
+  "Share shop or jersey update",
+  "Reply to creator messages",
+  "Review live schedule",
+];
+
+function formatViewers(count) {
+  if (!count || count < 1) return null;
+  if (count >= 1_000_000) {
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  }
+  if (count >= 1_000) {
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
+  }
+  return count.toLocaleString();
+}
+
+function sortLiveCreators(streams) {
+  return CREATORS.filter((c) => streams[c.twitchLogin]?.isLive).sort((a, b) => {
+    const diff =
+      (streams[b.twitchLogin]?.viewerCount || 0) -
+      (streams[a.twitchLogin]?.viewerCount || 0);
+    if (diff !== 0) return diff;
+    return CREATORS.indexOf(a) - CREATORS.indexOf(b);
+  });
+}
+
+function useLocalStorageState(key, initialValue) {
+  const [value, setValue] = useState(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw == null) return initialValue;
+      return JSON.parse(raw);
+    } catch {
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // ignore
+    }
+  }, [key, value]);
+
+  return [value, setValue];
+}
+
+function cryptoRandomId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+
+const ALL_CREATOR_LOGINS = CREATORS.map((c) => c.twitchLogin).join(",");
+
+export default function Dashboard() {
+  const { user } = useAuth();
+
+  const isAdmin = useMemo(() => {
+    if (!user) return false;
+    return ADMIN_EMAILS.includes((user.email || "").toLowerCase());
+  }, [user]);
+
+  const greeting = useMemo(() => {
+    const name = user?.gamerTag || user?.email?.split("@")[0] || "Player";
+    return `Welcome, ${name}`;
+  }, [user]);
+
+  const [discordMembers, setDiscordMembers] = useState(null);
+  const [discordOnline, setDiscordOnline] = useState(null);
+  const [tryoutsOpen, setTryoutsOpen] = useState(true);
+  const [streamMap, setStreamMap] = useState({});
+  const [liveChecked, setLiveChecked] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDiscord() {
       try {
-        const raw = localStorage.getItem(key);
-        if (raw == null) return initialValue;
-        return JSON.parse(raw);
-      } catch {
-        return initialValue;
-      }
-    });
-
-    useEffect(() => {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
+        const res = await fetch("/.netlify/functions/discord-members", {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        if (typeof data?.members === "number") setDiscordMembers(data.members);
+        if (typeof data?.online === "number") setDiscordOnline(data.online);
       } catch {
         // ignore
       }
-    }, [key, value]);
-
-    return [value, setValue];
-  }
-
-  function cryptoRandomId() {
-    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
-    return Math.random().toString(16).slice(2) + Date.now().toString(16);
-  }
-
-  export default function Dashboard() {
-    const { user } = useAuth();
-
-    const greeting = useMemo(() => {
-      const name = user?.gamerTag || user?.email || "Player";
-      return `Welcome, ${name}`;
-    }, [user]);
-
-    return (
-      <PageMotion>
-        <div className="dash" style={{ maxWidth: 1100 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            <h2>{greeting}</h2>
-            <p className="muted">Your GD Esports hub — quick actions, focus list, and Twitch info.</p>
-          </motion.div>
-
-          <motion.div
-            className="grid2"
-            variants={{ hidden: {}, show: {} }}
-            initial="hidden"
-            animate="show"
-            transition={{ staggerChildren: 0.06 }}
-            style={{ marginTop: 14 }}
-          >
-            <motion.div className="panel" variants={cardVariant} whileHover={{ y: -3 }}>
-              <h3>Quick Actions</h3>
-              <p className="muted">Jump to the most-used pages.</p>
-              <QuickActions />
-            </motion.div>
-
-            <motion.div className="panel" variants={cardVariant} whileHover={{ y: -3 }}>
-              <h3>Today’s Focus</h3>
-              <p className="muted">A simple checklist that saves automatically.</p>
-              <FocusList />
-            </motion.div>
-
-            <motion.div className="panel" variants={cardVariant} whileHover={{ y: -3 }}>
-              <h3>Notes</h3>
-              <p className="muted">Quick notes for scrims, content ideas, reminders.</p>
-              <Notes />
-            </motion.div>
-
-            <motion.div className="panel" variants={cardVariant} whileHover={{ y: -3 }}>
-              <h3>Twitch</h3>
-              <p className="muted">Check stream status + pull recent clips.</p>
-              <TwitchPanel />
-            </motion.div>
-          </motion.div>
-        </div>
-      </PageMotion>
-    );
-  }
-
-  /* ---------------- components ---------------- */
-
-  function BtnGhost({ children, onClick, type = "button" }) {
-    return (
-      <motion.button
-        type={type}
-        className="btnGhost"
-        whileHover={{ y: -1 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onClick}
-      >
-        {children}
-      </motion.button>
-    );
-  }
-
-  function QuickActions() {
-    const actions = [
-      { label: "Creators", href: "/creators" },
-      { label: "Clips", href: "/clips" },
-      { label: "Shop", href: "/shop" },
-      { label: "News", href: "/news" },
-      { label: "Admin", href: "/admin" },
-    ];
-
-    return (
-      <div className="row" style={{ gap: 10, flexWrap: "wrap", marginTop: 10 }}>
-        {actions.map((a) => (
-          <motion.a
-            key={a.href}
-            href={a.href}
-            className="btnPrimary"
-            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {a.label}
-          </motion.a>
-        ))}
-      </div>
-    );
-  }
-
-  function FocusList() {
-    const [items, setItems] = useLocalStorageState(LS.focus, [
-      { id: cryptoRandomId(), text: "Post 1 short clip", done: false },
-      { id: cryptoRandomId(), text: "Check scrim schedule", done: false },
-      { id: cryptoRandomId(), text: "Reply to creators", done: false },
-    ]);
-
-    const [text, setText] = useState("");
-
-    const doneCount = items.filter((i) => i.done).length;
-    const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
-
-    function toggle(id) {
-      setItems((prev) => prev.map((x) => (x.id === id ? { ...x, done: !x.done } : x)));
     }
 
-    function add() {
-      if (!text.trim()) return;
-      setItems((prev) => [...prev, { id: cryptoRandomId(), text: text.trim(), done: false }]);
-      setText("");
-    }
-
-    function clearDone() {
-      setItems((prev) => prev.filter((x) => !x.done));
-    }
-
-    return (
-      <div style={{ marginTop: 10 }}>
-        <div className="progress" style={{ marginTop: 6 }}>
-          <div className="progressFill" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="muted small" style={{ marginTop: 8 }}>
-          {pct}% complete • {doneCount}/{items.length} done
-        </div>
-
-        <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
-          {items.map((it) => (
-            <label
-              key={it.id}
-              className="panel"
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                padding: "10px 12px",
-                background: "rgba(255,255,255,.04)",
-                border: "1px solid rgba(255,255,255,.10)",
-                cursor: "pointer",
-              }}
-            >
-              <input type="checkbox" checked={it.done} onChange={() => toggle(it.id)} />
-              <span style={{ opacity: it.done ? 0.6 : 1, textDecoration: it.done ? "line-through" : "none" }}>
-                {it.text}
-              </span>
-            </label>
-          ))}
-        </div>
-
-        <div className="row" style={{ marginTop: 12, gap: 10, flexWrap: "wrap" }}>
-          <input
-            className="input"
-            placeholder="Add a focus item…"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            style={{ flex: "1 1 220px" }}
-          />
-          <motion.button className="btnPrimary" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} onClick={add}>
-            Add
-          </motion.button>
-          <BtnGhost onClick={clearDone}>Clear done</BtnGhost>
-        </div>
-      </div>
-    );
-  }
-
-  function Notes() {
-    const [notes, setNotes] = useLocalStorageState(LS.notes, "");
-
-    return (
-      <div style={{ marginTop: 10 }}>
-        <textarea
-          className="input"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Type notes here…"
-          style={{ minHeight: 160, resize: "vertical", lineHeight: 1.4 }}
-        />
-        <div className="muted small" style={{ marginTop: 8 }}>
-          Autosaved to this browser.
-        </div>
-      </div>
-    );
-  }
-
-  function TwitchPanel() {
-    const [creatorList, setCreatorList] = useLocalStorageState(LS.creators, "mewtzu,polarzita_,apheliom13");
-    const [liveMap, setLiveMap] = useState({});
-    const [liveErr, setLiveErr] = useState("");
-    const [checkingLive, setCheckingLive] = useState(false);
-
-    const [clipUsers, setClipUsers] = useState("");
-    const [clips, setClips] = useState([]);
-    const [clipsErr, setClipsErr] = useState("");
-    const [loadingClips, setLoadingClips] = useState(false);
-
-    async function checkAllLive() {
-      setLiveErr("");
-      setCheckingLive(true);
-
-      const logins = creatorList
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      if (logins.length === 0) {
-        setCheckingLive(false);
-        setLiveErr("Enter usernames like: mewtzu,kaymael,apheliom13");
-        return;
-      }
-
+    async function loadConfig() {
       try {
-        const results = await Promise.all(
-          logins.map(async (login) => {
+        const res = await fetch("/.netlify/functions/site-config", {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && typeof data?.tryoutsOpen === "boolean") {
+          setTryoutsOpen(data.tryoutsOpen);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    loadDiscord();
+    loadConfig();
+    const t = setInterval(loadDiscord, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLive() {
+      try {
+        const entries = await Promise.all(
+          CREATORS.map(async (c) => {
             try {
               const res = await fetch(
-                `/.netlify/functions/twitch-live?user=${encodeURIComponent(login)}`
+                `/.netlify/functions/twitch-live?user=${encodeURIComponent(
+                  c.twitchLogin
+                )}&_=${Date.now()}`,
+                { cache: "no-store" }
               );
-              if (!res.ok) return [login, { isLive: false, error: true }];
+              if (!res.ok) {
+                return [
+                  c.twitchLogin,
+                  { isLive: false, viewerCount: 0, title: "", streamGame: "" },
+                ];
+              }
               const data = await res.json();
               return [
-                login,
+                c.twitchLogin,
                 {
                   isLive: !!data?.isLive,
-                  title: data?.title || "",
                   viewerCount: data?.viewerCount || 0,
+                  title: data?.title || "",
+                  streamGame: data?.game || "",
                 },
               ];
             } catch {
-              return [login, { isLive: false, error: true }];
+              return [
+                c.twitchLogin,
+                { isLive: false, viewerCount: 0, title: "", streamGame: "" },
+              ];
             }
           })
         );
 
-        const next = {};
-        for (const [login, info] of results) next[login] = info;
-        setLiveMap(next);
-      } catch (e) {
-        setLiveErr(e?.message || "Live check failed");
-      } finally {
-        setCheckingLive(false);
+        if (!cancelled) {
+          setStreamMap(Object.fromEntries(entries));
+          setLiveChecked(true);
+        }
+      } catch {
+        if (!cancelled) setLiveChecked(true);
       }
     }
 
-    useEffect(() => {
-      checkAllLive();
-      // refresh every 60s like Creators page
-      const t = setInterval(checkAllLive, 60_000);
-      return () => clearInterval(t);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    loadLive();
+    const t = setInterval(loadLive, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
 
-    async function loadClips() {
-      setClipsErr("");
-      setClips([]);
-      const users = clipUsers.trim();
-      if (!users) return setClipsErr("Enter one or more usernames (comma-separated).");
+  const liveCreators = useMemo(() => sortLiveCreators(streamMap), [streamMap]);
+  const liveCount = liveCreators.length;
+  const topLive = liveCreators[0];
 
-      setLoadingClips(true);
-      try {
-        const url = `/.netlify/functions/twitch-clips?users=${encodeURIComponent(users)}&days=7&first=12`;
-        const res = await fetch(url);
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data?.error || "Failed to load clips");
-        if (data?.error) throw new Error(data.error);
-        setClips(Array.isArray(data.clips) ? data.clips : []);
-      } catch (e) {
-        setClipsErr(e?.message || "Failed to load clips");
-      } finally {
-        setLoadingClips(false);
-      }
-    }
-
-    const logins = creatorList
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    return (
-      <div style={{ marginTop: 10, display: "grid", gap: 14 }}>
-        {/* Multi Live checker */}
-        <div
-          className="panel"
-          style={{ background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.10)" }}
+  return (
+    <PageMotion>
+      <div className="dashV2">
+        <motion.header
+          className="dashHero"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
         >
-          <div style={{ fontWeight: 800, marginBottom: 8 }}>Stream Status (multiple)</div>
+          <div className="dashHeroKicker">GD ESPORTS · COMMAND CENTER</div>
+          <h1 className="dashHeroTitle">{greeting}</h1>
+          <p className="dashHeroSub muted">
+            Org pulse, live creators, content tasks, and quick links — built for
+            the team.
+          </p>
+        </motion.header>
 
-          <div className="row" style={{ gap: 10, flexWrap: "wrap" }}>
-            <input
-              className="input"
-              placeholder="mewtzu,kaymael,apheliom13"
-              value={creatorList}
-              onChange={(e) => setCreatorList(e.target.value)}
-              style={{ flex: "1 1 260px" }}
+        <OrgStatusStrip
+          discordMembers={discordMembers}
+          discordOnline={discordOnline}
+          liveCount={liveCount}
+          liveChecked={liveChecked}
+          topLive={topLive}
+          topViewers={topLive ? streamMap[topLive.twitchLogin]?.viewerCount : 0}
+          tryoutsOpen={tryoutsOpen}
+        />
+
+        <motion.div
+          className="dashGrid"
+          initial="hidden"
+          animate="show"
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+        >
+          <motion.section className="dashCard dashCardWide" variants={cardVariant}>
+            <LiveCreatorsPanel
+              streamMap={streamMap}
+              liveChecked={liveChecked}
+              liveCreators={liveCreators}
             />
-            <motion.button
-              className="btnPrimary"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={checkAllLive}
-              disabled={checkingLive}
-            >
-              {checkingLive ? "Checking…" : "Check"}
-            </motion.button>
-          </div>
+          </motion.section>
 
-          {liveErr && <div className="muted small" style={{ marginTop: 8 }}>❌ {liveErr}</div>}
+          <motion.section className="dashCard" variants={cardVariant}>
+            <QuickActionsPanel isAdmin={isAdmin} />
+          </motion.section>
 
-          <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
-            {logins.length === 0 ? (
-              <div className="muted small">Add usernames to check live status.</div>
-            ) : (
-              logins.map((login) => {
-                const info = liveMap[login];
-                const isLive = !!info?.isLive;
+          <motion.section className="dashCard dashCardWide" variants={cardVariant}>
+            <RecentClipsPanel />
+          </motion.section>
 
-                return (
-                  <div
-                    key={login}
-                    className="panel"
-                    style={{
-                      padding: "10px 12px",
-                      background: "rgba(255,255,255,.04)",
-                      border: "1px solid rgba(255,255,255,.10)",
-                    }}
-                  >
-                    <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 800 }}>
-                          {isLive ? "✅ LIVE" : "🟡 OFFLINE"} — {login}
-                        </div>
-                        {isLive && (
-                          <div className="muted small" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                            {info?.title || "Live now"} • {info?.viewerCount || 0} viewers
-                          </div>
-                        )}
-                        {!isLive && info?.error && (
-                          <div className="muted small">Could not load status (try again).</div>
-                        )}
-                      </div>
+          <motion.section className="dashCard" variants={cardVariant}>
+            <FocusList />
+          </motion.section>
 
-                      <BtnGhost onClick={() => window.open(`https://www.twitch.tv/${login}`, "_blank", "noreferrer")}>
-                        Open
-                      </BtnGhost>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
+          <motion.section className="dashCard dashCardFull" variants={cardVariant}>
+            <CopyLinksBar />
+          </motion.section>
+        </motion.div>
+      </div>
+    </PageMotion>
+  );
+}
+
+function OrgStatusStrip({
+  discordMembers,
+  discordOnline,
+  liveCount,
+  liveChecked,
+  topLive,
+  topViewers,
+  tryoutsOpen,
+}) {
+  const viewerLabel = formatViewers(topViewers);
+
+  return (
+    <div className="dashStatusStrip">
+      <div className="dashStatPill">
+        <span className="dashStatLabel">Discord</span>
+        <span className="dashStatValue">
+          {discordMembers != null ? `${discordMembers.toLocaleString()}+` : "—"}
+        </span>
+        <span className="dashStatSub muted small">
+          {discordOnline != null ? `${discordOnline} online` : "Members"}
+        </span>
+      </div>
+
+      <div className={`dashStatPill ${liveCount > 0 ? "dashStatPillLive" : ""}`}>
+        <span className="dashStatLabel">Creators Live</span>
+        <span className="dashStatValue">
+          {!liveChecked ? "…" : liveCount}
+        </span>
+        <span className="dashStatSub muted small">
+          {!liveChecked
+            ? "Checking…"
+            : liveCount > 0
+              ? viewerLabel
+                ? `Top: ${topLive?.name} · ${viewerLabel} viewers`
+                : `${topLive?.name} is live`
+              : "No one live right now"}
+        </span>
+      </div>
+
+      <div className={`dashStatPill ${tryoutsOpen ? "dashStatPillOpen" : ""}`}>
+        <span className="dashStatLabel">Tryouts</span>
+        <span className="dashStatValue">{tryoutsOpen ? "Open" : "Closed"}</span>
+        <span className="dashStatSub muted small">
+          {tryoutsOpen ? "Applications welcome" : "Not accepting right now"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function LiveCreatorsPanel({ streamMap, liveChecked, liveCreators }) {
+  return (
+    <>
+      <div className="dashCardHead">
+        <div>
+          <h2 className="dashCardTitle">Live Creators</h2>
+          <p className="dashCardSub muted">
+            Auto-monitored from the GD roster — sorted by viewers.
+          </p>
         </div>
+        <span className={`dashLiveBadge ${liveCreators.length > 0 ? "on" : ""}`}>
+          <span className="dashLiveDot" />
+          {!liveChecked
+            ? "Checking…"
+            : liveCreators.length > 0
+              ? `${liveCreators.length} live`
+              : "All offline"}
+        </span>
+      </div>
 
-        {/* Clips loader */}
-        <div
-          className="panel"
-          style={{ background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.10)" }}
-        >
-          <div style={{ fontWeight: 800, marginBottom: 8 }}>Recent Clips (last 7 days)</div>
+      <div className="dashLiveList">
+        {CREATORS.map((c) => {
+          const info = streamMap[c.twitchLogin];
+          const isLive = !!info?.isLive;
+          const viewers = formatViewers(info?.viewerCount);
 
-          <div className="row" style={{ gap: 10, flexWrap: "wrap" }}>
-            <input
-              className="input"
-              placeholder="user1,user2,user3"
-              value={clipUsers}
-              onChange={(e) => setClipUsers(e.target.value)}
-              style={{ flex: "1 1 220px" }}
-            />
-            <motion.button
-              className="btnPrimary"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={loadClips}
-              disabled={loadingClips}
+          return (
+            <a
+              key={c.id}
+              href={c.twitch}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`dashLiveRow ${isLive ? "live" : ""}`}
+              style={{ "--ca": c.accent, "--ca-rgb": c.accentRgb }}
             >
-              {loadingClips ? "Loading…" : "Load Clips"}
-            </motion.button>
-          </div>
+              <div className="dashLiveRowImg">
+                <img src={c.image} alt={c.name} loading="lazy" />
+                {isLive && <span className="dashLiveRowDot" />}
+              </div>
 
-          {clipsErr && <div className="muted small" style={{ marginTop: 8 }}>❌ {clipsErr}</div>}
-
-          <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
-            {clips.length === 0 && !clipsErr && <div className="muted small">No clips loaded yet.</div>}
-
-            {clips.map((c) => (
-              <div
-                key={c.id}
-                className="panel"
-                style={{
-                  padding: "10px 12px",
-                  background: "rgba(255,255,255,.04)",
-                  border: "1px solid rgba(255,255,255,.10)",
-                }}
-              >
-                <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {c.title}
-                    </div>
-                    <div className="muted small">
-                      {c.broadcaster_name} • {c.view_count} views
-                    </div>
-                  </div>
-
-                  <BtnGhost onClick={() => window.open(c.url, "_blank", "noreferrer")}>Open</BtnGhost>
+              <div className="dashLiveRowInfo">
+                <div className="dashLiveRowName">{c.name}</div>
+                <div className="dashLiveRowSub muted small">
+                  {!liveChecked
+                    ? "Checking status…"
+                    : isLive
+                      ? viewers
+                        ? `${viewers} watching · ${info?.streamGame || c.game}`
+                        : info?.title || c.game
+                      : c.game}
                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className={`dashLiveRowStatus ${isLive ? "on" : ""}`}>
+                {!liveChecked ? "…" : isLive ? "LIVE" : "OFFLINE"}
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function QuickActionsPanel({ isAdmin }) {
+  const actions = [
+    { label: "Creators", href: "/creators", icon: FaUsers, external: false },
+    { label: "Clips", href: "/clips", icon: FaFilm, external: false },
+    { label: "Shop", href: "/shop", icon: FaShoppingBag, external: false },
+    { label: "News", href: "/news", icon: FaNewspaper, external: false },
+    {
+      label: "Discord",
+      href: DISCORD_INVITE,
+      icon: FaDiscord,
+      external: true,
+    },
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/gdesports25/",
+      icon: FaInstagram,
+      external: true,
+    },
+    {
+      label: "X / Twitter",
+      href: "https://x.com/GDESPORTS25",
+      icon: FaXTwitter,
+      external: true,
+    },
+    ...(isAdmin
+      ? [{ label: "Admin", href: "/admin", icon: FaCog, external: false }]
+      : []),
+  ];
+
+  return (
+    <>
+      <div className="dashCardHead">
+        <div>
+          <h2 className="dashCardTitle">Quick Actions</h2>
+          <p className="dashCardSub muted">Pages and socials in one tap.</p>
         </div>
       </div>
+
+      <div className="dashActionGrid">
+        {actions.map((a) => {
+          const Icon = a.icon;
+          const className = "dashActionTile";
+
+          if (a.external) {
+            return (
+              <a
+                key={a.label}
+                href={a.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={className}
+              >
+                <Icon className="dashActionIcon" aria-hidden="true" />
+                <span>{a.label}</span>
+              </a>
+            );
+          }
+
+          return (
+            <Link key={a.label} to={a.href} className={className}>
+              <Icon className="dashActionIcon" aria-hidden="true" />
+              <span>{a.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function RecentClipsPanel() {
+  const [clips, setClips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setErr("");
+
+      try {
+        const url = `/.netlify/functions/twitch-clips?users=${encodeURIComponent(
+          ALL_CREATOR_LOGINS
+        )}&days=7&first=8`;
+
+        const res = await fetch(url, { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error || "Failed to load clips");
+        if (cancelled) return;
+        setClips(Array.isArray(data.clips) ? data.clips.slice(0, 8) : []);
+      } catch (e) {
+        if (!cancelled) setErr(e?.message || "Failed to load clips");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    const t = setInterval(load, 5 * 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
+
+  return (
+    <>
+      <div className="dashCardHead">
+        <div>
+          <h2 className="dashCardTitle">Recent Clips</h2>
+          <p className="dashCardSub muted">
+            Last 7 days from all GD creators — refreshed every 5 min.
+          </p>
+        </div>
+        <Link to="/clips" className="dashCardLink">
+          View all
+        </Link>
+      </div>
+
+      {loading && <div className="dashEmpty muted">Loading clips…</div>}
+      {err && <div className="dashEmpty muted">❌ {err}</div>}
+
+      {!loading && !err && clips.length === 0 && (
+        <div className="dashEmpty muted">No clips found in the last 7 days.</div>
+      )}
+
+      <div className="dashClipsGrid">
+        {clips.map((clip) => {
+          const thumb = clip.thumbnail_url || clip.thumbnailUrl || "";
+          const title = clip.title || "Untitled clip";
+          const creator = clip.broadcaster_name || clip.broadcasterName || "";
+          const views = clip.view_count ?? clip.views ?? 0;
+          const url = clip.url || clip.clip_url || "#";
+
+          return (
+            <a
+              key={clip.id || url}
+              className="dashClipCard"
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div className="dashClipThumb">
+                {thumb ? <img src={thumb} alt="" loading="lazy" /> : null}
+                <span className="dashClipPlay" aria-hidden="true">
+                  ▶
+                </span>
+              </div>
+              <div className="dashClipMeta">
+                <div className="dashClipTitle">{title}</div>
+                <div className="dashClipSub muted small">
+                  {creator} · {Number(views).toLocaleString()} views
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function FocusList() {
+  const [items, setItems] = useLocalStorageState(
+    LS.focus,
+    DEFAULT_FOCUS.map((text) => ({
+      id: cryptoRandomId(),
+      text,
+      done: false,
+    }))
+  );
+  const [text, setText] = useState("");
+
+  const doneCount = items.filter((i) => i.done).length;
+  const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+
+  function toggle(id) {
+    setItems((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, done: !x.done } : x))
     );
   }
+
+  function add() {
+    if (!text.trim()) return;
+    setItems((prev) => [
+      ...prev,
+      { id: cryptoRandomId(), text: text.trim(), done: false },
+    ]);
+    setText("");
+  }
+
+  function clearDone() {
+    setItems((prev) => prev.filter((x) => !x.done));
+  }
+
+  return (
+    <>
+      <div className="dashCardHead">
+        <div>
+          <h2 className="dashCardTitle">Content Tasks</h2>
+          <p className="dashCardSub muted">
+            Daily checklist for social and content — saves in this browser.
+          </p>
+        </div>
+      </div>
+
+      <div className="dashProgress">
+        <div className="progressFill" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="muted small dashProgressLabel">
+        {pct}% complete · {doneCount}/{items.length} done
+      </div>
+
+      <div className="dashFocusList">
+        {items.map((it) => (
+          <label key={it.id} className={`dashFocusItem ${it.done ? "done" : ""}`}>
+            <input
+              type="checkbox"
+              checked={it.done}
+              onChange={() => toggle(it.id)}
+            />
+            <span>{it.text}</span>
+          </label>
+        ))}
+      </div>
+
+      <div className="dashFocusAdd">
+        <input
+          className="input"
+          placeholder="Add a task…"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && add()}
+        />
+        <button type="button" className="btnPrimary" onClick={add}>
+          Add
+        </button>
+      </div>
+      <button type="button" className="btnGhost dashClearBtn" onClick={clearDone}>
+        Clear done
+      </button>
+    </>
+  );
+}
+
+function CopyLinksBar() {
+  const [copied, setCopied] = useState("");
+
+  const shopUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/shop`
+      : "https://gdesports.uk/shop";
+
+  const links = [
+    { id: "discord", label: "Discord invite", value: DISCORD_INVITE },
+    { id: "shop", label: "Shop link", value: shopUrl },
+    { id: "site", label: "Website", value: typeof window !== "undefined" ? window.location.origin : "https://gdesports.uk" },
+  ];
+
+  async function copy(id, value) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(id);
+      setTimeout(() => setCopied(""), 2000);
+    } catch {
+      setCopied("error");
+      setTimeout(() => setCopied(""), 2000);
+    }
+  }
+
+  return (
+    <>
+      <div className="dashCardHead">
+        <div>
+          <h2 className="dashCardTitle">Copy Links</h2>
+          <p className="dashCardSub muted">
+            One-click copy for posts, bios, and announcements.
+          </p>
+        </div>
+      </div>
+
+      <div className="dashCopyGrid">
+        {links.map((link) => (
+          <button
+            key={link.id}
+            type="button"
+            className="dashCopyBtn"
+            onClick={() => copy(link.id, link.value)}
+          >
+            <FaCopy aria-hidden="true" />
+            <span className="dashCopyLabel">{link.label}</span>
+            <span className="dashCopyValue muted small">{link.value}</span>
+            <AnimatePresence mode="wait">
+              {copied === link.id && (
+                <motion.span
+                  className="dashCopyToast"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  Copied!
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}

@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import { Link } from "react-router-dom";
+import { DISCORD_INVITE } from "../data/links.js";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -187,7 +188,7 @@ export default function About() {
                 </Link>
                 <a
                   className="btnGhost"
-                  href="https://discord.gg/5fZ7UEnnzn"
+                  href={DISCORD_INVITE}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

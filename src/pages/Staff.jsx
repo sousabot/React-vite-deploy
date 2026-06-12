@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import { Link } from "react-router-dom";
+import { DISCORD_INVITE } from "../data/links.js";
 
 /* ─────────────────────────────────────────────────────────
    STAFF DATA
@@ -135,7 +136,7 @@ export default function Staff() {
 
               <div className="cx3HeroActions">
                 <a
-                  href="https://discord.gg/5fZ7UEnnzn"
+                  href={DISCORD_INVITE}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btnPrimary"
@@ -232,7 +233,7 @@ export default function Staff() {
             <div className="cx3BannerActions">
               <Link to="/work-with-us" className="btnPrimary">Apply now</Link>
               <a
-                href="https://discord.gg/5fZ7UEnnzn"
+                href={DISCORD_INVITE}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btnGhost"

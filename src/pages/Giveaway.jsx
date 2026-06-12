@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import { track } from "../state/track.js";
+import { DISCORD_INVITE } from "../data/links.js";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -95,7 +96,7 @@ export default function Giveaway() {
         "Follow our Instagram account",
         "Submit your entry below",
       ],
-      discordInvite: "https://discord.gg/5fZ7UEnnzn",
+      discordInvite: DISCORD_INVITE,
       xUrl: "https://x.com/GDESPORTS25",
       instagramUrl: "https://www.instagram.com/", // <-- update
     }),

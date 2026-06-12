@@ -4,6 +4,7 @@ import PageMotion from "../components/PageMotion.jsx";
 import { FaTwitch, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { CREATORS } from "../data/creators.js";
+import { DISCORD_INVITE } from "../data/links.js";
 
 /* ─── PAGE ────────────────────────────────────────────── */
 
@@ -85,7 +86,7 @@ export default function Creators() {
               </p>
 
               <div className="cx3HeroActions">
-                <a href="https://discord.gg/5fZ7UEnnzn" target="_blank" rel="noopener noreferrer" className="btnPrimary">
+                <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="btnPrimary">
                   Join our Discord
                 </a>
                 <a href="/work-with-us" className="btnGhost">Apply as creator</a>
@@ -181,7 +182,7 @@ export default function Creators() {
             </div>
             <div className="cx3BannerActions">
               <a href="/work-with-us" className="btnPrimary">Apply now</a>
-              <a href="https://discord.gg/5fZ7UEnnzn" target="_blank" rel="noopener noreferrer" className="btnGhost">Discord</a>
+              <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="btnGhost">Discord</a>
             </div>
           </div>
         </motion.div>

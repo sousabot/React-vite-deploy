@@ -8,7 +8,7 @@ const DEFAULT_CONFIG = {
     title: "🚨 ANNOUNCEMENT INCOMING",
     subtitle: "Roster reveal coming soon",
     body: "Major updates are on the way. Follow GD Esports to be first.",
-    discordUrl: "https://discord.gg/5fZ7UEnnzn",
+    discordUrl: "https://discord.gg/ZDXbyXX2rq",
     xUrl: "https://x.com/GDESPORTS25",
   },
 };
