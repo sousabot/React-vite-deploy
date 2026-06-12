@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useAuth } from "../state/auth.jsx";
 import { uploadSiteImage } from "../utils/uploadImage.js";
 
 export default function ImageUploadField({
@@ -10,6 +11,7 @@ export default function ImageUploadField({
   hint,
   placeholder,
 }) {
+  const { user } = useAuth();
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -19,7 +21,8 @@ export default function ImageUploadField({
     setError("");
     setUploading(true);
     try {
-      const url = await uploadSiteImage(file, folder, slug);
+      const token = await user?.firebaseUser?.getIdToken?.();
+      const url = await uploadSiteImage(file, folder, slug, token);
       onChange(url);
     } catch (e) {
       setError(e?.message || "Upload failed");
