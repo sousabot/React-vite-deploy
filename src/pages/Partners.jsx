@@ -3,48 +3,13 @@ import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import PageMotion from "../components/PageMotion.jsx";
 import { DISCORD_INVITE } from "../data/links.js";
-
-/* ─────────────────────────────────────────────────────────
-   PARTNERS DATA
-   Add each partner to a group below.
-   - logo: path in /public/partners/ (e.g. "/partners/acme.png")
-   - website: optional external link
-   - description: short line shown on the card
-───────────────────────────────────────────────────────── */
-
-const PARTNER_GROUPS = [
-  {
-    id: "official",
-    label: "OFFICIAL PARTNERS",
-    icon: "🤝",
-    partners: [
-       
-       {
-        id: "partner-slug",
-         name: "Icligo",
-         role: "Official Partner",
-         description: "Meet our official partner Icligo — a travel agency that helps GD Esports and our community plan tailor-made trips, from check-in to checkout.",
-       website: "https://www.icligo.com/forms/en/contact-us/book-your-trip",
-        logo: "/partners/new-icligo-logo.webp",
-         tags: ["Agency", "Travel"],
-         accent: "#ff7a00",
-         accentRgb: "255,122,0",
-        number: "01",
-       },
-    ],
-  },
-  {
-    id: "community",
-    label: "COMMUNITY & MEDIA",
-    icon: "📡",
-    partners: [],
-  },
-];
-
-const ALL_PARTNERS = PARTNER_GROUPS.flatMap((g) => g.partners);
-const HAS_PARTNERS = ALL_PARTNERS.length > 0;
+import { useSiteContent } from "../state/siteContent.js";
 
 export default function Partners() {
+  const { partnerGroups: PARTNER_GROUPS } = useSiteContent();
+  const ALL_PARTNERS = PARTNER_GROUPS.flatMap((g) => g.partners);
+  const HAS_PARTNERS = ALL_PARTNERS.length > 0;
+
   return (
     <PageMotion>
       <div className="cx3Page">

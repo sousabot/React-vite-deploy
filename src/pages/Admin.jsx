@@ -3,6 +3,7 @@ import PageMotion from "../components/PageMotion.jsx";
 import { motion } from "framer-motion";
 import { subscribeMetricsSum } from "../state/adminMetrics.js";
 import { track } from "../state/track.js";
+import AdminContentManager from "../components/AdminContentManager.jsx";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
@@ -249,6 +250,8 @@ export default function Admin() {
             </div>
           </div>
         </section>
+
+        <AdminContentManager />
 
         {/* FOOTNOTE */}
         <section className="adminSection">

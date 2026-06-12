@@ -4061,7 +4061,140 @@ img, video, canvas, svg {
   }
 }
 
+.adminNotice.ok {
+  display: block;
+  border-radius: 14px;
+  border-color: rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12px;
+}
+
+.adminNotice.error {
+  display: block;
+  border-radius: 14px;
+  border-color: rgba(255, 45, 85, 0.28);
+  background: rgba(255, 45, 85, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 12px;
+}
+
+.adminContentHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.adminContentActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.adminTabRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.adminContentLayout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+}
+
+.adminContentList,
+.adminContentForm {
+  min-height: 320px;
+}
+
+.adminContentItems,
+.adminContentGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.adminContentGroup {
+  margin-bottom: 14px;
+}
+
+.adminContentGroupTitle {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 6px;
+}
+
+.adminContentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.adminContentItemTitle {
+  font-weight: 800;
+}
+
+.adminContentItemActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.adminFormGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.adminFormField {
+  display: grid;
+  gap: 6px;
+}
+
+.adminFormLabel {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.adminFormHint {
+  line-height: 1.35;
+}
+
+.adminFormActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.btnGhost.danger {
+  border-color: rgba(255, 45, 85, 0.28);
+  color: #ff8da3;
+}
+
+.btnGhost.danger:hover {
+  background: rgba(255, 45, 85, 0.12);
+}
+
 /* Responsive */
+@media (max-width: 900px) {
+  .adminContentLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   .adminGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

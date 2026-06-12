@@ -15,8 +15,8 @@ import { FaXTwitter } from "react-icons/fa6";
 import PageMotion from "../components/PageMotion.jsx";
 import { useAuth } from "../state/auth.jsx";
 import { ADMIN_EMAILS } from "../state/admins.js";
-import { CREATORS } from "../data/creators.js";
 import { DISCORD_INVITE } from "../data/links.js";
+import { useSiteContent } from "../state/siteContent.js";
 
 const cardVariant = {
   hidden: { opacity: 0, y: 14 },
@@ -46,13 +46,13 @@ function formatViewers(count) {
   return count.toLocaleString();
 }
 
-function sortLiveCreators(streams) {
-  return CREATORS.filter((c) => streams[c.twitchLogin]?.isLive).sort((a, b) => {
+function sortLiveCreators(streams, creators) {
+  return creators.filter((c) => streams[c.twitchLogin]?.isLive).sort((a, b) => {
     const diff =
       (streams[b.twitchLogin]?.viewerCount || 0) -
       (streams[a.twitchLogin]?.viewerCount || 0);
     if (diff !== 0) return diff;
-    return CREATORS.indexOf(a) - CREATORS.indexOf(b);
+    return creators.indexOf(a) - creators.indexOf(b);
   });
 }
 
@@ -83,10 +83,10 @@ function cryptoRandomId() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
 }
 
-const ALL_CREATOR_LOGINS = CREATORS.map((c) => c.twitchLogin).join(",");
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { creators } = useSiteContent();
 
   const isAdmin = useMemo(() => {
     if (!user) return false;
@@ -152,7 +152,7 @@ export default function Dashboard() {
     async function loadLive() {
       try {
         const entries = await Promise.all(
-          CREATORS.map(async (c) => {
+          creators.map(async (c) => {
             try {
               const res = await fetch(
                 `/.netlify/functions/twitch-live?user=${encodeURIComponent(
@@ -194,15 +194,20 @@ export default function Dashboard() {
       }
     }
 
+    if (!creators.length) return;
+
     loadLive();
     const t = setInterval(loadLive, 60_000);
     return () => {
       cancelled = true;
       clearInterval(t);
     };
-  }, []);
+  }, [creators]);
 
-  const liveCreators = useMemo(() => sortLiveCreators(streamMap), [streamMap]);
+  const liveCreators = useMemo(
+    () => sortLiveCreators(streamMap, creators),
+    [streamMap, creators]
+  );
   const liveCount = liveCreators.length;
   const topLive = liveCreators[0];
 
@@ -241,6 +246,7 @@ export default function Dashboard() {
         >
           <motion.section className="dashCard dashCardWide" variants={cardVariant}>
             <LiveCreatorsPanel
+              creators={creators}
               streamMap={streamMap}
               liveChecked={liveChecked}
               liveCreators={liveCreators}
@@ -252,7 +258,7 @@ export default function Dashboard() {
           </motion.section>
 
           <motion.section className="dashCard dashCardWide" variants={cardVariant}>
-            <RecentClipsPanel />
+            <RecentClipsPanel creators={creators} />
           </motion.section>
 
           <motion.section className="dashCard" variants={cardVariant}>
@@ -318,7 +324,7 @@ function OrgStatusStrip({
   );
 }
 
-function LiveCreatorsPanel({ streamMap, liveChecked, liveCreators }) {
+function LiveCreatorsPanel({ creators, streamMap, liveChecked, liveCreators }) {
   return (
     <>
       <div className="dashCardHead">
@@ -339,7 +345,7 @@ function LiveCreatorsPanel({ streamMap, liveChecked, liveCreators }) {
       </div>
 
       <div className="dashLiveList">
-        {CREATORS.map((c) => {
+        {creators.map((c) => {
           const info = streamMap[c.twitchLogin];
           const isLive = !!info?.isLive;
           const viewers = formatViewers(info?.viewerCount);
@@ -452,7 +458,8 @@ function QuickActionsPanel({ isAdmin }) {
   );
 }
 
-function RecentClipsPanel() {
+function RecentClipsPanel({ creators }) {
+  const creatorLogins = creators.map((c) => c.twitchLogin).join(",");
   const [clips, setClips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -466,7 +473,7 @@ function RecentClipsPanel() {
 
       try {
         const url = `/.netlify/functions/twitch-clips?users=${encodeURIComponent(
-          ALL_CREATOR_LOGINS
+          creatorLogins
         )}&days=7&first=8`;
 
         const res = await fetch(url, { cache: "no-store" });
@@ -481,13 +488,18 @@ function RecentClipsPanel() {
       }
     }
 
+    if (!creatorLogins) {
+      setLoading(false);
+      return undefined;
+    }
+
     load();
     const t = setInterval(load, 5 * 60_000);
     return () => {
       cancelled = true;
       clearInterval(t);
     };
-  }, []);
+  }, [creatorLogins]);
 
   return (
     <>

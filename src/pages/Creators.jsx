@@ -5,10 +5,12 @@ import { FaTwitch, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { CREATORS } from "../data/creators.js";
 import { DISCORD_INVITE } from "../data/links.js";
+import { useSiteContent } from "../state/siteContent.js";
 
 /* ─── PAGE ────────────────────────────────────────────── */
 
 export default function Creators() {
+  const { creators: CREATORS } = useSiteContent();
   const [liveMap, setLiveMap] = useState({});
   const [checked, setChecked] = useState(false);
   const [modal, setModal] = useState(null);
@@ -40,7 +42,7 @@ export default function Creators() {
     poll();
     const t = setInterval(poll, 60_000);
     return () => { cancelled = true; clearInterval(t); };
-  }, []);
+  }, [CREATORS]);
 
   useEffect(() => {
     if (!modal) return;

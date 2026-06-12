@@ -3,105 +3,12 @@ import { motion, useInView } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
 import { Link } from "react-router-dom";
 import { DISCORD_INVITE } from "../data/links.js";
-
-/* ─────────────────────────────────────────────────────────
-   STAFF DATA
-   - image: path to photo e.g. "/staff/sousa.png"
-           Put photos in your /public/staff/ folder.
-           If the path is wrong or missing, initials show instead.
-   - tags:  pills shown on the card
-   - game:  small label shown under role
-───────────────────────────────────────────────────────── */
-
-const DEPARTMENTS = [
-  {
-    id: "leadership",
-    label: "LEADERSHIP",
-    icon: "👑",
-    members: [
-      {
-        id: "Hugo",
-        name: "Hugo",
-        role: "FOUNDER & OWNER",
-        game: "GD Esports",
-        tags: ["Owner", "Founder"],
-        accent: "#ff7a00",
-        accentRgb: "255,122,0",
-        initials: "S",
-        number: "01",
-      },
-    ],
-  },
-    {
-    id: "Developer",
-    label: "Developer",
-    icon: "👑",
-    members: [
-      {
-        id: "Goncalo",
-        name: "Goncalo",
-        role: "DEVELOPER",
-        game: "GD Esports",
-        tags: ["Owner", "Developer"],
-        accent: "#ff7a00",
-        accentRgb: "255,122,0",
-        initials: "S",
-        number: "02",
-        image: "/staff/goncalo.png", // ← add your photo to /public/staff/Hugo.png
-      },
-    ],
-  },
-  {
-    id: "lol",
-    label: "LEAGUE OF LEGENDS",
-    icon: "⚔️",
-    members: [
-      {
-        id: "Paky",
-        name: "Paky",
-        role: "LOL COORDINATOR",
-        game: "League of Legends",
-        tags: ["Coordinator", "League of Legends"],
-        accent: "#ffb000",
-        accentRgb: "255,176,0",
-        initials: "P",
-        number: "03",
-        image: "/staff/Paky.png",
-      },
-      {
-        id: "Aleix",
-        name: "Aleix",
-        role: "LPLOL MANAGER",
-        game: "League of Legends",
-        tags: ["Manager", "League of Legends"],
-        accent: "#ffb000",
-        accentRgb: "255,176,0",
-        initials: "G",
-        number: "04",
-        image: "/staff/Aleix.png",
-      },
-      {
-        id: "Rodrigo",
-        name: "Rodrigo",
-        role: "BENELUX TEAM MANAGER",
-        game: "League of Legends",
-        tags: ["Team Manager", "League of Legends"],
-        accent: "#ffb000",
-        accentRgb: "255,176,0",
-        initials: "R",
-        number: "06",
-        image: "/staff/Rodrigo.png",
-      },
-    ],
-  },
-
-];
-
-const ALL_MEMBERS = DEPARTMENTS.flatMap((d) => d.members);
-
-/* ─── PAGE ────────────────────────────────────────────── */
+import { useSiteContent } from "../state/siteContent.js";
 
 export default function Staff() {
+  const { staffDepartments: DEPARTMENTS } = useSiteContent();
+  const ALL_MEMBERS = DEPARTMENTS.flatMap((d) => d.members);
+
   return (
     <PageMotion>
       <div className="cx3Page">

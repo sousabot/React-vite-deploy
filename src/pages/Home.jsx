@@ -5,8 +5,9 @@ import Modal from "../components/Modal.jsx";
 import { Link } from "react-router-dom";
 import { FaDiscord } from "react-icons/fa";
 import { track } from "../state/track.js";
-import { CREATORS } from "../data/creators.js";
+import { CREATORS as DEFAULT_CREATORS } from "../data/creators.js";
 import { DISCORD_INVITE } from "../data/links.js";
+import { useSiteContent } from "../state/siteContent.js";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -48,19 +49,19 @@ function formatViewers(count) {
   return count.toLocaleString();
 }
 
-function sortLiveCreators(streams) {
-  return CREATORS.filter((c) => streams[c.twitchLogin]?.isLive).sort((a, b) => {
+function sortLiveCreators(streams, creators) {
+  return creators.filter((c) => streams[c.twitchLogin]?.isLive).sort((a, b) => {
     const diff =
       (streams[b.twitchLogin]?.viewerCount || 0) -
       (streams[a.twitchLogin]?.viewerCount || 0);
     if (diff !== 0) return diff;
-    return CREATORS.indexOf(a) - CREATORS.indexOf(b);
+    return creators.indexOf(a) - creators.indexOf(b);
   });
 }
 
-function pickFeaturedCreator(streams) {
-  const live = sortLiveCreators(streams);
-  return live[0] || CREATORS[0];
+function pickFeaturedCreator(streams, creators) {
+  const live = sortLiveCreators(streams, creators);
+  return live[0] || creators[0];
 }
 
 /* ======================
@@ -104,6 +105,7 @@ function StatCard({ label, value, suffix }) {
 }
 
 export default function Home() {
+  const { creators: CREATORS } = useSiteContent();
   const [open, setOpen] = useState(false);
 
   /* ======================
@@ -163,7 +165,7 @@ export default function Home() {
   const [liveCount, setLiveCount] = useState(0);
   const [streamMap, setStreamMap] = useState({});
   const [liveChecked, setLiveChecked] = useState(false);
-  const [featured, setFeatured] = useState(CREATORS[0]);
+  const [featured, setFeatured] = useState(DEFAULT_CREATORS[0]);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,9 +210,9 @@ export default function Home() {
           const map = Object.fromEntries(entries);
           setStreamMap(map);
 
-          const live = sortLiveCreators(map);
+          const live = sortLiveCreators(map, CREATORS);
           setLiveCount(live.length);
-          setFeatured(pickFeaturedCreator(map));
+          setFeatured(pickFeaturedCreator(map, CREATORS));
           setLiveChecked(true);
         }
       } catch {
@@ -218,17 +220,19 @@ export default function Home() {
       }
     }
 
+    if (!CREATORS.length) return;
+
     loadLive();
     const t = setInterval(loadLive, 60_000);
     return () => {
       cancelled = true;
       clearInterval(t);
     };
-  }, []);
+  }, [CREATORS]);
 
   const liveCreators = useMemo(
-    () => sortLiveCreators(streamMap),
-    [streamMap]
+    () => sortLiveCreators(streamMap, CREATORS),
+    [streamMap, CREATORS]
   );
 
   const otherLiveCreators = useMemo(
