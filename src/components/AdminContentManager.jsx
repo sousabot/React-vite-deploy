@@ -13,6 +13,7 @@ import {
   parseTwitchLogin,
   slugify,
 } from "../utils/contentHelpers.js";
+import ImageUploadField from "./ImageUploadField.jsx";
 
 const TABS = [
   { id: "creators", label: "Creators" },
@@ -426,7 +427,7 @@ export default function AdminContentManager() {
           <h2 className="adminSectionTitle">Content Manager</h2>
           <p className="muted">
             Add or update creators, staff, and partners without touching code.
-            Upload images to <code>/public</code> first, then paste the path.
+            Upload a photo with the button below, or paste an existing path/URL.
           </p>
         </div>
         <div className="adminContentActions">
@@ -607,9 +608,15 @@ export default function AdminContentManager() {
               <Field label="Twitch login">
                 <input className="input" value={creatorForm.twitchLogin} onChange={(e) => setCreatorForm((f) => ({ ...f, twitchLogin: e.target.value }))} placeholder="username" />
               </Field>
-              <Field label="Image path">
-                <input className="input" value={creatorForm.image} onChange={(e) => setCreatorForm((f) => ({ ...f, image: e.target.value }))} placeholder="/creators/name.png" />
-              </Field>
+              <ImageUploadField
+                label="Photo"
+                value={creatorForm.image}
+                onChange={(image) => setCreatorForm((f) => ({ ...f, image }))}
+                folder="creators"
+                slug={creatorForm.name}
+                hint="PNG/JPG/WebP, max 5 MB. Upload fills the path automatically."
+                placeholder="/creators/name.png or https://..."
+              />
               <Field label="Instagram URL">
                 <input className="input" value={creatorForm.instagram} onChange={(e) => setCreatorForm((f) => ({ ...f, instagram: e.target.value }))} />
               </Field>
@@ -659,9 +666,15 @@ export default function AdminContentManager() {
               <Field label="Game / area">
                 <input className="input" value={staffForm.game} onChange={(e) => setStaffForm((f) => ({ ...f, game: e.target.value }))} />
               </Field>
-              <Field label="Image path">
-                <input className="input" value={staffForm.image} onChange={(e) => setStaffForm((f) => ({ ...f, image: e.target.value }))} placeholder="/staff/name.png" />
-              </Field>
+              <ImageUploadField
+                label="Photo"
+                value={staffForm.image}
+                onChange={(image) => setStaffForm((f) => ({ ...f, image }))}
+                folder="staff"
+                slug={staffForm.name}
+                hint="PNG/JPG/WebP, max 5 MB."
+                placeholder="/staff/name.png or https://..."
+              />
               <Field label="Initials">
                 <input className="input" value={staffForm.initials} onChange={(e) => setStaffForm((f) => ({ ...f, initials: e.target.value }))} placeholder="AB" />
               </Field>
@@ -711,9 +724,15 @@ export default function AdminContentManager() {
               <Field label="Website URL">
                 <input className="input" value={partnerForm.website} onChange={(e) => setPartnerForm((f) => ({ ...f, website: e.target.value }))} />
               </Field>
-              <Field label="Logo path">
-                <input className="input" value={partnerForm.logo} onChange={(e) => setPartnerForm((f) => ({ ...f, logo: e.target.value }))} placeholder="/partners/logo.webp" />
-              </Field>
+              <ImageUploadField
+                label="Logo"
+                value={partnerForm.logo}
+                onChange={(logo) => setPartnerForm((f) => ({ ...f, logo }))}
+                folder="partners"
+                slug={partnerForm.name}
+                hint="PNG/JPG/WebP, max 5 MB."
+                placeholder="/partners/logo.webp or https://..."
+              />
               <Field label="Accent color">
                 <input className="input" type="color" value={partnerForm.accent} onChange={(e) => setPartnerForm((f) => ({ ...f, accent: e.target.value }))} />
               </Field>

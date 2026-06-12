@@ -4088,6 +4088,39 @@ img, video, canvas, svg {
   margin-bottom: 12px;
 }
 
+.adminImageUpload {
+  display: grid;
+  gap: 10px;
+}
+
+.adminImagePreview {
+  width: 88px;
+  height: 110px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.adminImagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.adminImageUploadActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.adminFormError {
+  color: #ff6b8a;
+}
+
 .adminContentHead {
   display: flex;
   align-items: flex-start;
