@@ -7010,3 +7010,251 @@ img, video, canvas, svg {
   letter-spacing: 0.06em;
   color: var(--accent);
 }
+
+/* ======================
+   MATCH CENTER
+   Add to your stylesheet. Replaces the old
+   .matchResultCard styles from the previous version
+   (safe to delete those if you added them).
+   ====================== */
+
+.matchCenterCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(
+      120% 140% at 50% -10%,
+      rgba(255, 122, 0, 0.18),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  padding: 28px 24px 0;
+}
+
+/* soft glow blob behind the logos, gives it that "hero banner" depth
+   without needing a photo */
+.matchCenterGlow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 122, 0, 0.25) 0%,
+    rgba(255, 122, 0, 0) 70%
+  );
+  pointer-events: none;
+}
+
+.matchCenterTop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.matchCenterComp {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.matchCenterFormat {
+  font-size: 0.85rem;
+}
+
+.matchCenterMain {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 6vw, 64px);
+  padding-bottom: 22px;
+}
+
+.matchCenterTeam {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 84px;
+}
+
+.matchCenterLogo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(255, 122, 0, 0.35));
+}
+
+.matchCenterLogo--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+.matchCenterTeamName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.matchCenterCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+}
+
+.matchCenterCountdown {
+  display: flex;
+  gap: 18px;
+}
+
+.matchCenterCountdownUnit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 44px;
+}
+
+.matchCenterCountdownValue {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #ff7a00;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.matchCenterCountdownLabel {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.matchCenterTBA {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.matchCenterVs {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.05em;
+}
+
+.matchCenterTBALabel {
+  font-size: 0.8rem;
+  max-width: 180px;
+}
+
+.matchCenterActions {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 24px;
+}
+
+.matchCenterActions .btnPrimary,
+.matchCenterActions .btnGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- schedule strip --- */
+.matchCenterSchedule {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.matchCenterScheduleItem {
+  padding: 16px 18px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.matchCenterScheduleItem:first-child {
+  border-left: none;
+}
+
+.matchCenterScheduleComp {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.matchCenterScheduleTeams {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  display: flex;
+  gap: 6px;
+}
+
+.matchCenterScheduleVs {
+  font-weight: 400;
+}
+
+.matchCenterScheduleStatus {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.matchCenterScheduleStatus.won {
+  color: #ff7a00;
+}
+
+.matchCenterScheduleStatus.upcoming {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 640px) {
+  .matchCenterMain {
+    gap: 16px;
+  }
+  .matchCenterLogo {
+    width: 48px;
+    height: 48px;
+  }
+  .matchCenterCountdown {
+    gap: 10px;
+  }
+  .matchCenterCountdownValue {
+    font-size: 1.4rem;
+  }
+  .matchCenterSchedule {
+    grid-template-columns: 1fr;
+  }
+  .matchCenterScheduleItem {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .matchCenterScheduleItem:first-child {
+    border-top: none;
+  }
+}

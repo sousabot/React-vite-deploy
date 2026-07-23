@@ -34,6 +34,98 @@ const JERSEYS = [
   },
 ];
 
+/* ======================
+   MATCH CENTER (edit me)
+   Update LAST_MATCH after every game.
+   Update NEXT_MATCH once LPLOL reveals the opponent
+   (usually ~48h before match day) — leave date/opponent
+   as null until then and the card will show "TBA".
+   ====================== */
+const LAST_MATCH = {
+  league: "LPLOL",
+  competition: "Season Opener · Game 1",
+  result: "W", // "W" or "L"
+  score: "1-0",
+  opponent: "ZeroZone Gaming", // <-- update with real opponent name
+  opponentLogo: null, // <-- optional path to opponent logo, e.g. "/opponents/team-x.png"
+  vodUrl: "", // <-- update with VOD/recap link, leave empty to hide the button
+  summary: "GD eSports takes down TBD to open the season 1-0.",
+};
+
+const NEXT_MATCH = {
+  competition: "LPLOL",
+  format: "Best of 1",
+  date: null, // <-- set an ISO string once known, e.g. "2026-08-02T18:00:00"
+  opponent: null, // <-- set once revealed, e.g. "Team X"
+  opponentLogo: null,
+};
+
+// Rolling schedule strip shown under the match center card.
+// Add/remove entries as the season progresses.
+const SCHEDULE = [
+  {
+    id: "g1",
+    isPast: true,
+    competition: LAST_MATCH.league,
+    format: "Bo1",
+    opponent: LAST_MATCH.opponent,
+    status: `${LAST_MATCH.result} ${LAST_MATCH.score}`,
+  },
+  {
+    id: "g2",
+    isPast: false,
+    competition: NEXT_MATCH.competition,
+    format: "Bo1",
+    opponent: NEXT_MATCH.opponent,
+    date: NEXT_MATCH.date,
+  },
+  {
+    id: "g3",
+    isPast: false,
+    competition: "LPLOL",
+    format: "Bo1",
+    opponent: null,
+    date: null,
+  },
+];
+
+function computeTimeLeft(targetDate) {
+  if (!targetDate) return null;
+  const diff = new Date(targetDate).getTime() - Date.now();
+  if (diff <= 0) return { days: 0, hours: 0, mins: 0, secs: 0, expired: true };
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    mins: Math.floor((diff / (1000 * 60)) % 60),
+    secs: Math.floor((diff / 1000) % 60),
+    expired: false,
+  };
+}
+
+function useCountdown(targetDate) {
+  const [timeLeft, setTimeLeft] = useState(() => computeTimeLeft(targetDate));
+
+  useEffect(() => {
+    if (!targetDate) {
+      setTimeLeft(null);
+      return;
+    }
+    setTimeLeft(computeTimeLeft(targetDate));
+    const t = setInterval(() => setTimeLeft(computeTimeLeft(targetDate)), 1000);
+    return () => clearInterval(t);
+  }, [targetDate]);
+
+  return timeLeft;
+}
+
+function formatScheduleDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const datePart = d.toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+  const timePart = d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  return `${datePart} · ${timePart}`;
+}
+
 function encodeForm(data) {
   return new URLSearchParams(data).toString();
 }
@@ -107,6 +199,7 @@ function StatCard({ label, value, suffix }) {
 export default function Home() {
   const { creators: CREATORS } = useSiteContent();
   const [open, setOpen] = useState(false);
+  const nextMatchCountdown = useCountdown(NEXT_MATCH.date);
 
   /* ======================
      DISCORD MEMBER COUNT (AUTO)
@@ -356,7 +449,151 @@ export default function Home() {
               </Link>
             </div>
 
+            <div className="heroRecordChip">
+              <span className="heroRecordDot" aria-hidden="true" />
+              LPLOL Season Opener — {LAST_MATCH.score} vs {LAST_MATCH.opponent}
+            </div>
+
             <div className="heroDivider" aria-hidden="true" />
+          </motion.div>
+        </section>
+
+        {/* ======================
+            MATCH CENTER
+            (Next match / countdown up top,
+             recent + upcoming schedule strip below)
+           ====================== */}
+        <section className="sectionPro">
+          <motion.div
+            className="matchCenterCard"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="matchCenterGlow" aria-hidden="true" />
+
+            <div className="matchCenterTop">
+              <span className="matchCenterComp">{NEXT_MATCH.competition}</span>
+              <span className="matchCenterFormat muted">{NEXT_MATCH.format}</span>
+            </div>
+
+            <div className="matchCenterMain">
+              <div className="matchCenterTeam">
+                <img
+                  src="/logo.png"
+                  alt="GD Esports"
+                  className="matchCenterLogo"
+                />
+                <span className="matchCenterTeamName">GD</span>
+              </div>
+
+              <div className="matchCenterCenter">
+                {nextMatchCountdown && !nextMatchCountdown.expired ? (
+                  <div className="matchCenterCountdown">
+                    {[
+                      { label: "days", value: nextMatchCountdown.days },
+                      { label: "hours", value: nextMatchCountdown.hours },
+                      { label: "mins", value: nextMatchCountdown.mins },
+                      { label: "secs", value: nextMatchCountdown.secs },
+                    ].map((u) => (
+                      <div key={u.label} className="matchCenterCountdownUnit">
+                        <span className="matchCenterCountdownValue">
+                          {String(u.value).padStart(2, "0")}
+                        </span>
+                        <span className="matchCenterCountdownLabel muted">
+                          {u.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="matchCenterTBA">
+                    <span className="matchCenterVs">VS</span>
+                    <span className="matchCenterTBALabel muted">
+                      Opponent revealed 48h before match day
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="matchCenterTeam">
+                {NEXT_MATCH.opponentLogo ? (
+                  <img
+                    src={NEXT_MATCH.opponentLogo}
+                    alt={NEXT_MATCH.opponent}
+                    className="matchCenterLogo"
+                  />
+                ) : (
+                  <div className="matchCenterLogo matchCenterLogo--placeholder">
+                    ?
+                  </div>
+                )}
+                <span className="matchCenterTeamName">
+                  {NEXT_MATCH.opponent || "TBA"}
+                </span>
+              </div>
+            </div>
+
+            <div className="matchCenterActions">
+              <a
+                href={DISCORD_INVITE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnPrimary"
+                onClick={() =>
+                  track("discord_click", { source: "match_center" })
+                }
+              >
+                <FaDiscord aria-hidden="true" />
+                Get Match Alerts
+              </a>
+
+              {LAST_MATCH.vodUrl && (
+                <a
+                  href={LAST_MATCH.vodUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btnGhost"
+                  onClick={() =>
+                    track("match_recap_click", { league: LAST_MATCH.league })
+                  }
+                >
+                  Watch Last Recap ↗
+                </a>
+              )}
+            </div>
+
+            <div className="matchCenterSchedule">
+              {SCHEDULE.map((m) => (
+                <div
+                  key={m.id}
+                  className={`matchCenterScheduleItem ${
+                    m.isPast ? "isPast" : "isUpcoming"
+                  }`}
+                >
+                  <div className="matchCenterScheduleComp muted">
+                    {m.competition} · {m.format}
+                  </div>
+                  <div className="matchCenterScheduleTeams">
+                    <span>GD</span>
+                    <span className="matchCenterScheduleVs muted">vs</span>
+                    <span>{m.opponent || "TBA"}</span>
+                  </div>
+                  <div
+                    className={`matchCenterScheduleStatus ${
+                      m.isPast ? "won" : "upcoming"
+                    }`}
+                  >
+                    {m.isPast
+                      ? m.status
+                      : m.date
+                        ? formatScheduleDate(m.date)
+                        : "TBA"}
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </section>
 
@@ -493,6 +730,35 @@ export default function Home() {
                 <Link to="/about" className="statusLink">
                   Info
                 </Link>
+              </div>
+
+              <div className="statusItem">
+                <div className="statusItemLeft">
+                  <span className="statusDot dotGreen" />
+                  <div className="statusItemText">
+                    <div className="statusLabel">LPLOL</div>
+                    <div className="statusValue">
+                      {LAST_MATCH.result === "W" ? "Won" : "Lost"} Game 1
+                      {" "}
+                      {LAST_MATCH.score} vs {LAST_MATCH.opponent}
+                    </div>
+                  </div>
+                </div>
+
+                {LAST_MATCH.vodUrl ? (
+                  <a
+                    href={LAST_MATCH.vodUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="statusLink"
+                  >
+                    Recap
+                  </a>
+                ) : (
+                  <Link to="/players" className="statusLink">
+                    Roster
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
