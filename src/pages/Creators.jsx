@@ -123,7 +123,7 @@ export default function Creators() {
                         style={{ "--ca": c.accent }}
                       >
                         <div className="cx3LiveRowImg">
-                          <img src={c.image} alt={c.name} />
+                          <img src={c.image} alt={c.name} loading="lazy" decoding="async" />
                           {isLive && <span className="cx3LiveRowDot" />}
                         </div>
                         <div className="cx3LiveRowInfo">
@@ -224,7 +224,13 @@ function CreatorCard({ creator: c, index, isLive, checked, onOpen }) {
       {/* image */}
       <div className="cx3CardImg" onClick={onOpen}>
         {c.image ? (
-          <img src={c.image} alt={c.name} loading="lazy" />
+          <img
+            src={c.image}
+            alt={c.name}
+            loading="lazy"
+            decoding="async"
+            onLoad={(e) => e.currentTarget.classList.add("cx3ImgLoaded")}
+          />
         ) : (
           <div className="cx3CardImgPlaceholder">{c.name?.slice(0, 2)?.toUpperCase() || "?"}</div>
         )}
@@ -320,7 +326,7 @@ function CreatorModal({ creator: c, isLive, onClose }) {
         <div className="cx3ModalLayout">
           <div className="cx3ModalLeft">
             <div className="cx3ModalImg">
-              <img src={c.image} alt={c.name} />
+              <img src={c.image} alt={c.name} decoding="async" />
               <div className="cx3ModalImgGlow" />
             </div>
             <div className="cx3ModalStatusRow">
