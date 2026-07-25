@@ -6515,10 +6515,15 @@ img, video, canvas, svg {
   object-fit: cover;
   object-position: top center;
   display: block;
-  transition: transform 0.4s ease;
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.5s ease;
 }
 
-.cx3Card:hover .cx3CardImg img { transform: scale(1.06); }
+.cx3CardImg img.cx3ImgLoaded {
+  opacity: 1;
+}
+
+.cx3Card:hover .cx3CardImg img.cx3ImgLoaded { transform: scale(1.06); }
 
 .cx3CardImgPlaceholder {
   width: 100%;

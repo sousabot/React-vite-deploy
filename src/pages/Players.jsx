@@ -183,7 +183,9 @@ function PlayerCard({ member: m, index }) {
             src={m.image}
             alt={m.name}
             loading="lazy"
+            decoding="async"
             style={{ display: "block" }}
+            onLoad={(e) => e.currentTarget.classList.add("cx3ImgLoaded")}
             onError={(e) => {
               e.currentTarget.style.display = "none";
               const fallback = e.currentTarget.parentElement.querySelector(".staffInitialsWrap");
