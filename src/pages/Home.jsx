@@ -35,6 +35,13 @@ const JERSEYS = [
 ];
 
 /* ======================
+   MATCH TWITCH LINK (edit me)
+   Update this if the match stream ever moves
+   to a different channel.
+   ====================== */
+const MATCH_TWITCH_URL = "https://www.twitch.tv/rtparenalol";
+
+/* ======================
    MATCH CENTER (edit me)
    Update LAST_MATCH after every game.
    Update NEXT_MATCH once LPLOL reveals the opponent
@@ -46,18 +53,20 @@ const LAST_MATCH = {
   competition: "Season Opener · Game 1",
   result: "W", // "W" or "L"
   score: "1-0",
-  opponent: "ZeroZone Gaming", // <-- update with real opponent name
+  opponent: "ZeroZone Gaming",
+  opponentTag: "ZZG", // <-- short tag used in match center / schedule
   opponentLogo: null, // <-- optional path to opponent logo, e.g. "/opponents/team-x.png"
   vodUrl: "", // <-- update with VOD/recap link, leave empty to hide the button
-  summary: "GD eSports takes down TBD to open the season 1-0.",
+  summary: "GDE eSports takes down TBD to open the season 1-0.",
 };
 
 const NEXT_MATCH = {
   competition: "LPLOL",
   format: "Best of 1",
-  date: null, // <-- set an ISO string once known, e.g. "2026-08-02T18:00:00"
-  opponent: null, // <-- set once revealed, e.g. "Team X"
-  opponentLogo: null,
+  date: "2026-07-28T20:00:00+01:00", // Tomorrow, 8:00 PM UK time
+  opponent: "Northerngrade Esports",
+  opponentTag: "NGE", // <-- short tag
+  opponentLogo: "/opponents/NortherngradeEsports.png",
 };
 
 // Rolling schedule strip shown under the match center card.
@@ -68,7 +77,7 @@ const SCHEDULE = [
     isPast: true,
     competition: LAST_MATCH.league,
     format: "Bo1",
-    opponent: LAST_MATCH.opponent,
+    opponent: LAST_MATCH.opponentTag, // uses short tag
     status: `${LAST_MATCH.result} ${LAST_MATCH.score}`,
   },
   {
@@ -76,7 +85,7 @@ const SCHEDULE = [
     isPast: false,
     competition: NEXT_MATCH.competition,
     format: "Bo1",
-    opponent: NEXT_MATCH.opponent,
+    opponent: NEXT_MATCH.opponentTag, // uses short tag
     date: NEXT_MATCH.date,
   },
   {
@@ -485,7 +494,7 @@ export default function Home() {
                   alt="GD Esports"
                   className="matchCenterLogo"
                 />
-                <span className="matchCenterTeamName">GD</span>
+                <span className="matchCenterTeamName">GDE</span>
               </div>
 
               <div className="matchCenterCenter">
@@ -530,7 +539,7 @@ export default function Home() {
                   </div>
                 )}
                 <span className="matchCenterTeamName">
-                  {NEXT_MATCH.opponent || "TBA"}
+                  {NEXT_MATCH.opponentTag || "TBA"}
                 </span>
               </div>
             </div>
@@ -547,6 +556,18 @@ export default function Home() {
               >
                 <FaDiscord aria-hidden="true" />
                 Get Match Alerts
+              </a>
+
+              <a
+                href={MATCH_TWITCH_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnGhost"
+                onClick={() =>
+                  track("twitch_watch", { source: "match_center" })
+                }
+              >
+                Watch on Twitch ↗
               </a>
 
               {LAST_MATCH.vodUrl && (
@@ -576,7 +597,7 @@ export default function Home() {
                     {m.competition} · {m.format}
                   </div>
                   <div className="matchCenterScheduleTeams">
-                    <span>GD</span>
+                    <span>GDE</span>
                     <span className="matchCenterScheduleVs muted">vs</span>
                     <span>{m.opponent || "TBA"}</span>
                   </div>
