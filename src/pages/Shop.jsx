@@ -5,9 +5,8 @@ import PageMotion from "../components/PageMotion.jsx";
 /* ─── DATA ─────────────────────────────────────────── */
 
 const CATEGORIES = [
-  { id: "all",     label: "All",     icon: "⊞" },
-  { id: "jersey",  label: "Jerseys", icon: "👕" },
-  { id: "acc",     label: "Accessories", icon: "🎮" },
+  { id: "all", label: "All" },
+  { id: "jersey", label: "Jerseys" },
 ];
 
 const PRODUCTS = [
@@ -17,11 +16,12 @@ const PRODUCTS = [
     tag: "Orange Edition",
     category: "jersey",
     img: "/jersey-reveal.png",
-    price: 70.00,
+    price: 70.0,
     desc: "Official GD Esports Home Jersey. Premium athletic fit.",
-    sizes: ["XS","S","M","L","XL","2XL","3XL","4XL","5XL"],
+    sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"],
     badge: "Best Seller",
     badgeColor: "#ff7a00",
+    featured: true,
   },
   {
     id: "away",
@@ -29,22 +29,23 @@ const PRODUCTS = [
     tag: "Black Edition",
     category: "jersey",
     img: "/jersey-away.png",
-    price: 30.00,
+    price: 30.0,
     desc: "Official GD Esports Away Jersey. Premium athletic fit.",
-    sizes: ["XS","S","M","L","XL","XXL"],
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
     badge: null,
+    featured: true,
   },
   {
     id: "jersey",
-    name: "Jersey",
+    name: "Classic Jersey",
     tag: "Black & Orange Edition",
     category: "jersey",
     img: "/jersey.png",
-    price: 30.00,
+    price: 30.0,
     desc: "Official GD Esports Jersey. Premium athletic fit.",
-    sizes: ["XS","S","M","L","XL","XXL"],
-    badge: "New",
-    badgeColor: "#22c55e",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    badge: null,
+    featured: false,
   },
 ];
 
@@ -79,15 +80,44 @@ function cartKey({ productId, size, customName, customNumber }) {
 
 /* ─── MAIN PAGE ─────────────────────────────────────── */
 
+function readCheckoutBanner() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("success") === "1") {
+    return { type: "ok", text: "Payment received — check your email for confirmation." };
+  }
+  if (params.get("canceled") === "1") {
+    return {
+      type: "warn",
+      text: "Checkout canceled. Your cart is still here when you’re ready.",
+    };
+  }
+  return null;
+}
+
 export default function Shop() {
-  const [cart, setCart] = useState(() => loadCart());
+  const [cart, setCart] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "1") {
+      saveCart([]);
+      return [];
+    }
+    return loadCart();
+  });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategory, setActiveCategory] = useState("jersey");
   const [sortBy, setSortBy] = useState("featured");
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [banner, setBanner] = useState(() => readCheckoutBanner());
+
+  useEffect(() => {
+    if (!window.location.search) return;
+    window.history.replaceState({}, "", "/shop");
+  }, []);
 
   /* cart helpers */
   function addToCart(item) {
+    if (!item.size) return;
     setCart((prev) => {
       const next = [...prev];
       const key = cartKey(item);
@@ -113,10 +143,6 @@ export default function Shop() {
     });
   }
 
-  function removeItem(index) {
-    setCart((prev) => { const next = prev.filter((_, i) => i !== index); saveCart(next); return next; });
-  }
-
   function clearCart() { setCart([]); saveCart([]); }
 
   const totals = useMemo(() => {
@@ -128,7 +154,8 @@ export default function Shop() {
   }, [cart]);
 
   async function checkout() {
-    if (cart.length === 0) return;
+    if (cart.length === 0 || checkoutBusy) return;
+    setCheckoutBusy(true);
     try {
       const res = await fetch("/.netlify/functions/create-checkout", {
         method: "POST",
@@ -136,10 +163,20 @@ export default function Shop() {
         body: JSON.stringify({ cart }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { alert(data?.error || `Checkout failed (${res.status})`); return; }
-      if (!data?.url) { alert("Checkout failed (no url returned)"); return; }
+      if (!res.ok) {
+        setBanner({ type: "warn", text: data?.error || `Checkout failed (${res.status})` });
+        return;
+      }
+      if (!data?.url) {
+        setBanner({ type: "warn", text: "Checkout failed — no payment URL returned." });
+        return;
+      }
       window.location.href = data.url;
-    } catch (err) { alert(err?.message || "Checkout failed"); }
+    } catch (err) {
+      setBanner({ type: "warn", text: err?.message || "Checkout failed" });
+    } finally {
+      setCheckoutBusy(false);
+    }
   }
 
   const cartCount = cart.reduce((a, x) => a + (x.qty || 1), 0);
@@ -151,10 +188,16 @@ export default function Shop() {
       : PRODUCTS.filter((p) => p.category === activeCategory);
 
     switch (sortBy) {
-      case "price-asc":  return [...list].sort((a, b) => a.price - b.price);
-      case "price-desc": return [...list].sort((a, b) => b.price - a.price);
-      case "name":       return [...list].sort((a, b) => a.name.localeCompare(b.name));
-      default:           return list;
+      case "price-asc":
+        return [...list].sort((a, b) => a.price - b.price);
+      case "price-desc":
+        return [...list].sort((a, b) => b.price - a.price);
+      case "name":
+        return [...list].sort((a, b) => a.name.localeCompare(b.name));
+      default:
+        return [...list].sort(
+          (a, b) => Number(!!b.featured) - Number(!!a.featured)
+        );
     }
   }, [activeCategory, sortBy]);
 
@@ -168,18 +211,19 @@ export default function Shop() {
     <PageMotion>
       <div className="shopV2Page">
 
-        {/* ── TOP BAR ───────────────────────────────────── */}
         <div className="shopV2TopBar">
           <div className="shopV2TopBarLeft">
-            <span className="shopV2Eyebrow">GD ESPORTS</span>
-            <h1 className="shopV2Title">Shop</h1>
+            <h1 className="shopV2Title">Official Jerseys</h1>
+            <p className="shopV2Lead muted">
+              Pick a size, add to cart, checkout with Stripe.
+            </p>
           </div>
 
           <button
             className="shopV2CartBtn"
             onClick={() => setDrawerOpen(true)}
+            type="button"
           >
-            <span className="shopV2CartIcon">🛒</span>
             <span className="shopV2CartLabel">Cart</span>
             {cartCount > 0 && (
               <motion.span
@@ -194,16 +238,29 @@ export default function Shop() {
           </button>
         </div>
 
-        {/* ── CATEGORY + SORT BAR ──────────────────────── */}
+        {banner && (
+          <div className={`shopV2Banner shopV2Banner--${banner.type}`}>
+            <span>{banner.text}</span>
+            <button
+              type="button"
+              className="shopV2BannerClose"
+              onClick={() => setBanner(null)}
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         <div className="shopV2ControlBar">
           <div className="shopV2Cats">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
+                type="button"
                 className={`shopV2CatBtn ${activeCategory === cat.id ? "active" : ""}`}
                 onClick={() => setActiveCategory(cat.id)}
               >
-                <span>{cat.icon}</span>
                 {cat.label}
                 {cat.id !== "all" && (
                   <span className="shopV2CatCount">
@@ -228,12 +285,6 @@ export default function Shop() {
           </div>
         </div>
 
-        {/* ── RESULTS SUMMARY ───────────────────────────── */}
-        <div className="shopV2ResultsMeta muted small">
-          {displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}
-          {activeCategory !== "all" && ` in ${CATEGORIES.find(c => c.id === activeCategory)?.label}`}
-        </div>
-
         {/* ── PRODUCT GRID ─────────────────────────────── */}
         <motion.div
           className="shopV2Grid"
@@ -251,16 +302,14 @@ export default function Shop() {
           </AnimatePresence>
         </motion.div>
 
-        {/* ── INFO STRIP ───────────────────────────────── */}
         <div className="shopV2InfoStrip">
           {[
-            { icon: "🚚", title: "UK & International", sub: "Shipping available" },
-            { icon: "📏", title: "Athletic Fit", sub: "Between sizes? Size up" },
-            { icon: "🔒", title: "Secure Payment", sub: "Powered by Stripe" },
-            { icon: "📧", title: "Support", sub: "socialmediagd25@outlook.com" },
+            { title: "UK & International", sub: "Shipping available" },
+            { title: "Athletic Fit", sub: "Between sizes? Size up" },
+            { title: "Secure Payment", sub: "Powered by Stripe" },
+            { title: "Support", sub: "socialmediagd25@outlook.com" },
           ].map((item) => (
             <div key={item.title} className="shopV2InfoItem">
-              <span className="shopV2InfoIcon">{item.icon}</span>
               <div>
                 <div className="shopV2InfoTitle">{item.title}</div>
                 <div className="shopV2InfoSub muted small">{item.sub}</div>
@@ -269,10 +318,26 @@ export default function Shop() {
           ))}
         </div>
 
+        {cartCount > 0 && (
+          <div className="shopV2MobileBar">
+            <div className="shopV2MobileBarCopy">
+              <strong>{cartCount}</strong> in cart · {formatGBP(totals.subtotal)}
+            </div>
+            <button
+              type="button"
+              className="btnPrimary"
+              onClick={() => setDrawerOpen(true)}
+            >
+              Checkout
+            </button>
+          </div>
+        )}
+
         {/* ── QUICK VIEW MODAL ──────────────────────────── */}
         <AnimatePresence>
           {quickViewProduct && (
             <QuickView
+              key={quickViewProduct.id}
               product={quickViewProduct}
               onClose={() => setQuickViewProduct(null)}
               onAdd={(item) => { addToCart(item); setQuickViewProduct(null); }}
@@ -309,7 +374,6 @@ export default function Shop() {
                 <div className="shopV2DrawerBody">
                   {cart.length === 0 ? (
                     <div className="shopV2EmptyCart">
-                      <div className="shopV2EmptyIcon">🛒</div>
                       <div className="muted">Your cart is empty</div>
                       <button className="btnGhost" style={{ marginTop: 10 }} onClick={() => setDrawerOpen(false)}>
                         Keep shopping
@@ -348,8 +412,13 @@ export default function Shop() {
                       <span className="muted">Subtotal</span>
                       <span className="shopV2SubtotalAmt">{formatGBP(totals.subtotal)}</span>
                     </div>
-                    <button className="btnPrimary shopV2CheckoutBtn" onClick={checkout}>
-                      Checkout
+                    <button
+                      className="btnPrimary shopV2CheckoutBtn"
+                      onClick={checkout}
+                      disabled={checkoutBusy}
+                      type="button"
+                    >
+                      {checkoutBusy ? "Redirecting…" : "Checkout with Stripe"}
                     </button>
                     <button className="shopV2ClearBtn muted small" onClick={clearCart}>
                       Clear cart
@@ -373,12 +442,16 @@ export default function Shop() {
 
 function ProductCard({ product, onAdd, onQuickView }) {
   const sizes = product.sizes?.length ? product.sizes : ["M"];
-  const [size, setSize] = useState(sizes[0]);
+  const [size, setSize] = useState(null);
   const [adding, setAdding] = useState(false);
-
-  useEffect(() => { setSize(sizes[0]); }, [product.id]);
+  const [needSize, setNeedSize] = useState(false);
 
   function handleAdd() {
+    if (!size) {
+      setNeedSize(true);
+      return;
+    }
+    setNeedSize(false);
     setAdding(true);
     onAdd({ productId: product.id, size, qty: 1, customName: "", customNumber: "" });
     setTimeout(() => setAdding(false), 900);
@@ -420,26 +493,32 @@ function ProductCard({ product, onAdd, onQuickView }) {
           <div className="shopV2CardPrice">{formatGBP(product.price)}</div>
         </div>
 
-        {/* size picker */}
         <div className="shopV2SizePicker">
           {sizes.map((s) => (
             <button
               key={s}
+              type="button"
               className={`shopV2SizeBtn ${size === s ? "active" : ""}`}
-              onClick={() => setSize(s)}
+              onClick={() => {
+                setSize(s);
+                setNeedSize(false);
+              }}
             >
               {s}
             </button>
           ))}
         </div>
+        {needSize && (
+          <div className="shopV2SizeHint">Select a size to continue</div>
+        )}
 
-        {/* add btn */}
         <motion.button
+          type="button"
           className={`shopV2AddBtn ${adding ? "added" : ""}`}
           onClick={handleAdd}
           whileTap={{ scale: 0.97 }}
         >
-          {adding ? "✓ Added" : "Add to cart"}
+          {adding ? "Added" : size ? "Add to cart" : "Select size"}
         </motion.button>
       </div>
     </motion.article>
@@ -450,15 +529,24 @@ function ProductCard({ product, onAdd, onQuickView }) {
 
 function QuickView({ product, onClose, onAdd }) {
   const sizes = product.sizes?.length ? product.sizes : ["M"];
-  const [size, setSize] = useState(sizes[0]);
+  const [size, setSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [customName, setCustomName] = useState("");
+  const [needSize, setNeedSize] = useState(false);
 
   useEffect(() => {
     function onKey(e) { if (e.key === "Escape") onClose(); }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  function handleAdd() {
+    if (!size) {
+      setNeedSize(true);
+      return;
+    }
+    onAdd({ productId: product.id, size, qty, customName, customNumber: "" });
+  }
 
   return (
     <>
@@ -495,18 +583,25 @@ function QuickView({ product, onClose, onAdd }) {
             <p className="shopV2QVDesc muted">{product.desc}</p>
 
             <div className="shopV2QVSection">
-              <div className="shopV2QVSectionLabel small">Size</div>
+              <div className="shopV2QVSectionLabel small">Size *</div>
               <div className="shopV2SizePicker">
                 {sizes.map((s) => (
                   <button
                     key={s}
+                    type="button"
                     className={`shopV2SizeBtn ${size === s ? "active" : ""}`}
-                    onClick={() => setSize(s)}
+                    onClick={() => {
+                      setSize(s);
+                      setNeedSize(false);
+                    }}
                   >
                     {s}
                   </button>
                 ))}
               </div>
+              {needSize && (
+                <div className="shopV2SizeHint">Select a size to continue</div>
+              )}
             </div>
 
             <div className="shopV2QVSection">
@@ -523,17 +618,20 @@ function QuickView({ product, onClose, onAdd }) {
             <div className="shopV2QVSection">
               <div className="shopV2QVSectionLabel small">Quantity</div>
               <div className="shopV2QVQtyRow">
-                <button className="shopV2QtyBtn" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
+                <button type="button" className="shopV2QtyBtn" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
                 <span className="shopV2QtyNum">{qty}</span>
-                <button className="shopV2QtyBtn" onClick={() => setQty((q) => Math.min(10, q + 1))}>+</button>
+                <button type="button" className="shopV2QtyBtn" onClick={() => setQty((q) => Math.min(10, q + 1))}>+</button>
               </div>
             </div>
 
             <button
+              type="button"
               className="btnPrimary shopV2CheckoutBtn"
-              onClick={() => onAdd({ productId: product.id, size, qty, customName, customNumber: "" })}
+              onClick={handleAdd}
             >
-              Add to cart — {formatGBP(product.price * qty)}
+              {size
+                ? `Add to cart — ${formatGBP(product.price * qty)}`
+                : "Select a size"}
             </button>
           </div>
         </div>

@@ -56,22 +56,19 @@ export default function ParticlesBackground({
       fpsLimit: 60,
       detectRetina: true,
       particles: {
-        number: { value: density, density: { enable: true, area: 900 } },
-        color: { value: ["#ff7a00", "#ffb000", "#ffffff"] },
-        links: { enable: true, distance: 140, opacity: mouseGlow ? 0.2 : 0.25, width: 1 },
-        move: { enable: true, speed: mouseGlow ? 1.15 : 1.2, outModes: { default: "out" } },
-        opacity: { value: { min: mouseGlow ? 0.12 : 0.15, max: mouseGlow ? 0.55 : 0.6 } },
-        size: { value: { min: 1, max: 3 } },
+        number: { value: density, density: { enable: true, area: 1100 } },
+        color: { value: ["#ff7a00", "#ffb000"] },
+        links: { enable: false },
+        move: { enable: true, speed: mouseGlow ? 0.7 : 0.55, outModes: { default: "out" } },
+        opacity: { value: { min: 0.08, max: mouseGlow ? 0.35 : 0.28 } },
+        size: { value: { min: 1, max: 2.2 } },
       },
       interactivity: {
         events: {
-          onHover: { enable: true, mode: "repulse" },
-          onClick: { enable: true, mode: "push" },
+          onHover: { enable: false },
+          onClick: { enable: false },
         },
-        modes: {
-          repulse: { distance: 120, duration: 0.2 },
-          push: { quantity: mouseGlow ? 2 : 3 },
-        },
+        modes: {},
       },
     }),
     [density, mouseGlow]

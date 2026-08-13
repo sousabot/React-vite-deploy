@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { FaDiscord } from "react-icons/fa";
 import { track } from "../state/track.js";
 import { CREATORS as DEFAULT_CREATORS } from "../data/creators.js";
+import { buildSchedule } from "../data/matches.js";
 import { DISCORD_INVITE } from "../data/links.js";
 import { useSiteContent } from "../state/siteContent.js";
 
@@ -14,87 +15,18 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
-/* ======================
-   JERSEYS (add more)
-   Put images in /public and set paths here.
-   ====================== */
 const JERSEYS = [
   {
     id: "home",
-    title: "Home Jersey 🟠",
+    title: "Home Jersey",
     image: "/jersey-reveal.png",
-    previewUrl:
-      "https://gdesports.uk/shop",
+    previewUrl: "/shop",
   },
   {
     id: "away",
-    title: "Away Jersey ⚫",
+    title: "Away Jersey",
     image: "/jersey-away.png",
-    previewUrl: "https://gdesports.uk/shop", // <-- update this
-  },
-];
-
-/* ======================
-   MATCH TWITCH LINK (edit me)
-   Update this if the match stream ever moves
-   to a different channel.
-   ====================== */
-const MATCH_TWITCH_URL = "https://www.twitch.tv/rtparenalol";
-
-/* ======================
-   MATCH CENTER (edit me)
-   Update LAST_MATCH after every game.
-   Update NEXT_MATCH once LPLOL reveals the opponent
-   (usually ~48h before match day) — leave date/opponent
-   as null until then and the card will show "TBA".
-   ====================== */
-const LAST_MATCH = {
-  league: "LPLOL",
-  competition: "Season Opener · Game 1",
-  result: "W", // "W" or "L"
-  score: "1-0",
-  opponent: "ZeroZone Gaming",
-  opponentTag: "ZZG", // <-- short tag used in match center / schedule
-  opponentLogo: null, // <-- optional path to opponent logo, e.g. "/opponents/team-x.png"
-  vodUrl: "", // <-- update with VOD/recap link, leave empty to hide the button
-  summary: "GDE eSports takes down TBD to open the season 1-0.",
-};
-
-const NEXT_MATCH = {
-  competition: "LPLOL",
-  format: "Best of 1",
-  date: "2026-07-28T20:00:00+01:00", // Tomorrow, 8:00 PM UK time
-  opponent: "Northerngrade Esports",
-  opponentTag: "NGE", // <-- short tag
-  opponentLogo: "/opponents/NortherngradeEsports.png",
-};
-
-// Rolling schedule strip shown under the match center card.
-// Add/remove entries as the season progresses.
-const SCHEDULE = [
-  {
-    id: "g1",
-    isPast: true,
-    competition: LAST_MATCH.league,
-    format: "Bo1",
-    opponent: LAST_MATCH.opponentTag, // uses short tag
-    status: `${LAST_MATCH.result} ${LAST_MATCH.score}`,
-  },
-  {
-    id: "g2",
-    isPast: false,
-    competition: NEXT_MATCH.competition,
-    format: "Bo1",
-    opponent: NEXT_MATCH.opponentTag, // uses short tag
-    date: NEXT_MATCH.date,
-  },
-  {
-    id: "g3",
-    isPast: false,
-    competition: "LPLOL",
-    format: "Bo1",
-    opponent: null,
-    date: null,
+    previewUrl: "/shop",
   },
 ];
 
@@ -206,7 +138,15 @@ function StatCard({ label, value, suffix }) {
 }
 
 export default function Home() {
-  const { creators: CREATORS } = useSiteContent();
+  const { creators: CREATORS, matches } = useSiteContent();
+  const LAST_MATCH = matches.lastMatch;
+  const NEXT_MATCH = matches.nextMatch;
+  const MATCH_TWITCH_URL = matches.matchTwitchUrl;
+  const SCHEDULE = useMemo(
+    () => buildSchedule(LAST_MATCH, NEXT_MATCH),
+    [LAST_MATCH, NEXT_MATCH]
+  );
+
   const [open, setOpen] = useState(false);
   const nextMatchCountdown = useCountdown(NEXT_MATCH.date);
 
@@ -254,12 +194,6 @@ export default function Home() {
     ],
     [discordMembers, discordOnline]
   );
-
-  /* ======================
-     JERSEY REVEAL STATE
-     Jerseys are already out -> always show reveal UI.
-     ====================== */
-  const revealReady = true;
 
   /* ======================
      LIVE CREATOR STATUS
@@ -346,14 +280,12 @@ export default function Home() {
   const featuredIsLive = !!featuredStream?.isLive;
   const featuredViewers = featuredStream?.viewerCount || 0;
   const featuredViewerLabel = formatViewers(featuredViewers);
-
-  const creatorStatus = !liveChecked
-    ? "Checking live status…"
-    : liveCount > 0
-      ? featuredViewerLabel
-        ? `${liveCount} live · top stream ${featuredViewerLabel} viewers`
-        : `${liveCount} Creator${liveCount > 1 ? "s" : ""} Live Now`
-      : "No one live right now";
+  const matchCountdownActive =
+    !!nextMatchCountdown && !nextMatchCountdown.expired;
+  const hasNextOpponent = !!(
+    (NEXT_MATCH.opponentTag && NEXT_MATCH.opponentTag.trim()) ||
+    (NEXT_MATCH.opponent && NEXT_MATCH.opponent.trim())
+  );
 
   /* ======================
      TRYOUT FORM STATE
@@ -421,9 +353,7 @@ export default function Home() {
   return (
     <PageMotion>
       <div className="homePro">
-        {/* ======================
-            HERO
-           ====================== */}
+        {/* HERO — brand + one story */}
         <section className="heroPro">
           <motion.div
             className="homeHero"
@@ -440,39 +370,32 @@ export default function Home() {
 
             <h1 className="heroTitle">
               Built to <span className="accentText">Compete.</span>
-              <br />
-              Built to Last.
             </h1>
 
             <p className="heroDesc">
-              Structure, discipline, and community — from tryouts to creators to
-              the squad.
+              LPLOL squad. Creators. Community. One org.
             </p>
 
             <div className="heroCTA">
-              <Link to="/shop" className="btnPrimary">
+              <a
+                href={DISCORD_INVITE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btnPrimary"
+                onClick={() => track("discord_click", { source: "home_hero" })}
+              >
+                <FaDiscord aria-hidden="true" />
+                Get Match Alerts
+              </a>
+              <Link to="/shop" className="btnGhost">
                 Shop Jerseys
               </Link>
-              <Link to="/creators" className="btnGhost">
-                Meet Creators
-              </Link>
             </div>
-
-            <div className="heroRecordChip">
-              <span className="heroRecordDot" aria-hidden="true" />
-              LPLOL Season Opener — {LAST_MATCH.score} vs {LAST_MATCH.opponent}
-            </div>
-
-            <div className="heroDivider" aria-hidden="true" />
           </motion.div>
         </section>
 
-        {/* ======================
-            MATCH CENTER
-            (Next match / countdown up top,
-             recent + upcoming schedule strip below)
-           ====================== */}
-        <section className="sectionPro">
+        {/* MATCH CENTER */}
+        <section className="sectionPro sectionPro--tight">
           <motion.div
             className="matchCenterCard"
             variants={fadeUp}
@@ -483,8 +406,16 @@ export default function Home() {
             <div className="matchCenterGlow" aria-hidden="true" />
 
             <div className="matchCenterTop">
-              <span className="matchCenterComp">{NEXT_MATCH.competition}</span>
-              <span className="matchCenterFormat muted">{NEXT_MATCH.format}</span>
+              <span className="matchCenterComp">
+                {matchCountdownActive || hasNextOpponent
+                  ? "Next Match"
+                  : "Last Result"}
+              </span>
+              <span className="matchCenterFormat muted">
+                {matchCountdownActive || hasNextOpponent
+                  ? `${NEXT_MATCH.competition} · ${NEXT_MATCH.format}`
+                  : `${LAST_MATCH.league} · ${LAST_MATCH.competition}`}
+              </span>
             </div>
 
             <div className="matchCenterMain">
@@ -498,7 +429,7 @@ export default function Home() {
               </div>
 
               <div className="matchCenterCenter">
-                {nextMatchCountdown && !nextMatchCountdown.expired ? (
+                {matchCountdownActive ? (
                   <div className="matchCenterCountdown">
                     {[
                       { label: "days", value: nextMatchCountdown.days },
@@ -516,31 +447,61 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
-                ) : (
+                ) : hasNextOpponent ? (
                   <div className="matchCenterTBA">
                     <span className="matchCenterVs">VS</span>
                     <span className="matchCenterTBALabel muted">
-                      Opponent revealed 48h before match day
+                      Date TBA — alerts in Discord
+                    </span>
+                  </div>
+                ) : (
+                  <div className="matchCenterTBA">
+                    <span className="matchCenterScore">
+                      {LAST_MATCH.result} {LAST_MATCH.score}
+                    </span>
+                    <span className="matchCenterTBALabel muted">
+                      Next opponent TBA
                     </span>
                   </div>
                 )}
               </div>
 
               <div className="matchCenterTeam">
-                {NEXT_MATCH.opponentLogo ? (
-                  <img
-                    src={NEXT_MATCH.opponentLogo}
-                    alt={NEXT_MATCH.opponent}
-                    className="matchCenterLogo"
-                  />
+                {matchCountdownActive || hasNextOpponent ? (
+                  <>
+                    {NEXT_MATCH.opponentLogo ? (
+                      <img
+                        src={NEXT_MATCH.opponentLogo}
+                        alt={NEXT_MATCH.opponent || "Opponent"}
+                        className="matchCenterLogo"
+                      />
+                    ) : (
+                      <div className="matchCenterLogo matchCenterLogo--placeholder">
+                        ?
+                      </div>
+                    )}
+                    <span className="matchCenterTeamName">
+                      {NEXT_MATCH.opponentTag || "TBA"}
+                    </span>
+                  </>
                 ) : (
-                  <div className="matchCenterLogo matchCenterLogo--placeholder">
-                    ?
-                  </div>
+                  <>
+                    {LAST_MATCH.opponentLogo ? (
+                      <img
+                        src={LAST_MATCH.opponentLogo}
+                        alt={LAST_MATCH.opponent}
+                        className="matchCenterLogo"
+                      />
+                    ) : (
+                      <div className="matchCenterLogo matchCenterLogo--placeholder">
+                        {LAST_MATCH.opponentTag?.slice(0, 2) || "?"}
+                      </div>
+                    )}
+                    <span className="matchCenterTeamName">
+                      {LAST_MATCH.opponentTag || "TBA"}
+                    </span>
+                  </>
                 )}
-                <span className="matchCenterTeamName">
-                  {NEXT_MATCH.opponentTag || "TBA"}
-                </span>
               </div>
             </div>
 
@@ -555,7 +516,7 @@ export default function Home() {
                 }
               >
                 <FaDiscord aria-hidden="true" />
-                Get Match Alerts
+                Match Alerts
               </a>
 
               <a
@@ -567,7 +528,7 @@ export default function Home() {
                   track("twitch_watch", { source: "match_center" })
                 }
               >
-                Watch on Twitch ↗
+                Watch on Twitch
               </a>
 
               {LAST_MATCH.vodUrl && (
@@ -580,7 +541,7 @@ export default function Home() {
                     track("match_recap_click", { league: LAST_MATCH.league })
                   }
                 >
-                  Watch Last Recap ↗
+                  Last Recap
                 </a>
               )}
             </div>
@@ -603,7 +564,11 @@ export default function Home() {
                   </div>
                   <div
                     className={`matchCenterScheduleStatus ${
-                      m.isPast ? "won" : "upcoming"
+                      m.isPast
+                        ? LAST_MATCH.result === "W"
+                          ? "won"
+                          : "lost"
+                        : "upcoming"
                     }`}
                   >
                     {m.isPast
@@ -618,372 +583,188 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* ======================
-            LIVE BANNER
-           ====================== */}
-        <AnimatePresence>
-          {liveChecked && liveCreators.length > 0 && (
-            <motion.section
-              className="sectionPro liveBannerSection"
-              initial={{ opacity: 0, y: -10, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, y: -10, height: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-            >
-              <a
-                href={featured?.twitch}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="liveBanner"
-                style={{
-                  "--lb-accent": featured?.accent || "#ff7a00",
-                  "--lb-accent-rgb": featured?.accentRgb || "255,122,0",
-                }}
-                onClick={() =>
-                  track("twitch_watch", {
-                    source: "home_live_banner",
-                    creator: featured?.id,
-                  })
-                }
-              >
-                <div className="liveBannerPulse" aria-hidden="true" />
-
-                <div className="liveBannerAvatars">
-                  {liveCreators.slice(0, 3).map((c) => (
-                    <img
-                      key={c.id}
-                      src={c.image}
-                      alt={c.name}
-                      className="liveBannerAvatar"
-                    />
-                  ))}
-                </div>
-
-                <div className="liveBannerCopy">
-                  <span className="liveBannerKicker">
-                    <span className="liveBannerDot" aria-hidden="true" />
-                    Live now
-                  </span>
-                  <span className="liveBannerTitle">
-                    {liveCount === 1
-                      ? `${featured.name} is streaming`
-                      : `${featured.name} has the most viewers`}
-                  </span>
-                  <span className="liveBannerSub muted">
-                    {featuredViewerLabel
-                      ? `${featuredViewerLabel} watching · ${featuredStream?.streamGame || featured.game}`
-                      : featuredStream?.title || featured.game}
-                  </span>
-                </div>
-
-                <span className="liveBannerCta">Watch on Twitch ↗</span>
-              </a>
-            </motion.section>
-          )}
-        </AnimatePresence>
-
-        {/* ======================
-            WHAT’S HAPPENING NOW
-           ====================== */}
+        {/* CREATORS — one section (live or featured) */}
         <section className="sectionPro">
           <motion.div
-            className="statusCard"
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
           >
-            <div className="statusTop">
-              <span className="statusBadge">
-                <span className="pulseDot" /> WHAT’S HAPPENING NOW
-              </span>
-              <span className="statusSmall">Live org status</span>
+            <div className="homeSectionHead">
+              <h2 className="homeSectionTitle">Creators</h2>
+              <p className="homeSectionSub muted">
+                {liveChecked
+                  ? liveCount > 0
+                    ? `${liveCount} live right now`
+                    : "Nobody live — catch the next stream"
+                  : "Checking live status…"}
+              </p>
             </div>
 
-            <div className="statusGrid">
-              <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span
-                    className={`statusDot ${
-                      liveCount > 0 ? "dotRed" : "dotGray"
-                    }`}
-                  />
-                  <div className="statusItemText">
-                    <div className="statusLabel">Creators</div>
-                    <div className="statusValue">{creatorStatus}</div>
-                  </div>
-                </div>
-
-                <Link to="/creators" className="statusLink">
-                  View
-                </Link>
-              </div>
-
-              <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span className="statusDot dotGreen" />
-                  <div className="statusItemText">
-                    <div className="statusLabel">Tryouts</div>
-                    <div className="statusValue">Open</div>
-                  </div>
-                </div>
-
-                <button
-                  className="statusLinkBtn"
-                  onClick={() => {
-                    track("tryout_open");
-                    setOpen(true);
+            <AnimatePresence mode="wait">
+              {featuredIsLive ? (
+                <motion.a
+                  key="live"
+                  href={featured?.twitch}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="liveBanner"
+                  style={{
+                    "--lb-accent": featured?.accent || "#ff7a00",
+                    "--lb-accent-rgb": featured?.accentRgb || "255,122,0",
                   }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() =>
+                    track("twitch_watch", {
+                      source: "home_creators",
+                      creator: featured?.id,
+                    })
+                  }
                 >
-                  Apply
-                </button>
-              </div>
+                  <div className="liveBannerPulse" aria-hidden="true" />
 
-              <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span className="statusDot dotYellow" />
-                  <div className="statusItemText">
-                    <div className="statusLabel">Roster</div>
-                    <div className="statusValue">Forming</div>
-                  </div>
-                </div>
-
-                <Link to="/about" className="statusLink">
-                  Info
-                </Link>
-              </div>
-
-              <div className="statusItem">
-                <div className="statusItemLeft">
-                  <span className="statusDot dotGreen" />
-                  <div className="statusItemText">
-                    <div className="statusLabel">LPLOL</div>
-                    <div className="statusValue">
-                      {LAST_MATCH.result === "W" ? "Won" : "Lost"} Game 1
-                      {" "}
-                      {LAST_MATCH.score} vs {LAST_MATCH.opponent}
-                    </div>
-                  </div>
-                </div>
-
-                {LAST_MATCH.vodUrl ? (
-                  <a
-                    href={LAST_MATCH.vodUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="statusLink"
-                  >
-                    Recap
-                  </a>
-                ) : (
-                  <Link to="/players" className="statusLink">
-                    Roster
-                  </Link>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* ======================
-            FEATURED CREATOR
-           ====================== */}
-        <section className="sectionPro">
-          <motion.div
-            className={`featuredCreatorCard ${
-              featuredIsLive ? "featuredCreatorCard--live" : ""
-            }`}
-            style={{
-              "--fc-accent": featured?.accent || "#ff7a00",
-              "--fc-accent-rgb": featured?.accentRgb || "255,122,0",
-            }}
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-          >
-            <div className="featuredBody">
-              <div className="featuredAvatarWrap">
-                <img
-                  src={featured?.image}
-                  alt={featured?.name}
-                  className="featuredAvatar"
-                  loading="lazy"
-                />
-                {featuredIsLive && (
-                  <span className="featuredAvatarLive" aria-hidden="true" />
-                )}
-              </div>
-
-              <div className="featuredInfo">
-                <div className="featuredTop">
-                  <span className="featuredBadge">
-                    {featuredIsLive
-                      ? featuredViewerLabel
-                        ? `🔴 TOP STREAM · ${featuredViewerLabel}`
-                        : "🔴 MOST WATCHED"
-                      : "⭐ FEATURED CREATOR"}
-                  </span>
-
-                  <span className={`featuredLive ${featuredIsLive ? "on" : ""}`}>
-                    <span className="featuredLiveDot" />
-                    {!liveChecked
-                      ? "CHECKING…"
-                      : featuredIsLive
-                        ? featuredViewerLabel
-                          ? `${featuredViewerLabel} LIVE`
-                          : "LIVE NOW"
-                        : "OFFLINE"}
-                  </span>
-                </div>
-
-                <div className="featuredHandle muted small">
-                  {featured?.handle}
-                </div>
-
-                <div className="featuredNameRow">
-                  <div className="featuredName">{featured?.name}</div>
-                  <div className="featuredRole">{featured?.role}</div>
-                </div>
-
-                <div className="featuredTagline muted">
-                  {featuredIsLive && featuredStream?.streamGame
-                    ? featuredStream.streamGame
-                    : featured?.game}
-                </div>
-
-                {featuredIsLive && featuredStream?.title && (
-                  <div className="featuredStreamTitle muted small">
-                    {featuredStream.title}
-                  </div>
-                )}
-
-                {featured?.tags?.length > 0 && (
-                  <div className="featuredTags">
-                    {featured.tags.map((tag) => (
-                      <span key={tag} className="featuredTag">
-                        {tag}
-                      </span>
+                  <div className="liveBannerAvatars">
+                    {liveCreators.slice(0, 3).map((c) => (
+                      <img
+                        key={c.id}
+                        src={c.image}
+                        alt={c.name}
+                        className="liveBannerAvatar"
+                      />
                     ))}
                   </div>
-                )}
 
-                <div className="featuredActions">
-                  <a
-                    className="btnPrimary"
-                    href={featured?.twitch}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      track("twitch_watch", {
-                        source: "home_featured",
-                        creator: featured?.id,
-                      })
-                    }
-                  >
-                    {featuredIsLive ? "Watch Live" : "Watch on Twitch"}
-                  </a>
+                  <div className="liveBannerCopy">
+                    <span className="liveBannerKicker">
+                      <span className="liveBannerDot" aria-hidden="true" />
+                      Live now
+                    </span>
+                    <span className="liveBannerTitle">
+                      {liveCount === 1
+                        ? `${featured.name} is streaming`
+                        : `${featured.name} · top stream`}
+                    </span>
+                    <span className="liveBannerSub muted">
+                      {featuredViewerLabel
+                        ? `${featuredViewerLabel} watching · ${featuredStream?.streamGame || featured.game}`
+                        : featuredStream?.title || featured.game}
+                    </span>
+                    {otherLiveCreators.length > 0 && (
+                      <span className="liveBannerAlso muted small">
+                        Also live:{" "}
+                        {otherLiveCreators.map((c) => c.name).join(", ")}
+                      </span>
+                    )}
+                  </div>
 
-                  <Link className="btnGhost" to="/creators">
-                    View Creators
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {otherLiveCreators.length > 0 && (
-              <div className="featuredAlsoLive muted small">
-                Also live:{" "}
-                {otherLiveCreators.map((c, i) => (
-                  <span key={c.id}>
-                    {i > 0 && ", "}
-                    <a
-                      href={c.twitch}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="featuredAlsoLiveLink"
-                    >
-                      {c.name}
-                      {formatViewers(streamMap[c.twitchLogin]?.viewerCount)
-                        ? ` (${formatViewers(streamMap[c.twitchLogin]?.viewerCount)})`
-                        : ""}
-                    </a>
-                  </span>
-                ))}
-              </div>
-            )}
+                  <span className="liveBannerCta">Watch Live</span>
+                </motion.a>
+              ) : (
+                <motion.div
+                  key="offline"
+                  className="homeCreatorCard"
+                  style={{
+                    "--fc-accent": featured?.accent || "#ff7a00",
+                    "--fc-accent-rgb": featured?.accentRgb || "255,122,0",
+                  }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <img
+                    src={featured?.image}
+                    alt={featured?.name}
+                    className="homeCreatorAvatar"
+                    loading="lazy"
+                  />
+                  <div className="homeCreatorInfo">
+                    <div className="homeCreatorName">{featured?.name}</div>
+                    <div className="homeCreatorMeta muted">
+                      {featured?.handle}
+                      {featured?.game ? ` · ${featured.game}` : ""}
+                    </div>
+                    <div className="homeCreatorActions">
+                      <a
+                        className="btnPrimary"
+                        href={featured?.twitch}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          track("twitch_watch", {
+                            source: "home_creators",
+                            creator: featured?.id,
+                          })
+                        }
+                      >
+                        Watch on Twitch
+                      </a>
+                      <Link className="btnGhost" to="/creators">
+                        All Creators
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </section>
 
+        {/* SHOP */}
         <section className="sectionPro">
           <motion.div
-            className="announceCard"
+            className="homeShop"
             variants={fadeUp}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
           >
-            <div className="announceTop">
-              <span className="announceBadge">🚨 ANNOUNCEMENT</span>
-              <span className="announceSmall muted">
-                {revealReady ? "Live now" : "Stay locked in"}
-              </span>
+            <div className="homeSectionHead">
+              <h2 className="homeSectionTitle">Official Jerseys</h2>
+              <p className="homeSectionSub muted">
+                Home and away — limited runs.
+              </p>
             </div>
 
-            <div className="announceTitle">Jerseys are Here 🟠⚫</div>
-
-            <div className="jerseyShowcase">
-              <div className="jerseyShowcase__head">
-                <div className="jerseyShowcase__kicker muted">
-                  Official reveal
-                </div>
-                <div className="jerseyShowcase__sub">
-                  Click a jersey to open the Spized preview.
-                </div>
-              </div>
-
-              <div className="jerseyShowcase__grid">
-                {JERSEYS.map((j) => (
-                  <a
-                    key={j.id}
-                    href={j.previewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="jerseyTile"
-                    onClick={() => track("jersey_view", { id: j.id })}
-                  >
-                    <div
-                      className={`jerseyTile__img jerseyTile__img--${j.id}`}
-                      style={{ backgroundImage: `url(${j.image})` }}
-                    />
-
+            <div className="jerseyShowcase__grid">
+              {JERSEYS.map((j) => (
+                <Link
+                  key={j.id}
+                  to={j.previewUrl}
+                  className="jerseyTile"
+                  onClick={() => track("jersey_view", { id: j.id })}
+                >
+                  <div
+                    className={`jerseyTile__img jerseyTile__img--${j.id}`}
+                    style={{ backgroundImage: `url(${j.image})` }}
+                  />
                     <div className="jerseyTile__meta">
                       <div className="jerseyTile__title">{j.title}</div>
                       <div className="jerseyTile__cta">
-                        <span>View</span>
-                        <span className="jerseyTile__arrow">↗</span>
+                        <span>Shop</span>
+                        <span className="jerseyTile__arrow">→</span>
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 ))}
               </div>
 
-              <div className="jerseyShowcase__footer">
-                <div className="jerseyShowcase__note muted">
-                  Limited runs. Creator drops + team stock update in Discord.
-                </div>
-
-                <Link to="/shop" className="btnGhost">
-                  Shop
-                </Link>
-              </div>
+            <div className="homeShopFooter">
+              <p className="muted small">
+                Creator drops and restocks drop in Discord first.
+              </p>
+              <Link to="/shop" className="btnGhost">
+                Open Shop
+              </Link>
             </div>
           </motion.div>
         </section>
 
-        {/* ======================
-            COMMUNITY STATS
-           ====================== */}
+        {/* COMMUNITY */}
         <section className="sectionPro">
           <motion.div
             className="statsWrap"
@@ -992,11 +773,11 @@ export default function Home() {
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
           >
-            <div className="statsHead">
-              <div className="statsTitle">Community Stats</div>
-              <div className="statsSub muted">
-                Built by the squad — powered by the community
-              </div>
+            <div className="homeSectionHead">
+              <h2 className="homeSectionTitle">Community</h2>
+              <p className="homeSectionSub muted">
+                Match alerts, drops, and tryouts live here.
+              </p>
             </div>
 
             <div className="statsGrid">
@@ -1007,7 +788,7 @@ export default function Home() {
 
             <div className="discordCtaRow">
               <div className="discordCtaCopy">
-                <div className="discordCtaTitle">Join the squad on Discord</div>
+                <div className="discordCtaTitle">Join the Discord</div>
                 <div className="discordCtaSub muted">
                   {discordMembers > 0
                     ? `${discordMembers.toLocaleString()}+ members — updates, drops, and events.`
@@ -1015,43 +796,34 @@ export default function Home() {
                 </div>
               </div>
 
-              <a
-                href={DISCORD_INVITE}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btnPrimary discordCtaBtn"
-                onClick={() => track("discord_click", { source: "home_stats" })}
-              >
-                <FaDiscord aria-hidden="true" />
-                Join Discord
-              </a>
+              <div className="homeCommunityActions">
+                <a
+                  href={DISCORD_INVITE}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btnPrimary discordCtaBtn"
+                  onClick={() =>
+                    track("discord_click", { source: "home_community" })
+                  }
+                >
+                  <FaDiscord aria-hidden="true" />
+                  Join Discord
+                </a>
+                <button
+                  type="button"
+                  className="btnGhost"
+                  onClick={() => {
+                    track("tryout_open");
+                    setOpen(true);
+                  }}
+                >
+                  Apply for Tryouts
+                </button>
+              </div>
             </div>
           </motion.div>
         </section>
 
-        {/* ======================
-            DISCORD CTA
-           ====================== */}
-        <section className="sectionPro shopCtaSection">
-          <a
-            href={DISCORD_INVITE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shopCtaCard discordCtaCard"
-            onClick={() => track("discord_click", { source: "home_banner" })}
-          >
-            <span className="shopCtaText">
-              JOIN OUR
-              <br />
-              DISCORD
-            </span>
-            <span className="shopCtaArrow">›</span>
-          </a>
-        </section>
-
-        {/* ======================
-            TRYOUTS MODAL
-           ====================== */}
         <Modal
           open={open}
           title="GD Esports Tryouts"
@@ -1104,7 +876,7 @@ export default function Home() {
             />
 
             {submitError && <div className="formError">{submitError}</div>}
-            {submitted && <div className="formSuccess">Application sent ✅</div>}
+            {submitted && <div className="formSuccess">Application sent</div>}
 
             <div className="formRow">
               <motion.button

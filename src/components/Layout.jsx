@@ -40,7 +40,7 @@ export default function Layout() {
       {/* BACKGROUND */}
       <div className="bgStack">
         <div className="bgGradientAnimated" />
-        <ParticlesBackground />
+        <ParticlesBackground density={18} />
         <div className="bgVignette" />
       </div>
 

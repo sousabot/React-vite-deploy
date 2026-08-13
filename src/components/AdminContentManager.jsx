@@ -7,6 +7,11 @@ import {
   saveSiteContent,
 } from "../state/siteContent.js";
 import {
+  DEFAULT_MATCHES,
+  fromLocalInputValue,
+  toLocalInputValue,
+} from "../data/matches.js";
+import {
   hexToRgb,
   nextNumber,
   parseTags,
@@ -16,6 +21,7 @@ import {
 import ImageUploadField from "./ImageUploadField.jsx";
 
 const TABS = [
+  { id: "matches", label: "Matches" },
   { id: "creators", label: "Creators" },
   { id: "staff", label: "Staff" },
   { id: "partners", label: "Partners" },
@@ -67,16 +73,26 @@ function Field({ label, children, hint }) {
   );
 }
 
-function snapshotContent(creators, staffDepartments, partnerGroups) {
-  return JSON.stringify({ creators, staffDepartments, partnerGroups });
+function snapshotContent(creators, staffDepartments, partnerGroups, matches) {
+  return JSON.stringify({ creators, staffDepartments, partnerGroups, matches });
+}
+
+function normalizeMatchesDraft(matches) {
+  const base = matches || DEFAULT_MATCHES;
+  return {
+    matchTwitchUrl: base.matchTwitchUrl || DEFAULT_MATCHES.matchTwitchUrl,
+    lastMatch: { ...DEFAULT_MATCHES.lastMatch, ...(base.lastMatch || {}) },
+    nextMatch: { ...DEFAULT_MATCHES.nextMatch, ...(base.nextMatch || {}) },
+  };
 }
 
 export default function AdminContentManager() {
   const { user } = useAuth();
-  const [tab, setTab] = useState("creators");
+  const [tab, setTab] = useState("matches");
   const [creators, setCreators] = useState([]);
   const [staffDepartments, setStaffDepartments] = useState([]);
   const [partnerGroups, setPartnerGroups] = useState([]);
+  const [matches, setMatches] = useState(() => normalizeMatchesDraft(null));
   const [savedSnapshot, setSavedSnapshot] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -91,14 +107,17 @@ export default function AdminContentManager() {
     let cancelled = false;
     fetchSiteContent({ force: true }).then((content) => {
       if (cancelled) return;
+      const nextMatches = normalizeMatchesDraft(content.matches);
       setCreators(content.creators);
       setStaffDepartments(content.staffDepartments);
       setPartnerGroups(content.partnerGroups);
+      setMatches(nextMatches);
       setSavedSnapshot(
         snapshotContent(
           content.creators,
           content.staffDepartments,
-          content.partnerGroups
+          content.partnerGroups,
+          nextMatches
         )
       );
       setLoading(false);
@@ -111,10 +130,10 @@ export default function AdminContentManager() {
   const isDirty = useMemo(() => {
     if (!savedSnapshot) return false;
     return (
-      snapshotContent(creators, staffDepartments, partnerGroups) !==
+      snapshotContent(creators, staffDepartments, partnerGroups, matches) !==
       savedSnapshot
     );
-  }, [creators, staffDepartments, partnerGroups, savedSnapshot]);
+  }, [creators, staffDepartments, partnerGroups, matches, savedSnapshot]);
 
   const departmentOptions = useMemo(
     () =>
@@ -169,12 +188,35 @@ export default function AdminContentManager() {
       const token = await user?.firebaseUser?.getIdToken?.();
       if (!token) throw new Error("You must be logged in to save.");
 
+      const matchesPayload = {
+        matchTwitchUrl: (matches.matchTwitchUrl || "").trim(),
+        lastMatch: {
+          ...matches.lastMatch,
+          opponentLogo: (matches.lastMatch.opponentLogo || "").trim(),
+          vodUrl: (matches.lastMatch.vodUrl || "").trim(),
+        },
+        nextMatch: {
+          ...matches.nextMatch,
+          date: matches.nextMatch.date || null,
+          opponent: (matches.nextMatch.opponent || "").trim(),
+          opponentTag: (matches.nextMatch.opponentTag || "").trim(),
+          opponentLogo: (matches.nextMatch.opponentLogo || "").trim(),
+        },
+      };
+
       await saveSiteContent(
-        { creators, staffDepartments, partnerGroups },
+        { creators, staffDepartments, partnerGroups, matches: matchesPayload },
         token
       );
+      const publishedMatches = normalizeMatchesDraft(matchesPayload);
+      setMatches(publishedMatches);
       setSavedSnapshot(
-        snapshotContent(creators, staffDepartments, partnerGroups)
+        snapshotContent(
+          creators,
+          staffDepartments,
+          partnerGroups,
+          publishedMatches
+        )
       );
       setMessage("Content published. Public pages will update on refresh.");
       resetForms();
@@ -186,24 +228,56 @@ export default function AdminContentManager() {
   }
 
   function handleResetDefaults() {
-    if (!window.confirm("Reset editor to built-in defaults? This does not publish until you click Save.")) {
+    if (!window.confirm("Reload the latest published content into the editor? Unpublished drafts will be lost.")) {
       return;
     }
     invalidateSiteContentCache();
     fetchSiteContent({ force: true }).then((content) => {
+      const nextMatches = normalizeMatchesDraft(content.matches);
       setCreators(content.creators);
       setStaffDepartments(content.staffDepartments);
       setPartnerGroups(content.partnerGroups);
+      setMatches(nextMatches);
       setSavedSnapshot(
         snapshotContent(
           content.creators,
           content.staffDepartments,
-          content.partnerGroups
+          content.partnerGroups,
+          nextMatches
         )
       );
       resetForms();
-      setMessage("Loaded built-in defaults into the editor.");
+      setMessage("Reloaded published content into the editor.");
     });
+  }
+
+  function patchLastMatch(patch) {
+    setMatches((m) => ({
+      ...m,
+      lastMatch: { ...m.lastMatch, ...patch },
+    }));
+  }
+
+  function patchNextMatch(patch) {
+    setMatches((m) => ({
+      ...m,
+      nextMatch: { ...m.nextMatch, ...patch },
+    }));
+  }
+
+  function clearNextMatch() {
+    setMatches((m) => ({
+      ...m,
+      nextMatch: {
+        competition: "LPLOL",
+        format: "Best of 1",
+        date: null,
+        opponent: "",
+        opponentTag: "",
+        opponentLogo: "",
+      },
+    }));
+    setMessage("Next match cleared in draft. Publish to update the homepage.");
   }
 
   /* ─── Creators ─── */
@@ -426,13 +500,13 @@ export default function AdminContentManager() {
         <div>
           <h2 className="adminSectionTitle">Content Manager</h2>
           <p className="muted">
-            Add or update creators, staff, and partners without touching code.
-            Upload a photo with the button below, or paste an existing path/URL.
+            Update matches, creators, staff, and partners without touching code.
+            Match changes show on the homepage after Publish.
           </p>
         </div>
         <div className="adminContentActions">
           <button type="button" className="btnGhost" onClick={handleResetDefaults}>
-            Reload defaults
+            Reload published
           </button>
           <motion.button
             type="button"
@@ -472,7 +546,8 @@ export default function AdminContentManager() {
         ))}
       </div>
 
-      <div className="adminContentLayout">
+      <div className={`adminContentLayout ${tab === "matches" ? "adminContentLayout--single" : ""}`}>
+        {tab !== "matches" && (
         <div className="adminCardWide adminContentList">
           {tab === "creators" && (
             <>
@@ -582,11 +657,177 @@ export default function AdminContentManager() {
             </>
           )}
         </div>
+        )}
 
         <div className="adminCardWide adminContentForm">
+          {tab !== "matches" && (
           <div className="adminCardTitle">
             {editingId ? "Edit entry" : "Add new entry"}
           </div>
+          )}
+
+          {tab === "matches" && (
+            <div className="adminFormGrid adminMatchesForm">
+              <div className="adminCardTitle" style={{ gridColumn: "1 / -1" }}>
+                Match Center
+              </div>
+              <p className="muted small" style={{ gridColumn: "1 / -1", margin: 0 }}>
+                Edit last result and next match. Leave next opponent/date empty for TBA.
+                Changes apply after you click Publish changes.
+              </p>
+
+              <Field label="Match Twitch URL">
+                <input
+                  className="input"
+                  value={matches.matchTwitchUrl}
+                  onChange={(e) =>
+                    setMatches((m) => ({ ...m, matchTwitchUrl: e.target.value }))
+                  }
+                  placeholder="https://www.twitch.tv/..."
+                />
+              </Field>
+
+              <div className="adminMatchesDivider" style={{ gridColumn: "1 / -1" }}>
+                Last result
+              </div>
+
+              <Field label="League">
+                <input
+                  className="input"
+                  value={matches.lastMatch.league || ""}
+                  onChange={(e) => patchLastMatch({ league: e.target.value })}
+                />
+              </Field>
+              <Field label="Competition label">
+                <input
+                  className="input"
+                  value={matches.lastMatch.competition || ""}
+                  onChange={(e) => patchLastMatch({ competition: e.target.value })}
+                  placeholder="Season Opener · Game 1"
+                />
+              </Field>
+              <Field label="Result">
+                <select
+                  className="input"
+                  value={matches.lastMatch.result || "W"}
+                  onChange={(e) => patchLastMatch({ result: e.target.value })}
+                >
+                  <option value="W">Win (W)</option>
+                  <option value="L">Loss (L)</option>
+                </select>
+              </Field>
+              <Field label="Score">
+                <input
+                  className="input"
+                  value={matches.lastMatch.score || ""}
+                  onChange={(e) => patchLastMatch({ score: e.target.value })}
+                  placeholder="1-0"
+                />
+              </Field>
+              <Field label="Opponent name">
+                <input
+                  className="input"
+                  value={matches.lastMatch.opponent || ""}
+                  onChange={(e) => patchLastMatch({ opponent: e.target.value })}
+                />
+              </Field>
+              <Field label="Opponent tag">
+                <input
+                  className="input"
+                  value={matches.lastMatch.opponentTag || ""}
+                  onChange={(e) => patchLastMatch({ opponentTag: e.target.value })}
+                  placeholder="ZZG"
+                />
+              </Field>
+              <Field label="Opponent logo path" hint="Optional, e.g. /opponents/team.png">
+                <input
+                  className="input"
+                  value={matches.lastMatch.opponentLogo || ""}
+                  onChange={(e) => patchLastMatch({ opponentLogo: e.target.value })}
+                />
+              </Field>
+              <Field label="VOD / recap URL" hint="Optional">
+                <input
+                  className="input"
+                  value={matches.lastMatch.vodUrl || ""}
+                  onChange={(e) => patchLastMatch({ vodUrl: e.target.value })}
+                />
+              </Field>
+
+              <div className="adminMatchesDivider" style={{ gridColumn: "1 / -1" }}>
+                Next match
+              </div>
+
+              <Field label="Competition">
+                <input
+                  className="input"
+                  value={matches.nextMatch.competition || ""}
+                  onChange={(e) => patchNextMatch({ competition: e.target.value })}
+                />
+              </Field>
+              <Field label="Format">
+                <select
+                  className="input"
+                  value={matches.nextMatch.format || "Best of 1"}
+                  onChange={(e) => patchNextMatch({ format: e.target.value })}
+                >
+                  <option value="Best of 1">Best of 1</option>
+                  <option value="Best of 3">Best of 3</option>
+                  <option value="Best of 5">Best of 5</option>
+                </select>
+              </Field>
+              <Field label="Date & time" hint="Local time. Clear to show TBA.">
+                <input
+                  className="input"
+                  type="datetime-local"
+                  value={toLocalInputValue(matches.nextMatch.date)}
+                  onChange={(e) =>
+                    patchNextMatch({ date: fromLocalInputValue(e.target.value) })
+                  }
+                />
+              </Field>
+              <Field label="Opponent name">
+                <input
+                  className="input"
+                  value={matches.nextMatch.opponent || ""}
+                  onChange={(e) => patchNextMatch({ opponent: e.target.value })}
+                  placeholder="Leave empty for TBA"
+                />
+              </Field>
+              <Field label="Opponent tag">
+                <input
+                  className="input"
+                  value={matches.nextMatch.opponentTag || ""}
+                  onChange={(e) => patchNextMatch({ opponentTag: e.target.value })}
+                  placeholder="NGE"
+                />
+              </Field>
+              <Field label="Opponent logo path" hint="Optional, e.g. /opponents/team.png">
+                <input
+                  className="input"
+                  value={matches.nextMatch.opponentLogo || ""}
+                  onChange={(e) => patchNextMatch({ opponentLogo: e.target.value })}
+                />
+              </Field>
+
+              <div className="adminFormActions" style={{ gridColumn: "1 / -1" }}>
+                <button type="button" className="btnGhost" onClick={clearNextMatch}>
+                  Clear next match (TBA)
+                </button>
+              </div>
+
+              <div className="adminMatchesPreview muted small" style={{ gridColumn: "1 / -1" }}>
+                Preview: Last {matches.lastMatch.result} {matches.lastMatch.score} vs{" "}
+                {matches.lastMatch.opponentTag || matches.lastMatch.opponent || "—"}
+                {" · "}
+                Next{" "}
+                {matches.nextMatch.opponentTag || matches.nextMatch.opponent || "TBA"}
+                {matches.nextMatch.date
+                  ? ` · ${new Date(matches.nextMatch.date).toLocaleString()}`
+                  : " · date TBA"}
+              </div>
+            </div>
+          )}
 
           {tab === "creators" && (
             <form className="adminFormGrid" onSubmit={upsertCreator}>

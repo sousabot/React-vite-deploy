@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CREATORS as DEFAULT_CREATORS } from "../data/creators.js";
 import { STAFF_DEPARTMENTS as DEFAULT_STAFF } from "../data/staff.js";
 import { PARTNER_GROUPS as DEFAULT_PARTNERS } from "../data/partners.js";
+import { resolveMatches } from "../data/matches.js";
 
 let cachedContent = null;
 let cachePromise = null;
@@ -20,6 +21,7 @@ export function resolveSiteContent(stored) {
       Array.isArray(stored?.partnerGroups) && stored.partnerGroups.length
         ? stored.partnerGroups
         : DEFAULT_PARTNERS,
+    matches: resolveMatches(stored?.matches),
     updatedAt: stored?.updatedAt || null,
     source: stored?.updatedAt ? "remote" : "defaults",
   };
@@ -93,6 +95,7 @@ export function useSiteContent() {
     creators: content.creators,
     staffDepartments: content.staffDepartments,
     partnerGroups: content.partnerGroups,
+    matches: content.matches,
     updatedAt: content.updatedAt,
     source: content.source,
     loading,

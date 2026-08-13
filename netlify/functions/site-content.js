@@ -76,14 +76,22 @@ export const handler = async (event) => {
       if (!actor) return json(401, { error: "Unauthorized" });
 
       const incoming = JSON.parse(event.body || "{}");
+      const existing = (await readJsonBlob(store, key, {})) || {};
+
       const payload = {
-        creators: Array.isArray(incoming.creators) ? incoming.creators : null,
+        creators: Array.isArray(incoming.creators)
+          ? incoming.creators
+          : existing.creators ?? null,
         staffDepartments: Array.isArray(incoming.staffDepartments)
           ? incoming.staffDepartments
-          : null,
+          : existing.staffDepartments ?? null,
         partnerGroups: Array.isArray(incoming.partnerGroups)
           ? incoming.partnerGroups
-          : null,
+          : existing.partnerGroups ?? null,
+        matches:
+          incoming.matches && typeof incoming.matches === "object"
+            ? incoming.matches
+            : existing.matches ?? null,
         updatedAt: Date.now(),
         updatedBy: actor,
       };
