@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import PageMotion from "../components/PageMotion.jsx";
-import { FaTwitch, FaInstagram } from "react-icons/fa";
+import { FaTwitch, FaInstagram, FaDiscord } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { CREATORS } from "../data/creators.js";
 import { DISCORD_INVITE } from "../data/links.js";
 import { useSiteContent } from "../state/siteContent.js";
-
-/* ─── PAGE ────────────────────────────────────────────── */
 
 export default function Creators() {
   const { creators: CREATORS } = useSiteContent();
@@ -29,7 +27,9 @@ export default function Creators() {
               if (!res.ok) return [c.twitchLogin, false];
               const data = await res.json();
               return [c.twitchLogin, !!data?.isLive];
-            } catch { return [c.twitchLogin, false]; }
+            } catch {
+              return [c.twitchLogin, false];
+            }
           })
         );
         if (cancelled) return;
@@ -37,159 +37,163 @@ export default function Creators() {
         for (const [login, isLive] of results) next[login] = isLive;
         setLiveMap(next);
         setChecked(true);
-      } catch { if (!cancelled) setChecked(true); }
+      } catch {
+        if (!cancelled) setChecked(true);
+      }
     }
+    if (!CREATORS.length) return;
     poll();
     const t = setInterval(poll, 60_000);
-    return () => { cancelled = true; clearInterval(t); };
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
   }, [CREATORS]);
 
   useEffect(() => {
     if (!modal) return;
-    const fn = (e) => { if (e.key === "Escape") setModal(null); };
+    const fn = (e) => {
+      if (e.key === "Escape") setModal(null);
+    };
     window.addEventListener("keydown", fn);
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", fn); document.body.style.overflow = ""; };
+    return () => {
+      window.removeEventListener("keydown", fn);
+      document.body.style.overflow = "";
+    };
   }, [modal]);
+
+  const ordered = useMemo(() => {
+    return [...CREATORS].sort((a, b) => {
+      const aLive = liveMap[a.twitchLogin] ? 1 : 0;
+      const bLive = liveMap[b.twitchLogin] ? 1 : 0;
+      if (aLive !== bLive) return bLive - aLive;
+      return CREATORS.indexOf(a) - CREATORS.indexOf(b);
+    });
+  }, [CREATORS, liveMap]);
 
   const liveCount = Object.values(liveMap).filter(Boolean).length;
   const anyLive = checked && liveCount > 0;
 
   return (
     <PageMotion>
-      <div className="cx3Page">
-
-        {/* ─── HERO ─────────────────────────────────── */}
-        <div className="cx3Hero">
-          <div className="cx3HeroBg" aria-hidden="true">
-            <div className="cx3HeroBgGrad" />
-            <div className="cx3HeroBgGrid" />
+      <div className="gdPage">
+        <header className="gdCastHead">
+          <div className="gdCastHeadCopy">
+            <h1 className="gdCastTitle">Creators</h1>
+            <p className="gdCastMeta muted">
+              {CREATORS.length} creators
+              {" · "}
+              {!checked
+                ? "Checking live…"
+                : anyLive
+                  ? `${liveCount} live now`
+                  : "Nobody live right now"}
+            </p>
           </div>
-
-          <div className="cx3HeroBody">
-            <motion.div
-              className="cx3HeroLeft"
-              initial={{ opacity: 0, x: -24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          <div className="gdCastHeadActions">
+            <a
+              href={DISCORD_INVITE}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btnPrimary"
             >
-              <div className="cx3HeroKicker">
-                <span className="cx3KickerDot" aria-hidden="true" />
-                GD ESPORTS · CREATORS
-              </div>
-
-              <h1 className="cx3HeroTitle">
-                The faces<br />
-                <em className="cx3HeroTitleAccent">behind the stream.</em>
-              </h1>
-
-              <p className="cx3HeroDesc muted">
-                {CREATORS.length} creators. One org. Building the brand live — every session, every clip, every win.
-              </p>
-
-              <div className="cx3HeroActions">
-                <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="btnPrimary">
-                  Join our Discord
-                </a>
-                <a href="/work-with-us" className="btnGhost">Apply as creator</a>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="cx3HeroRight"
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
-            >
-              <div className="cx3LivePanel">
-                <div className="cx3LivePanelHeader">
-                  <span className="cx3LivePanelTitle">Creator Status</span>
-                  <div className={`cx3LiveIndicator ${anyLive ? "on" : ""}`}>
-                    <span className="cx3LiveDot" />
-                    {!checked ? "Checking…" : anyLive ? `${liveCount} Live` : "All Offline"}
-                  </div>
-                </div>
-
-                <div className="cx3LiveList">
-                  {CREATORS.map((c) => {
-                    const isLive = !!liveMap[c.twitchLogin];
-                    return (
-                      <a
-                        key={c.id}
-                        href={c.twitch}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`cx3LiveRow ${isLive ? "live" : ""}`}
-                        style={{ "--ca": c.accent }}
-                      >
-                        <div className="cx3LiveRowImg">
-                          <img src={c.image} alt={c.name} loading="lazy" decoding="async" />
-                          {isLive && <span className="cx3LiveRowDot" />}
-                        </div>
-                        <div className="cx3LiveRowInfo">
-                          <div className="cx3LiveRowName">{c.name}</div>
-                          <div className="cx3LiveRowSub muted small">{c.role}</div>
-                        </div>
-                        <div className={`cx3LiveRowStatus ${isLive ? "on" : ""}`}>
-                          {!checked ? "–" : isLive ? "LIVE" : "OFFLINE"}
-                        </div>
-                      </a>
-                    );
-                  })}
-                </div>
-
-                <div className="cx3LivePanelFoot muted small">
-                  Updates every 60s
-                </div>
-              </div>
-            </motion.div>
+              <FaDiscord aria-hidden="true" />
+              Discord
+            </a>
+            <Link to="/work-with-us" className="btnGhost">
+              Apply
+            </Link>
           </div>
-        </div>
+        </header>
 
-        {/* ─── CARDS ─────────────────────────────────── */}
-        <div className="cx3Section">
-          <div className="cx3Divider">
-            <span className="cx3DividerLine" />
-            <span className="cx3DividerLabel muted small">Our Creators</span>
-            <span className="cx3DividerLine" />
-          </div>
-
-          <div className="cx3Cards">
-            {CREATORS.map((c, i) => (
-              <CreatorCard
+        <div className="gdCastWall">
+          {ordered.map((c, i) => {
+            const isLive = !!liveMap[c.twitchLogin];
+            return (
+              <motion.div
                 key={c.id}
-                creator={c}
-                index={i}
-                isLive={!!liveMap[c.twitchLogin]}
-                checked={checked}
-                onOpen={() => setModal(c)}
-              />
-            ))}
-          </div>
+                className={`gdCastTile ${isLive ? "isLive" : ""}`}
+                style={{ "--ca": c.accent || "#ff7a00" }}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: Math.min(i * 0.05, 0.35) }}
+              >
+                <button
+                  type="button"
+                  className="gdCastTileHit"
+                  onClick={() => setModal(c)}
+                  aria-label={`Open ${c.name}`}
+                >
+                  {c.image ? (
+                    <img src={c.image} alt={c.name} loading={i < 3 ? "eager" : "lazy"} />
+                  ) : (
+                    <span className="gdCastFallback">
+                      {c.name?.slice(0, 2)?.toUpperCase() || "?"}
+                    </span>
+                  )}
+                  <span className="gdCastShade" aria-hidden="true" />
+                  {checked && (
+                    <span className={`gdCastLive ${isLive ? "on" : ""}`}>
+                      {isLive ? "Live" : "Offline"}
+                    </span>
+                  )}
+                  <span className="gdCastCaption">
+                    <span className="gdCastName">{c.name}</span>
+                    <span className="gdCastRole">{c.role || c.game}</span>
+                  </span>
+                </button>
+
+                <div className="gdCastSocials">
+                  {c.twitch && (
+                    <a
+                      href={c.twitch}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gdCastSoc"
+                      aria-label={`${c.name} on Twitch`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaTwitch />
+                    </a>
+                  )}
+                  {c.instagram && (
+                    <a
+                      href={c.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gdCastSoc"
+                      aria-label={`${c.name} on Instagram`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaInstagram />
+                    </a>
+                  )}
+                  {c.twitter && (
+                    <a
+                      href={c.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="gdCastSoc"
+                      aria-label={`${c.name} on X`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaXTwitter />
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* ─── BANNER ──────────────────────────────── */}
-        <motion.div
-          className="cx3Banner"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <div className="cx3BannerGlow" aria-hidden="true" />
-          <div className="cx3BannerInner">
-            <div>
-              <div className="cx3BannerTitle">Think you belong here?</div>
-              <div className="cx3BannerSub muted">We're growing. Apply to join GD as a creator, player, or staff.</div>
-            </div>
-            <div className="cx3BannerActions">
-              <a href="/work-with-us" className="btnPrimary">Apply now</a>
-              <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="btnGhost">Discord</a>
-            </div>
-          </div>
-        </motion.div>
+        <section className="gdCastFooter">
+          <p className="muted">Want to create with GD?</p>
+          <Link to="/work-with-us" className="btnGhost">
+            Apply as creator
+          </Link>
+        </section>
 
-        {/* ─── MODAL ──────────────────────────────── */}
         <AnimatePresence>
           {modal && (
             <CreatorModal
@@ -204,112 +208,14 @@ export default function Creators() {
   );
 }
 
-/* ─── CREATOR CARD ────────────────────────────────────── */
-
-function CreatorCard({ creator: c, index, isLive, checked, onOpen }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.2 });
-
-  return (
-    <motion.div
-      ref={ref}
-      className={`cx3Card ${isLive ? "cx3CardLive" : ""}`}
-      style={{ "--ca": c.accent, "--ca-rgb": c.accentRgb }}
-      initial={{ opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: index * 0.1 }}
-    >
-      <div className="cx3CardNumber" aria-hidden="true">{c.number}</div>
-
-      {/* image */}
-      <div className="cx3CardImg" onClick={onOpen}>
-        {c.image ? (
-          <img
-            src={c.image}
-            alt={c.name}
-            loading="lazy"
-            decoding="async"
-            onLoad={(e) => e.currentTarget.classList.add("cx3ImgLoaded")}
-          />
-        ) : (
-          <div className="cx3CardImgPlaceholder">{c.name?.slice(0, 2)?.toUpperCase() || "?"}</div>
-        )}
-        <div className="cx3CardImgFade" />
-        <div className="cx3CardImgGlow" />
-
-        <div className="cx3CardBadge">
-          {!checked ? (
-            <span className="cx3Badge cx3BadgeWait">···</span>
-          ) : isLive ? (
-            <span className="cx3Badge cx3BadgeLive">
-              <span className="cx3BadgePulse" />
-              LIVE
-            </span>
-          ) : (
-            <span className="cx3Badge cx3BadgeOff">OFFLINE</span>
-          )}
-        </div>
-
-        <a
-          className="cx3WatchOverlay"
-          href={c.twitch}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <FaTwitch className="cx3WatchIcon" />
-          <span>Watch on Twitch</span>
-        </a>
-      </div>
-
-      {/* info */}
-      <div className="cx3CardInfo">
-        <div className="cx3CardHead">
-          <div>
-            <div className="cx3CardName">{c.name}</div>
-            <div className="cx3CardRole muted small">{c.role}</div>
-          </div>
-          <button className="cx3ExpandBtn" onClick={onOpen} aria-label={`Open ${c.name}`}>↗</button>
-        </div>
-
-        <div className="cx3CardTags">
-          {(c.tags || []).map((t) => <span key={t} className="cx3Tag">{t}</span>)}
-        </div>
-
-        <div className="cx3CardRule" />
-
-        <div className="cx3CardSocials">
-          <a href={c.twitch} target="_blank" rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()} className="cx3Soc cx3SocTwitch" aria-label="Twitch">
-            <FaTwitch />
-          </a>
-          {c.instagram && (
-            <a href={c.instagram} target="_blank" rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()} className="cx3Soc cx3SocIG" aria-label="Instagram">
-              <FaInstagram />
-            </a>
-          )}
-          {c.twitter && (
-            <a href={c.twitter} target="_blank" rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()} className="cx3Soc cx3SocX" aria-label="X">
-              <FaXTwitter />
-            </a>
-          )}
-          <button className="cx3CardMore muted small" onClick={onOpen}>View profile →</button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ─── CREATOR MODAL ───────────────────────────────────── */
-
 function CreatorModal({ creator: c, isLive, onClose }) {
   return (
     <>
       <motion.div
         className="cx3ModalBg"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         onClick={onClose}
       />
       <motion.div
@@ -321,7 +227,9 @@ function CreatorModal({ creator: c, isLive, onClose }) {
         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="cx3ModalAccentBar" />
-        <button className="cx3ModalClose btnIcon" onClick={onClose}>✕</button>
+        <button type="button" className="cx3ModalClose btnIcon" onClick={onClose}>
+          ✕
+        </button>
 
         <div className="cx3ModalLayout">
           <div className="cx3ModalLeft">
@@ -331,7 +239,10 @@ function CreatorModal({ creator: c, isLive, onClose }) {
             </div>
             <div className="cx3ModalStatusRow">
               {isLive ? (
-                <span className="cx3Badge cx3BadgeLive"><span className="cx3BadgePulse" />LIVE NOW</span>
+                <span className="cx3Badge cx3BadgeLive">
+                  <span className="cx3BadgePulse" />
+                  LIVE NOW
+                </span>
               ) : (
                 <span className="cx3Badge cx3BadgeOff">OFFLINE</span>
               )}
@@ -341,25 +252,46 @@ function CreatorModal({ creator: c, isLive, onClose }) {
           <div className="cx3ModalRight">
             <div className="cx3ModalHandle muted small">{c.handle}</div>
             <div className="cx3ModalName">{c.name}</div>
-            <div className="cx3ModalSub muted">{c.role} · {c.game}</div>
-
-            <div className="cx3CardTags" style={{ marginTop: 14, marginBottom: 0 }}>
-              {(c.tags || []).map((t) => <span key={t} className="cx3Tag">{t}</span>)}
+            <div className="cx3ModalSub muted">
+              {c.role} · {c.game}
             </div>
 
-            <p className="cx3ModalBio">{c.bio}</p>
+            <div className="cx3CardTags" style={{ marginTop: 14, marginBottom: 0 }}>
+              {(c.tags || []).map((t) => (
+                <span key={t} className="cx3Tag">
+                  {t}
+                </span>
+              ))}
+            </div>
+
+            {c.bio && <p className="cx3ModalBio">{c.bio}</p>}
 
             <div className="cx3ModalLinks">
-              <a href={c.twitch} target="_blank" rel="noopener noreferrer" className="cx3ModalLink cx3ModalLinkTwitch">
+              <a
+                href={c.twitch}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cx3ModalLink cx3ModalLinkTwitch"
+              >
                 <FaTwitch /> Watch on Twitch
               </a>
               {c.instagram && (
-                <a href={c.instagram} target="_blank" rel="noopener noreferrer" className="cx3ModalLink">
+                <a
+                  href={c.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cx3ModalLink"
+                >
                   <FaInstagram /> Instagram
                 </a>
               )}
               {c.twitter && (
-                <a href={c.twitter} target="_blank" rel="noopener noreferrer" className="cx3ModalLink">
+                <a
+                  href={c.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cx3ModalLink"
+                >
                   <FaXTwitter /> X / Twitter
                 </a>
               )}

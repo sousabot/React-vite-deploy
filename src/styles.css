@@ -351,8 +351,12 @@ button{ font-family: inherit; }
 
 .appShell{ min-height:100svh; display:flex; flex-direction:column; }
 .topbar{
-  position: sticky; top:0; z-index:50;
-  display:flex; align-items:center; justify-content:space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 16px 22px;
   background: rgba(7,8,18,.65);
   backdrop-filter: blur(14px);
@@ -619,7 +623,7 @@ button{ font-family: inherit; }
 }
 
 /* Make sure app content sits above particles */
-.topbar, .content, .footer {
+.content, .footer {
   position: relative;
   z-index: 1;
 }
@@ -1135,6 +1139,7 @@ textarea.input {
   display: grid;
   align-content: start;
   gap: 16px;
+  overflow-y: auto;
 }
 
 .modeBlock{
@@ -1210,14 +1215,607 @@ textarea.input {
 }
 
 
-.navMain a{
+.navMain a,
+.navMoreBtn{
   text-transform: uppercase;
   letter-spacing: 1.4px;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 13px;
   padding: 10px 12px;
   border-radius: 12px;
   color: rgba(255,255,255,.7);
+}
+
+.navMore{
+  position: relative;
+}
+
+.navMoreBtn{
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navMoreBtn:hover,
+.navMoreBtn.active{
+  color: rgba(255,255,255,.95);
+  background: rgba(255,122,0,.12);
+  border-color: rgba(255,122,0,.25);
+}
+
+.navMoreCaret{
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+.navMoreMenu{
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(10, 11, 20, 0.98);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  display: grid;
+  gap: 2px;
+  z-index: 220;
+  pointer-events: auto;
+}
+
+.navMoreLink{
+  display: block;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+}
+
+.sidebarBrand{
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebarNav,
+.sidebarAuth{
+  display: grid;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+
+.sidebarNavLink,
+.sidebarNavBtn{
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255,255,255,.85);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sidebarNavLink:hover,
+.sidebarNavBtn:hover,
+.sidebarNavLink.active{
+  background: rgba(255,122,0,.12);
+  border-color: rgba(255,122,0,.28);
+  color: #fff;
+}
+
+.footerNav{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 14px;
+}
+
+.footerNav .footerLink{
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Shared inner-page shell (matches homepage tone) */
+.gdPage{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+.gdPageHero{
+  text-align: center;
+  padding: 4px 0 0;
+}
+
+.gdPageHeroInner{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gdPageLogo{
+  width: clamp(56px, 10vw, 76px);
+  height: clamp(56px, 10vw, 76px);
+  object-fit: contain;
+  margin: 0 0 10px;
+  display: block;
+  filter: drop-shadow(0 0 16px rgba(255, 122, 0, 0.35));
+}
+
+.gdPageTitle{
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+
+.gdPageLead{
+  margin: 0 0 26px;
+  max-width: 36ch;
+  font-size: 0.98rem;
+}
+
+.gdFaceStack{
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 26px;
+  padding-left: 0;
+  flex-wrap: wrap;
+}
+
+.gdFace{
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  margin-left: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(7, 8, 18, 0.95);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  position: relative;
+  text-decoration: none;
+  transition: transform 0.15s ease, z-index 0s;
+  z-index: 1;
+}
+
+.gdFace:hover{
+  transform: translateY(-3px) scale(1.06);
+  z-index: 5;
+}
+
+.gdFace img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gdFaceFallback{
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--face-accent, #ff7a00);
+  background: rgba(255, 122, 0, 0.12);
+}
+
+.gdFace.isLive{
+  box-shadow:
+    0 0 0 2px rgba(255, 45, 85, 0.9),
+    0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.gdPageActions{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.gdPageActions .btnPrimary,
+.gdPageActions .btnGhost{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-width: 0;
+  padding: 9px 16px;
+  font-size: 0.92rem;
+}
+
+.gdPageActions--center{
+  margin-top: 4px;
+}
+
+.gdPageSection{
+  margin-top: 40px;
+}
+
+.gdPageSection--tight{
+  margin-top: 28px;
+}
+
+/* Cast wall layout (Creators / Players / Staff) */
+.gdCastHead{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.gdCastHeadCopy{
+  min-width: 0;
+}
+
+.gdCastTitle{
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.gdCastMeta{
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.gdCastHeadActions{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gdCastHeadActions .btnPrimary,
+.gdCastHeadActions .btnGhost{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 0.9rem;
+}
+
+.gdCastBlock{
+  margin-top: 28px;
+}
+
+.gdCastBlockHead{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.gdCastBlockTitle{
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gdCastWall{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gdCastTileWrap{
+  display: grid;
+  gap: 8px;
+}
+
+.gdCastTile{
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: 0;
+  padding: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  color: inherit;
+  text-decoration: none;
+  isolation: isolate;
+}
+
+.gdCastTileHit{
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.gdCastTile img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.gdCastTile:hover img{
+  transform: scale(1.04);
+}
+
+.gdCastSocials{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+
+.gdCastSoc{
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.85rem;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.gdCastSoc:hover{
+  background: rgba(255, 122, 0, 0.9);
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+
+.gdCastFallback{
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  color: var(--ca, #ff7a00);
+  background: rgba(255, 122, 0, 0.1);
+}
+
+.gdCastShade{
+  position: absolute;
+  inset: auto 0 0;
+  height: 55%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  pointer-events: none;
+}
+
+.gdCastLive{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gdCastTile.isLive .gdCastLive,
+.gdCastLive.on{
+  background: rgba(255, 45, 85, 0.9);
+  border-color: transparent;
+  color: #fff;
+}
+
+.gdCastCaption{
+  position: absolute;
+  left: 12px;
+  right: 100px;
+  bottom: 12px;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+}
+
+.gdCastName{
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.gdCastRole{
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.gdCastLinks{
+  display: flex;
+  gap: 8px;
+}
+
+.gdCastLinks a{
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.gdCastFooter{
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.gdCastFooter p{
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .gdCastWall{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .gdCastHead{
+    align-items: stretch;
+  }
+
+  .gdCastHeadActions{
+    width: 100%;
+  }
+
+  .gdCastHeadActions .btnPrimary,
+  .gdCastHeadActions .btnGhost{
+    flex: 1;
+    justify-content: center;
+  }
+
+  .gdCastWall{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+.gdPageMission{
+  margin: 0 auto;
+  max-width: 46ch;
+  text-align: center;
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.gdPageProse{
+  max-width: 62ch;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.gdPageProse p{
+  margin: 0;
+}
+
+.gdValueList{
+  display: grid;
+  gap: 14px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.gdValueRow{
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+}
+
+.gdValueTitle{
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gdValueDesc{
+  margin: 0;
+  line-height: 1.5;
+}
+
+.gdPageCta{
+  padding-top: 8px;
+}
+
+.gdPage .cx3Card{
+  box-shadow: none;
+}
+
+.gdPage .cx3CardNumber{
+  opacity: 0.2;
+}
+
+.gdPage .cx3CardImgGlow{
+  opacity: 0.35;
+}
+
+.gdPage .cx3CardName,
+.gdPage .cx3BannerTitle{
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  .gdPageActions{
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .gdPageActions .btnPrimary,
+  .gdPageActions .btnGhost{
+    width: auto;
+    flex: 0 1 auto;
+  }
 }
 
 .navMain a:hover{
@@ -5564,39 +6162,32 @@ img, video, canvas, svg {
   opacity: 0.85;
 }
 
-/* ===== MOBILE HEADER FIX (scrollable nav that doesn't break layout) ===== */
-@media (max-width: 700px) {
+/* ===== MOBILE HEADER — menu drawer instead of crowded nav ===== */
+@media (max-width: 900px) {
   .topbar{
-    justify-content: flex-start; /* stop space-between spreading everything */
+    justify-content: space-between;
     gap: 10px;
     padding-left: 12px;
     padding-right: 12px;
   }
 
-  /* Optional: save space on mobile */
   .brandText{
     display: none;
   }
 
-  /* Make the MAIN nav the scrollable middle strip */
-  .nav.navMain{
-    flex: 1 1 auto;
-    min-width: 0;                 /* CRITICAL: allow it to shrink */
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    flex-wrap: nowrap;
-    scrollbar-width: none;
-  }
-  .nav.navMain::-webkit-scrollbar{ display:none; }
-  .nav.navMain a{ flex: 0 0 auto; }
-
-  /* Keep auth + hamburger from pushing the nav off-screen */
+  .nav.navMain,
   .navAuth{
-    flex: 0 0 auto;
-    margin-left: 0;               /* remove the push */
-    gap: 8px;
+    display: none;
+  }
+
+  .sidebarOpenBtn{
+    margin-left: auto;
+  }
+}
+
+@media (min-width: 901px) {
+  .sidebarOpenBtn{
+    display: none;
   }
 }
 
