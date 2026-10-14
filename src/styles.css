@@ -8364,3 +8364,53 @@ img, video, canvas, svg {
   letter-spacing: 0.01em;
   margin-top: 4px;
 }
+
+.homeMaintenance {
+  min-height: calc(100svh - 220px);
+  display: grid;
+  place-items: center;
+  padding: 24px 0 48px;
+}
+
+.homeMaintenance--site {
+  min-height: calc(100svh - 48px);
+  padding: 24px 16px;
+}
+
+.homeMaintenanceCard {
+  width: min(720px, 100%);
+  text-align: center;
+  padding: 48px 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(900px 420px at 50% 0%, rgba(255, 122, 0, 0.18), transparent 60%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.homeMaintenanceLogo {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  margin: 0 auto 18px;
+  display: block;
+}
+
+.homeMaintenance .cx3HeroKicker {
+  justify-content: center;
+}
+
+.homeMaintenanceTitle {
+  margin: 0 0 14px;
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.homeMaintenanceDesc {
+  margin: 0 auto 28px;
+  max-width: 42ch;
+  line-height: 1.7;
+  color: var(--muted);
+}

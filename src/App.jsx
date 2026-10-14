@@ -4,6 +4,9 @@ import { AnimatePresence } from "framer-motion";
 
 import Layout from "./components/Layout.jsx";
 import LoadingGate from "./components/LoadingGate.jsx";
+import Maintenance from "./pages/Maintenance.jsx";
+
+const SITE_UNDER_MAINTENANCE = true;
 
 // Lazy-loaded pages — each becomes its own chunk, only downloaded when visited
 const Home = lazy(() => import("./pages/Home.jsx"));
@@ -58,6 +61,14 @@ function PageFallback() {
 
 export default function App() {
   const location = useLocation();
+
+  if (SITE_UNDER_MAINTENANCE) {
+    return (
+      <LoadingGate>
+        <Maintenance />
+      </LoadingGate>
+    );
+  }
 
   return (
     <AuthProvider>

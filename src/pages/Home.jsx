@@ -137,7 +137,7 @@ function StatCard({ label, value, suffix }) {
   );
 }
 
-export default function Home() {
+function HomeLive() {
   const { creators: CREATORS, matches } = useSiteContent();
   const LAST_MATCH = matches.lastMatch;
   const NEXT_MATCH = matches.nextMatch;
@@ -902,4 +902,8 @@ export default function Home() {
       </div>
     </PageMotion>
   );
+}
+
+export default function Home() {
+  return <HomeLive />;
 }
