@@ -1,0 +1,302 @@
+/* ---------- Top ---------- */
+
+.staff-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(32px, 5vw, 56px);
+}
+
+.staff-top .lead {
+  margin-top: 12px;
+  max-width: 46ch;
+}
+
+.staff-top__count {
+  display: flex;
+  gap: 8px;
+}
+
+.staff-top__count > span {
+  display: grid;
+  gap: 2px;
+  min-width: 120px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.staff-top__count strong {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 0.9;
+}
+
+.staff-top__count .mono {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- Org chart ---------- */
+
+.org {
+  --wire: rgba(var(--orange-rgb), 0.45);
+  display: grid;
+  gap: 0;
+}
+
+.org__tier {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.org__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+}
+
+.org__node {
+  width: 8px;
+  height: 8px;
+  background: var(--orange);
+  transform: rotate(45deg);
+}
+
+.org__lead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Vertical wire from leadership down to the branch rail. */
+.org__tier::after {
+  content: "";
+  width: 2px;
+  height: 40px;
+  background: var(--wire);
+}
+
+.org__branches {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.org__branch {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 14px;
+  padding-top: 32px;
+}
+
+/* Stub from the rail down to each department. */
+.org__branch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 32px;
+  background: var(--wire);
+}
+
+/* Horizontal rail joining the branch stubs (only when they sit in one row). */
+.org__branches.is-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% / var(--n));
+  right: calc(50% / var(--n));
+  height: 2px;
+  background: var(--wire);
+}
+
+.org__members {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .org__branches.is-row {
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 899px) {
+  .org__branches.is-row::before {
+    display: none;
+  }
+}
+
+/* ---------- Staff pass ---------- */
+
+.pass {
+  position: relative;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color var(--fast);
+}
+
+.pass:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.pass__strip {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: var(--bg-raise);
+  border-bottom: 1px solid var(--line);
+}
+
+.pass__slot {
+  width: 26px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+}
+
+.pass__photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 136px;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 70% at 50% 20%, color-mix(in srgb, var(--accent) 32%, transparent), transparent 70%),
+    var(--surface-2);
+  border-right: 1px solid var(--line);
+}
+
+.pass__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 10%;
+}
+
+.pass__monogram {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 900;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.pass__body {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 14px 16px 18px;
+  min-width: 0;
+}
+
+.pass__dept {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.pass__name {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.pass__role {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.pass__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.pass__tags .tag {
+  font-size: 10px;
+}
+
+.pass__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+}
+
+/* Leadership pass: wider and taller. */
+.pass--lead {
+  width: min(520px, 100%);
+  grid-template-columns: 170px minmax(0, 1fr);
+  border-color: rgba(var(--orange-rgb), 0.45);
+}
+
+.pass--lead .pass__photo {
+  min-height: 190px;
+}
+
+.pass--lead .pass__name {
+  font-size: 44px;
+}
+
+.pass--lead .pass__monogram {
+  font-size: 64px;
+}
+
+@media (max-width: 520px) {
+  .pass,
+  .pass--lead {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .pass--lead .pass__photo {
+    min-height: 150px;
+  }
+
+  .pass--lead .pass__name {
+    font-size: 34px;
+  }
+}
