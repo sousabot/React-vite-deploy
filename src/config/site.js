@@ -12,7 +12,7 @@ export const SITE = {
  * Maintenance only applies to production builds, so `npm run dev`
  * always shows the full site.
  */
-export const MAINTENANCE_MODE = true;
+export const MAINTENANCE_MODE = false;
 
 /** Optional pages that are built but hidden until switched on. */
 export const FEATURE_FLAGS = {
