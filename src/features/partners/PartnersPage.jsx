@@ -69,7 +69,7 @@ export default function PartnersPage() {
         lead="Brands, leagues and communities that help us compete, create and grow."
         meta={[`${total} active`, `${partnerGroups.length} categories`]}
         actions={
-          <Link to="/work-with-us" className="btn btn--primary">
+          <Link to="/work-with-us?role=sponsor" className="btn btn--primary">
             Become a partner
           </Link>
         }
@@ -96,7 +96,7 @@ export default function PartnersPage() {
           title="Let's build something"
           sub="Sponsorships, event collabs, product integrations — tell us what you have in mind."
         >
-          <Link to="/work-with-us" className="btn btn--primary">
+          <Link to="/work-with-us?role=sponsor" className="btn btn--primary">
             Pitch us
           </Link>
           <a href={DISCORD_INVITE} target="_blank" rel="noopener noreferrer" className="btn btn--ghost">

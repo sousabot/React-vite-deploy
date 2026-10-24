@@ -180,7 +180,7 @@ function ComingSoon({ game }) {
           >
             Join the Discord
           </a>
-          <Link to="/work-with-us" className="btn btn--ghost btn--sm">
+          <Link to="/work-with-us?role=player" className="btn btn--ghost btn--sm">
             Apply for tryouts
           </Link>
         </div>
@@ -321,7 +321,7 @@ export default function PlayersPage() {
 
       <div className="page-cta">
         <CtaBand eyebrow="Tryouts" title="Think you've got it?" sub="We're always scouting. Apply and the team will review it.">
-          <Link to="/work-with-us" className="btn btn--primary">
+          <Link to="/work-with-us?role=player" className="btn btn--primary">
             Apply for tryouts
           </Link>
         </CtaBand>

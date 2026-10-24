@@ -302,7 +302,7 @@ export default function CreatorsPage() {
 
       <div className="page-cta">
         <CtaBand eyebrow="Create with us" title="Stream under the GD banner" sub="Streamers, editors and short-form creators — tell us about your content.">
-          <Link to="/work-with-us" className="btn btn--primary">
+          <Link to="/work-with-us?role=creator" className="btn btn--primary">
             Apply as creator
           </Link>
         </CtaBand>

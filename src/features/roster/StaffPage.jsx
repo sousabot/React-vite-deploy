@@ -123,7 +123,7 @@ export default function StaffPage() {
 
       <div className="page-cta">
         <CtaBand eyebrow="Join the team" title="Help run the org" sub="Coaches, analysts, managers, designers, moderators.">
-          <Link to="/work-with-us" className="btn btn--primary">
+          <Link to="/work-with-us?role=staff" className="btn btn--primary">
             Work with us
           </Link>
         </CtaBand>
