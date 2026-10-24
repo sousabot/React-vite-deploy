@@ -40,7 +40,8 @@ function slug(name) {
 // Per game: the first team is the starting lineup, every other team goes on the bench.
 const GAMES = PLAYER_GAMES.map((game) => {
   const [starters, ...bench] = game.teams;
-  const all = game.teams.flatMap((team) =>
+  const teams = game.announced === false ? [] : game.teams;
+  const all = teams.flatMap((team) =>
     team.members.map((m) => ({ ...m, slug: slug(m.name), teamLabel: team.label, starter: team === starters }))
   );
   return { ...game, starters, bench: bench.filter((t) => t.members.length), all };
@@ -164,8 +165,8 @@ function ComingSoon({ game }) {
         <span className="spotlight__mark">{game.short}</span>
       </div>
       <div className="spotlight__info">
-        <span className="eyebrow">{game.label}</span>
-        <h2 className="spotlight__name">Roster reveal soon</h2>
+        <span className="eyebrow">{game.league ? `${game.label} · ${game.league}` : game.label}</span>
+        <h2 className="spotlight__name">Roster coming soon</h2>
         <p className="muted">
           Our {game.label} squad is being locked in. Join the Discord to be first to see who's wearing the jersey.
         </p>
@@ -300,7 +301,7 @@ export default function PlayersPage() {
           <h1 className="display display--md">Players</h1>
         </div>
         <div className="players-top__meta mono faint">
-          <span>{totalMembers} members</span>
+          {totalMembers > 0 && <span>{totalMembers} members</span>}
           <span>{GAMES.length} games</span>
           {player && <span className="hide-mobile">← → to browse</span>}
         </div>

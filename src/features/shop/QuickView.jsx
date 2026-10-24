@@ -48,7 +48,7 @@ function QuickViewBody({ product, onAdd }) {
             className="input"
             value={customName}
             onChange={(e) => setCustomName(e.target.value)}
-            placeholder="e.g. MEWTZU"
+            placeholder="e.g. YOUR NAME"
             maxLength={16}
           />
         </Field>
