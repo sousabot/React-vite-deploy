@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
         avif: { quality: 80 },
       }),
       visualizer({
-        open: true,        // auto-opens the treemap in your browser after build
+        open: env.ANALYZE === '1', // `ANALYZE=1 npm run build` opens the treemap
         gzipSize: true,    // shows gzipped sizes, not just raw
         filename: 'dist/stats.html', // where the report gets saved
       }),

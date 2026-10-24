@@ -1,0 +1,128 @@
+.recruit {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: clamp(20px, 3vw, 36px);
+  align-items: start;
+}
+
+.recruit__aside {
+  position: sticky;
+  top: calc(var(--header-h) + 20px);
+  display: grid;
+  gap: 14px;
+}
+
+.recruit__steps {
+  display: grid;
+  gap: 16px;
+  list-style: none;
+}
+
+.recruit__steps li {
+  display: flex;
+  gap: 14px;
+}
+
+.recruit__step-num {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--orange);
+}
+
+.recruit__discord {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color var(--fast);
+}
+
+.recruit__discord svg {
+  font-size: 28px;
+  color: #5865f2;
+  flex-shrink: 0;
+}
+
+.recruit__discord:hover {
+  border-color: #5865f2;
+}
+
+.recruit__form {
+  display: grid;
+  gap: 16px;
+}
+
+.recruit__block {
+  margin: 0;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.recruit__legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.recruit__legend .mono {
+  margin-right: 10px;
+}
+
+.recruit__roles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.recruit__role {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 18px 10px;
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: all var(--fast);
+}
+
+.recruit__role svg {
+  font-size: 22px;
+}
+
+.recruit__role:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+.recruit__role.is-active {
+  color: var(--orange);
+  border-color: var(--orange);
+  background: rgba(var(--orange-rgb), 0.08);
+}
+
+@media (max-width: 900px) {
+  .recruit {
+    grid-template-columns: 1fr;
+  }
+
+  .recruit__aside {
+    position: static;
+    order: 2;
+  }
+}
+
+@media (max-width: 560px) {
+  .recruit__roles {
+    grid-template-columns: 1fr 1fr;
+  }
+}

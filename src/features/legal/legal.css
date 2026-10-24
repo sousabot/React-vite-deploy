@@ -1,0 +1,42 @@
+.legal {
+  max-width: 72ch;
+  color: var(--text-dim);
+}
+
+.legal > * + * {
+  margin-top: 14px;
+}
+
+.legal h2 {
+  margin-top: 40px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.legal h3 {
+  margin-top: 22px;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.legal ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 20px;
+}
+
+.legal li::marker {
+  color: var(--orange);
+}
+
+.legal b,
+.legal strong {
+  color: var(--text);
+}
+
+.legal a {
+  color: var(--orange);
+}

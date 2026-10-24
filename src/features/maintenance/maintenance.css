@@ -1,0 +1,20 @@
+.maintenance {
+  justify-content: center;
+}
+
+.maintenance__inner {
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+  padding-block: 64px;
+  text-align: center;
+}
+
+.maintenance__inner .lead {
+  margin-inline: auto;
+}
+
+.maintenance__logo {
+  width: 96px;
+  filter: drop-shadow(0 16px 48px rgba(var(--orange-rgb), 0.4));
+}

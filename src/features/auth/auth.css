@@ -1,0 +1,27 @@
+.auth {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - var(--header-h) - 120px);
+}
+
+.auth__card {
+  display: grid;
+  gap: 16px;
+  width: min(460px, 100%);
+}
+
+.auth__form {
+  display: grid;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.auth__aside {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.auth__footer {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}

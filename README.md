@@ -1,16 +1,37 @@
-# React + Vite
+# GD Esports
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Official website for GD Esports — React + Vite, deployed on Netlify.
 
-Currently, two official plugins are available:
+## Scripts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm run dev       # local dev server (maintenance mode is ignored in dev)
+npm run build     # production build
+npm run lint      # ESLint
+ANALYZE=1 npm run build  # build and open the bundle visualizer
+```
 
-## React Compiler
+## Project structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+  app/           App shell, route table, auth/admin route guards
+  config/        Site identity, socials, nav, feature flags, admin emails
+  content/       Default roster/creators/staff/partners/matches/products + CMS loader
+  lib/           Firebase, analytics tracking, formatting, uploads
+  hooks/         Shared hooks (Twitch live, Discord stats, countdown, overlays)
+  components/
+    layout/      Header, footer, mobile menu, splash, backdrop
+    ui/          Reusable building blocks (Page, PageHeader, Modal, Field, Alert, cards…)
+  features/      One folder per area: home, roster, creators, clips, partners, shop,
+                 about, news, recruit, giveaway, legal, auth, dashboard, admin, maintenance
+  styles/        Design tokens, base, shared UI and layout CSS
+netlify/functions/  Stripe checkout, Twitch, Discord, site-content CMS, form-to-discord
+```
 
-## Expanding the ESLint configuration
+## Configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/config/site.js`
+  - `MAINTENANCE_MODE`: when `true`, production builds show only the maintenance page.
+  - `FEATURE_FLAGS.giveaway`: enables the `/giveaway` route.
+- `src/content/products.js`: shop product ids and prices must match `netlify/functions/create-checkout.js`.
