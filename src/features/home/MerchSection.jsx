@@ -11,7 +11,7 @@ export default function MerchSection() {
   return (
     <section className="section container">
       <SectionHead
-        index="03"
+        index="02"
         eyebrow="Official kit"
         title="Wear the colours"
         sub="Home and away jerseys. Limited runs — restocks hit Discord first."

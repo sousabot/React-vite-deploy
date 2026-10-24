@@ -14,7 +14,7 @@ export default function JoinSection({ discord, onApply }) {
 
   return (
     <section className="section container">
-      <CtaBand eyebrow="04 · Community" title="Join the squad" sub={sub}>
+      <CtaBand eyebrow="03 · Community" title="Join the squad" sub={sub}>
         <a
           href={DISCORD_INVITE}
           target="_blank"

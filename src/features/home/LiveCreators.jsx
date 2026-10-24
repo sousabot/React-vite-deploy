@@ -19,7 +19,7 @@ export default function LiveCreators({ creators, streams, checked, live }) {
   return (
     <section className="section container">
       <SectionHead
-        index="02"
+        index="01"
         eyebrow="Creators"
         title="On the stream"
         sub={sub}
