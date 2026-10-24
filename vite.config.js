@@ -5,7 +5,33 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+
+  // `npm run dev` doesn't run Netlify functions, so forward them to the live site to get
+  // real dashboard content, Twitch status, clips and Discord stats.
+  // Only GETs are forwarded by default so local testing can't save content, start checkouts
+  // or post forms on production. FUNCTIONS_PROXY=off disables it; FUNCTIONS_PROXY_WRITE=1 allows writes.
+  const functionsTarget = env.FUNCTIONS_PROXY || 'https://gdesports.netlify.app'
+  const allowWrites = env.FUNCTIONS_PROXY_WRITE === '1'
+  const proxy =
+    functionsTarget === 'off'
+      ? undefined
+      : {
+          '/.netlify/functions': {
+            target: functionsTarget,
+            changeOrigin: true,
+            bypass(req, res) {
+              if (req.method === 'GET' || allowWrites) return
+              res.statusCode = 403
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ error: 'Writes to production are disabled in local dev (set FUNCTIONS_PROXY_WRITE=1 to allow).' }))
+              // A string result plus an ended response tells Vite the request is handled.
+              return req.url
+            },
+          },
+        }
+
   return {
+    server: { proxy },
     plugins: [
       react(),
       ViteImageOptimizer({

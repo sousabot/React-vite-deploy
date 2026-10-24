@@ -11,6 +11,14 @@ npm run lint      # ESLint
 ANALYZE=1 npm run build  # build and open the bundle visualizer
 ```
 
+### Local data
+
+`npm run dev` forwards `/.netlify/functions/*` to the live site (`https://gdesports.netlify.app`), so localhost shows the real dashboard content (creators, staff, partners, matches), Twitch live status, clips and Discord stats.
+
+- Only read requests are forwarded. Saving in the admin panel, checkout and form posts are blocked locally with a 403.
+- `FUNCTIONS_PROXY=off npm run dev` uses the built-in defaults from `src/content/` instead.
+- `FUNCTIONS_PROXY_WRITE=1 npm run dev` allows writes. They go to **production**.
+
 ## Project structure
 
 ```
