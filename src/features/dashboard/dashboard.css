@@ -108,7 +108,7 @@
   border: 1px solid var(--line);
   background: var(--bg-raise);
   font-weight: 700;
-  transition: all var(--fast);
+  transition: color var(--fast), background-color var(--fast), border-color var(--fast);
 }
 
 .dash-actions__tile svg {

@@ -15,7 +15,8 @@ export default function SiteLayout() {
 
   useEffect(() => {
     track("page_view", { path: location.pathname });
-    window.scrollTo({ top: 0 });
+    // `html` has smooth scrolling for anchor links; page changes should jump straight to the top.
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [location.pathname]);
 
   return (

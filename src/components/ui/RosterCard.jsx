@@ -41,6 +41,7 @@ export default function RosterCard({
             src={image}
             alt={name}
             loading={index < 4 ? "eager" : "lazy"}
+            decoding="async"
           />
         ) : (
           <span className="roster-card__fallback">{fallback || initials(name)}</span>

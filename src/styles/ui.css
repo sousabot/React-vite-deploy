@@ -235,7 +235,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-dim);
-  transition: all var(--fast) ease;
+  transition: color var(--fast), background-color var(--fast), border-color var(--fast);
 }
 
 .chip:hover {
@@ -283,9 +283,8 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-dim);
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.78);
   border: 1px solid var(--line-strong);
-  backdrop-filter: blur(6px);
 }
 
 .live-pill.is-live {
@@ -821,7 +820,7 @@ input[type="color"].input {
   background: rgba(0, 0, 0, 0.4);
   color: var(--text-dim);
   font-size: 13px;
-  transition: all var(--fast);
+  transition: color var(--fast), background-color var(--fast), border-color var(--fast);
 }
 
 .roster-card__socials a:hover {

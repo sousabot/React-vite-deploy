@@ -52,7 +52,7 @@ export default function CartDrawer({ open, onClose, cart, onCheckout, busy }) {
                   const unit = Number(p?.price || 0);
                   return (
                     <div key={`${line.productId}-${line.size}-${line.customName}`} className="cart-line">
-                      <img className="cart-line__img" src={p?.image} alt="" />
+                      <img className="cart-line__img" src={p?.image} alt="" decoding="async" />
                       <div className="cart-line__info">
                         <div className="cart-line__name">{p?.name || line.productId}</div>
                         <div className="mono faint">

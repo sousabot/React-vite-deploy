@@ -2,15 +2,32 @@ import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const MIN_MS = 700;
+const SEEN_KEY = "gd_splash_seen";
 
-/** Brief branded intro on first load; the app renders underneath. */
+function alreadySeen() {
+  try {
+    return sessionStorage.getItem(SEEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Brief branded intro on the first load of a session; the app renders underneath. */
 export default function SplashScreen() {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(() => !alreadySeen());
 
   useEffect(() => {
-    const t = setTimeout(() => setShow(false), MIN_MS);
+    if (!show) return;
+    const t = setTimeout(() => {
+      setShow(false);
+      try {
+        sessionStorage.setItem(SEEN_KEY, "1");
+      } catch {
+        // Private mode can block storage; the splash just shows again next time.
+      }
+    }, MIN_MS);
     return () => clearTimeout(t);
-  }, []);
+  }, [show]);
 
   return (
     <AnimatePresence>

@@ -20,6 +20,9 @@
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  /* Own compositor layer: painted once, never repainted while scrolling. */
+  contain: strict;
+  transform: translateZ(0);
 }
 
 .backdrop__grid {
@@ -41,7 +44,6 @@
   left: 50%;
   transform: translateX(-50%);
   background: radial-gradient(circle, rgba(var(--orange-rgb), 0.22), transparent 62%);
-  filter: blur(10px);
 }
 
 .backdrop__noise {
@@ -58,8 +60,7 @@
   top: 0;
   z-index: 50;
   height: var(--header-h);
-  background: rgba(8, 9, 11, 0.72);
-  backdrop-filter: blur(14px) saturate(140%);
+  background: rgba(8, 9, 11, 0.94);
   border-bottom: 1px solid var(--line);
 }
 

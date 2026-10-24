@@ -90,7 +90,7 @@
   border: 1px solid var(--line-strong);
   opacity: 0;
   transform: translateY(6px);
-  transition: all var(--fast);
+  transition: opacity var(--fast), transform var(--fast);
 }
 
 .product-card__media:hover .product-card__quick,
@@ -149,7 +149,7 @@
   font-size: 12px;
   border: 1px solid var(--line-strong);
   color: var(--text-dim);
-  transition: all var(--fast);
+  transition: color var(--fast), background-color var(--fast), border-color var(--fast);
 }
 
 .size-picker__btn:hover {

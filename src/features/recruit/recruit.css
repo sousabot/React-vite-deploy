@@ -92,7 +92,7 @@
   font-weight: 800;
   text-transform: uppercase;
   color: var(--text-dim);
-  transition: all var(--fast);
+  transition: color var(--fast), background-color var(--fast), border-color var(--fast);
 }
 
 .recruit__role svg {

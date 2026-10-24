@@ -38,6 +38,7 @@
   border-radius: 50%;
   border: 1px dashed rgba(var(--orange-rgb), 0.45);
   animation: spin 40s linear infinite;
+  will-change: transform;
 }
 
 .hero__ring--inner {

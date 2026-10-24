@@ -1,13 +1,13 @@
-﻿import React, { Suspense } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+﻿import React, { Suspense, useEffect } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 
 import SiteLayout from "../components/layout/SiteLayout.jsx";
 import SplashScreen from "../components/layout/SplashScreen.jsx";
 import MaintenancePage from "../features/maintenance/MaintenancePage.jsx";
 import { AuthProvider } from "../features/auth/AuthProvider.jsx";
 import { AdminRoute, ProtectedRoute } from "./guards.jsx";
-import { ROUTES } from "./routes.js";
+import { ROUTES, preloadRoutes } from "./routes.js";
 import { MAINTENANCE_MODE } from "../config/site.js";
 
 const GUARDS = { user: ProtectedRoute, admin: AdminRoute };
@@ -18,7 +18,9 @@ function withGuard(guard, node) {
 }
 
 export default function App() {
-  const location = useLocation();
+  useEffect(() => {
+    if (!(MAINTENANCE_MODE && import.meta.env.PROD)) preloadRoutes();
+  }, []);
 
   if (MAINTENANCE_MODE && import.meta.env.PROD) {
     return (
@@ -31,8 +33,8 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <AnimatePresence mode="wait" initial={false}>
-        <Routes location={location} key={location.pathname}>
+      <MotionConfig reducedMotion="user">
+        <Routes>
           <Route element={<SiteLayout />}>
             {ROUTES.map(({ path, element: Element, guard }) => (
               <Route
@@ -49,8 +51,8 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
-      </AnimatePresence>
-      <SplashScreen />
+        <SplashScreen />
+      </MotionConfig>
     </AuthProvider>
   );
 }

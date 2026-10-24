@@ -17,7 +17,7 @@ export default function CreatorModal({ creator, stream, onClose }) {
       {c && (
         <div className="creator-profile" style={{ "--accent": c.accent || "var(--orange)" }}>
           <div className="creator-profile__img">
-            {c.image && <img src={c.image} alt={c.name} />}
+            {c.image && <img src={c.image} alt={c.name} decoding="async" />}
           </div>
           <div className="creator-profile__info">
             <span className={`live-pill ${isLive ? "is-live" : ""}`}>

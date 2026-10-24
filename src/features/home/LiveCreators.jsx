@@ -41,7 +41,7 @@ export default function LiveCreators({ creators, streams, checked, live }) {
           animate={{ opacity: 1, y: 0 }}
           onClick={() => track("twitch_watch", { source: "home_creators", creator: featured.id })}
         >
-          <img className="live-feature__img" src={featured.image} alt={featured.name} />
+          <img className="live-feature__img" src={featured.image} alt={featured.name} decoding="async" />
           <div className="live-feature__body">
             <span className="live-pill is-live">
               <span className="live-dot" /> Live now
@@ -74,7 +74,7 @@ export default function LiveCreators({ creators, streams, checked, live }) {
               onClick={() => track("twitch_watch", { source: "home_strip", creator: c.id })}
             >
               <span className="creator-chip__img">
-                {c.image && <img src={c.image} alt="" loading="lazy" />}
+                {c.image && <img src={c.image} alt="" loading="lazy" decoding="async" />}
               </span>
               <span className="creator-chip__info">
                 <span className="creator-chip__name">{c.name}</span>
