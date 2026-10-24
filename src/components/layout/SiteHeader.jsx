@@ -9,7 +9,7 @@ import { useAuth } from "../../features/auth/useAuth.js";
 import { track } from "../../lib/track.js";
 
 export default function SiteHeader({ onOpenMenu }) {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const location = useLocation();
   // Tied to the current path so navigating closes the dropdown.
   const [morePath, setMorePath] = useState(null);
@@ -78,6 +78,11 @@ export default function SiteHeader({ onOpenMenu }) {
         </nav>
 
         <div className="site-header__actions">
+          {isAdmin && (
+            <NavLink to="/admin" className="nav__link hide-mobile">
+              Admin
+            </NavLink>
+          )}
           <NavLink to={user ? "/dashboard" : "/login"} className="nav__link hide-mobile">
             {user ? "Dashboard" : "Login"}
           </NavLink>
