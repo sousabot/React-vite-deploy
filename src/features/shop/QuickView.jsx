@@ -22,7 +22,7 @@ function QuickViewBody({ product, onAdd }) {
   return (
     <div className="quick-view">
       <div className="quick-view__media">
-        <img src={product.image} alt={product.name} />
+        <img src={product.image} alt={product.name} decoding="async" />
         {product.badge && <span className="product-card__badge">{product.badge}</span>}
       </div>
       <div className="quick-view__info">

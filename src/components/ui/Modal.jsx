@@ -22,9 +22,9 @@ export default function Modal({ open, title, onClose, wide = false, children }) 
             role="dialog"
             aria-modal="true"
             aria-label={typeof title === "string" ? title : undefined}
-            initial={{ opacity: 0, y: "-46%", x: "-50%" }}
-            animate={{ opacity: 1, y: "-50%", x: "-50%" }}
-            exit={{ opacity: 0, y: "-46%", x: "-50%" }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="modal__head">

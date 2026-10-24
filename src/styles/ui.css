@@ -574,19 +574,21 @@ input[type="color"].input {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(4, 5, 6, 0.78);
-  backdrop-filter: blur(6px);
+  background: rgba(4, 5, 6, 0.86);
 }
 
+/* Centred with inset + auto margins (not a transform) so the scrolling box stays cheap to repaint. */
 .modal {
   position: fixed;
   z-index: 81;
-  top: 50%;
-  left: 50%;
+  inset: 0;
+  margin: auto;
   width: min(640px, calc(100vw - 32px));
-  max-height: calc(100vh - 48px);
+  height: fit-content;
+  max-height: calc(100dvh - 48px);
   overflow: auto;
-  transform: translate(-50%, -50%);
+  overscroll-behavior: contain;
+  contain: paint;
   background: var(--surface);
   border: 1px solid var(--line-strong);
 }
