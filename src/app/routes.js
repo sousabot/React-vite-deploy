@@ -25,6 +25,7 @@ const PAGES = [
 
   { path: "/login", load: () => import("../features/auth/LoginPage.jsx") },
   { path: "/register", load: () => import("../features/auth/RegisterPage.jsx") },
+  { path: "/auth/action", load: () => import("../features/auth/AuthActionPage.jsx") },
   { path: "/dashboard", guard: "user", load: () => import("../features/dashboard/DashboardPage.jsx") },
   { path: "/admin", guard: "admin", load: () => import("../features/admin/AdminPage.jsx") },
 ];

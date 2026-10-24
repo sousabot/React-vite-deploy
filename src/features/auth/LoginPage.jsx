@@ -4,6 +4,7 @@ import AuthCard from "./AuthCard.jsx";
 import Field from "../../components/ui/Field.jsx";
 import Alert from "../../components/ui/Alert.jsx";
 import { useAuth } from "./useAuth.js";
+import { authErrorMessage } from "./authErrors.js";
 
 export default function LoginPage() {
   const { login, resetPassword } = useAuth();
@@ -35,7 +36,7 @@ export default function LoginPage() {
         setNotice("Reset link sent. Check your inbox (and spam).");
       }
     } catch (ex) {
-      setError(ex?.message || (mode === "login" ? "Login failed." : "Couldn't send reset email."));
+      setError(authErrorMessage(ex, mode === "login" ? "Login failed. Please try again." : "Couldn't send reset email."));
     } finally {
       setBusy(false);
     }

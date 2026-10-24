@@ -4,6 +4,7 @@ import AuthCard from "./AuthCard.jsx";
 import Field from "../../components/ui/Field.jsx";
 import Alert from "../../components/ui/Alert.jsx";
 import { useAuth } from "./useAuth.js";
+import { authErrorMessage } from "./authErrors.js";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -26,7 +27,7 @@ export default function RegisterPage() {
       await register({ gamerTag: gamerTag.trim(), email: email.trim(), password });
       navigate("/dashboard");
     } catch (ex) {
-      setError(ex?.message || "Registration failed.");
+      setError(authErrorMessage(ex, "Registration failed. Please try again."));
     } finally {
       setBusy(false);
     }
