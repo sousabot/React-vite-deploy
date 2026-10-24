@@ -5,6 +5,7 @@ import SiteHeader from "./SiteHeader.jsx";
 import SiteFooter from "./SiteFooter.jsx";
 import MobileMenu from "./MobileMenu.jsx";
 import { track } from "../../lib/track.js";
+import { usePageMeta } from "../../hooks/usePageMeta.js";
 
 export default function SiteLayout() {
   const location = useLocation();
@@ -12,6 +13,7 @@ export default function SiteLayout() {
   const [menuPath, setMenuPath] = useState(null);
   const menuOpen = menuPath === location.pathname;
   const setMenuOpen = (open) => setMenuPath(open ? location.pathname : null);
+  usePageMeta(location.pathname);
 
   useEffect(() => {
     track("page_view", { path: location.pathname });
