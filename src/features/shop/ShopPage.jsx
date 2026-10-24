@@ -1,30 +1,29 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { FiShoppingBag } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { FiCreditCard, FiGlobe, FiMail, FiShoppingBag, FiMaximize2 } from "react-icons/fi";
 import Page from "../../components/ui/Page.jsx";
-import PageHeader from "../../components/ui/PageHeader.jsx";
 import Alert from "../../components/ui/Alert.jsx";
-import { PRODUCTS, PRODUCT_CATEGORIES } from "../../content/products.js";
+import { PRODUCTS } from "../../content/products.js";
 import { SITE } from "../../config/site.js";
-import { formatGBP } from "../../lib/format.js";
+import { formatGBP, pad2 } from "../../lib/format.js";
 import { useCart } from "./useCart.js";
+import ShopHero from "./ShopHero.jsx";
 import ProductCard from "./ProductCard.jsx";
 import QuickView from "./QuickView.jsx";
 import CartDrawer from "./CartDrawer.jsx";
 import "./shop.css";
 
-const SORTS = [
-  { id: "featured", label: "Featured" },
-  { id: "price-asc", label: "Price: low to high" },
-  { id: "price-desc", label: "Price: high to low" },
-  { id: "name", label: "Name A–Z" },
+const PERKS = [
+  { icon: FiGlobe, title: "UK & international", sub: "Shipping available" },
+  { icon: FiMaximize2, title: "Athletic fit", sub: "Between sizes? Size up" },
+  { icon: FiCreditCard, title: "Secure payment", sub: "Powered by Stripe" },
+  { icon: FiMail, title: "Support", sub: SITE.email },
 ];
 
-const PERKS = [
-  ["UK & international", "Shipping available"],
-  ["Athletic fit", "Between sizes? Size up"],
-  ["Secure payment", "Powered by Stripe"],
-  ["Support", SITE.email],
+const STEPS = [
+  ["Pick your kit", "Choose a jersey and your size."],
+  ["Make it yours", "Add a custom name if you want one — up to 16 characters."],
+  ["Checkout", "Pay securely with Stripe. Confirmation lands in your inbox."],
 ];
 
 function readCheckoutResult() {
@@ -38,19 +37,9 @@ function readCheckoutResult() {
   return null;
 }
 
-function sortProducts(list, sort) {
-  const copy = [...list];
-  if (sort === "price-asc") return copy.sort((a, b) => a.price - b.price);
-  if (sort === "price-desc") return copy.sort((a, b) => b.price - a.price);
-  if (sort === "name") return copy.sort((a, b) => a.name.localeCompare(b.name));
-  return copy.sort((a, b) => Number(!!b.featured) - Number(!!a.featured));
-}
-
 export default function ShopPage() {
   const [banner, setBanner] = useState(readCheckoutResult);
   const cart = useCart({ clearOnLoad: banner?.tone === "ok" });
-  const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState("featured");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [quickView, setQuickView] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -59,10 +48,10 @@ export default function ShopPage() {
     if (window.location.search) window.history.replaceState({}, "", "/shop");
   }, []);
 
-  const products = useMemo(() => {
-    const list = category === "all" ? PRODUCTS : PRODUCTS.filter((p) => p.category === category);
-    return sortProducts(list, sort);
-  }, [category, sort]);
+  const products = useMemo(
+    () => [...PRODUCTS].sort((a, b) => Number(!!b.featured) - Number(!!a.featured)),
+    []
+  );
 
   function addToCart(item) {
     cart.add(item);
@@ -94,77 +83,73 @@ export default function ShopPage() {
   }
 
   return (
-    <Page>
-      <PageHeader
-        eyebrow="Official store"
-        title="The"
-        accent="kit."
-        lead="Official GD Esports jerseys. Pick a size, add to cart, checkout securely with Stripe."
-        actions={
-          <button type="button" className="btn btn--ghost shop-cart-btn" onClick={() => setDrawerOpen(true)}>
-            <FiShoppingBag aria-hidden="true" />
-            Cart
-            {cart.count > 0 && (
-              <motion.span key={cart.count} className="shop-cart-btn__count" initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                {cart.count}
-              </motion.span>
-            )}
-          </button>
-        }
-      />
+    <Page className="shop-page">
+      <header className="shop-top">
+        <div>
+          <span className="eyebrow">Official store</span>
+          <h1 className="display display--md">
+            The <span className="text-orange">kit.</span>
+          </h1>
+        </div>
+        <button type="button" className="btn btn--ghost shop-cart-btn" onClick={() => setDrawerOpen(true)}>
+          <FiShoppingBag aria-hidden="true" />
+          Cart
+          {cart.count > 0 && (
+            <motion.span key={cart.count} className="shop-cart-btn__count" initial={{ scale: 0 }} animate={{ scale: 1 }}>
+              {cart.count}
+            </motion.span>
+          )}
+        </button>
+      </header>
 
       {banner && (
-        <div style={{ marginBottom: 24 }}>
+        <div style={{ marginBottom: 16 }}>
           <Alert tone={banner.tone} onClose={() => setBanner(null)}>
             {banner.text}
           </Alert>
         </div>
       )}
 
-      <div className="shop-toolbar">
-        <div className="chip-row">
-          {PRODUCT_CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              className={`chip ${category === c.id ? "is-active" : ""}`}
-              onClick={() => setCategory(c.id)}
-            >
-              {c.label}
-              <span className="chip__count">
-                {c.id === "all" ? PRODUCTS.length : PRODUCTS.filter((p) => p.category === c.id).length}
-              </span>
-            </button>
-          ))}
-        </div>
-        <label className="row" style={{ "--row": "10px" }}>
-          <span className="mono faint">Sort</span>
-          <select className="input shop-sort" value={sort} onChange={(e) => setSort(e.target.value)}>
-            {SORTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <motion.div className="product-grid" layout>
-        <AnimatePresence mode="popLayout">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={() => setQuickView(p)} />
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <ShopHero products={products} onAdd={addToCart} onCustomise={setQuickView} />
 
       <ul className="shop-perks">
-        {PERKS.map(([title, sub]) => (
+        {PERKS.map(({ icon: Icon, title, sub }) => (
           <li key={title}>
-            <span className="shop-perks__title">{title}</span>
-            <span className="faint small">{sub}</span>
+            <Icon className="shop-perks__icon" aria-hidden="true" />
+            <span>
+              <span className="shop-perks__title">{title}</span>
+              <span className="faint small">{sub}</span>
+            </span>
           </li>
         ))}
       </ul>
+
+      <section className="shop-section">
+        <div className="shop-section__head">
+          <h2 className="display display--sm">Full collection</h2>
+          <span className="mono faint">{pad2(products.length)} items</span>
+        </div>
+        <div className="product-grid">
+          {products.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} onOpen={() => setQuickView(p)} />
+          ))}
+        </div>
+      </section>
+
+      <section className="shop-section">
+        <div className="shop-section__head">
+          <h2 className="display display--sm">How ordering works</h2>
+        </div>
+        <ol className="shop-steps">
+          {STEPS.map(([title, text], i) => (
+            <li key={title}>
+              <span className="shop-steps__num mono">{pad2(i + 1)}</span>
+              <span className="shop-steps__title">{title}</span>
+              <span className="muted small">{text}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       {cart.count > 0 && !drawerOpen && (
         <div className="shop-mobile-bar">
