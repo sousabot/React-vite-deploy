@@ -1,4 +1,4 @@
-export const PLAYER_TEAMS = [
+const LOL_TEAMS = [
   {
     id: "lol",
     label: "LEAGUE OF LEGENDS",
@@ -117,4 +117,24 @@ export const PLAYER_TEAMS = [
       },
     ],
   },
+];
+
+// Member fields: id, name, role, game, number, image (/players/...), initials,
+// and any of twitter, lolpros, faceit, hltv. Roles like "AWPER", "IGL", "ENTRY",
+// "RIFLER", "LURKER", "SUPPORT" get short codes on the page.
+const CS2_TEAMS = [
+  {
+    id: "cs2",
+    label: "COUNTER-STRIKE 2",
+    members: [],
+  },
+];
+
+/**
+ * One entry per game. In each game the first team is the starting lineup;
+ * the rest (subs, coaches) are listed on the bench.
+ */
+export const PLAYER_GAMES = [
+  { id: "lol", label: "League of Legends", short: "LoL", league: "LPLOL", teams: LOL_TEAMS },
+  { id: "cs2", label: "Counter-Strike 2", short: "CS2", league: "", teams: CS2_TEAMS },
 ];

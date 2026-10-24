@@ -23,6 +23,91 @@
   opacity: 0.5;
 }
 
+/* ---------- Game tabs ---------- */
+
+.game-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.game-tabs__tab {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-dim);
+  transition: color var(--fast), border-color var(--fast), background-color var(--fast);
+}
+
+.game-tabs__tab::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  background: var(--orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--med) var(--ease);
+}
+
+.game-tabs__tab:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.game-tabs__tab.is-active {
+  color: var(--text);
+  border-color: rgba(var(--orange-rgb), 0.5);
+  background: linear-gradient(90deg, rgba(var(--orange-rgb), 0.12), var(--surface) 70%);
+}
+
+.game-tabs__tab.is-active::before {
+  transform: scaleX(1);
+}
+
+.game-tabs__short {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  height: 30px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--line-strong);
+}
+
+.game-tabs__tab.is-active .game-tabs__short {
+  color: var(--on-orange);
+  background: var(--orange);
+  border-color: var(--orange);
+}
+
+.game-tabs__label {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-tabs__count {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
 /* ---------- Spotlight ---------- */
 
 .spotlight {
@@ -155,6 +240,23 @@
 
 .spotlight__nav .mono {
   margin-left: 8px;
+}
+
+.spotlight--soon {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: clamp(360px, 48vh, 480px);
+}
+
+.spotlight--soon::after {
+  display: none;
+}
+
+.spotlight--soon .spotlight__info {
+  max-width: 620px;
+}
+
+.spotlight--soon .spotlight__name {
+  font-size: clamp(48px, 7vw, 96px);
 }
 
 /* ---------- Lineup bar ---------- */
@@ -351,10 +453,37 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 860px) {
+  .game-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .game-tabs__tab {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .game-tabs__label {
+    font-size: 17px;
+  }
+
+  .game-tabs__count {
+    display: none;
+  }
+
   .spotlight {
     grid-template-columns: 1fr;
     grid-template-rows: 340px auto;
     min-height: 0;
+  }
+
+  .spotlight--soon {
+    grid-template-rows: auto;
+  }
+
+  .spotlight--soon .spotlight__info {
+    grid-row: 1;
+    background: none;
   }
 
   .spotlight__stage {
