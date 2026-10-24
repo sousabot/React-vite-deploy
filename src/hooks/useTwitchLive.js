@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-const OFFLINE = { isLive: false, viewerCount: 0, title: "", streamGame: "" };
+const OFFLINE = { isLive: false, viewerCount: 0, title: "", streamGame: "", startedAt: "" };
 const POLL_MS = 60_000;
 
 async function fetchStream(login) {
@@ -16,6 +16,7 @@ async function fetchStream(login) {
       viewerCount: data?.viewerCount || 0,
       title: data?.title || "",
       streamGame: data?.game || "",
+      startedAt: data?.startedAt || "",
     };
   } catch {
     return OFFLINE;
@@ -36,7 +37,8 @@ export function useTwitchLive(creators) {
         creators.map(async (c) => [c.twitchLogin, await fetchStream(c.twitchLogin)])
       );
       if (cancelled) return;
-      setStreams(Object.fromEntries(entries));
+      const polledAt = Date.now();
+      setStreams(Object.fromEntries(entries.map(([login, s]) => [login, { ...s, polledAt }])));
       setChecked(true);
     }
 
