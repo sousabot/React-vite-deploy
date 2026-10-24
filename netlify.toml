@@ -45,11 +45,6 @@
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
 [[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
-[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

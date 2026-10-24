@@ -79,7 +79,7 @@ async function getClipsForBroadcaster(broadcasterId, days, first, creds) {
   return Array.isArray(data?.data) ? data.data : [];
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const clientId = process.env.TWITCH_CLIENT_ID;
     const token = process.env.TWITCH_APP_TOKEN;

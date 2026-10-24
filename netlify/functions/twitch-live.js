@@ -64,7 +64,7 @@ async function twitchFetch(url, { clientId, token }) {
   return data;
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   const username = getQueryParam(event, "user", "").trim();
   const debug = getQueryParam(event, "debug", "0") === "1";
 

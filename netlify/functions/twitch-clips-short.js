@@ -11,11 +11,11 @@
 // - Works best for public VODs.
 // - Cutting many/long clips may timeout depending on platform limits.
 
-const ffmpegPath = require("ffmpeg-static");
-const archiver = require("archiver");
-const { spawn } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+import ffmpegPath from "ffmpeg-static";
+import archiver from "archiver";
+import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 function json(statusCode, body) {
   return {
@@ -225,7 +225,7 @@ async function zipFilesToBase64(filePaths) {
   });
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") return json(405, { error: "Use POST." });
 

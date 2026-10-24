@@ -1,11 +1,6 @@
 // netlify/functions/form-to-discord.js
 
-// ✅ Ensure fetch exists in Netlify Functions
-let _fetch = globalThis.fetch;
-if (!_fetch) {
-  // eslint-disable-next-line global-require
-  _fetch = require("node-fetch");
-}
+const _fetch = globalThis.fetch;
 
 function parseBody(event) {
   const contentType =
@@ -51,7 +46,7 @@ function clampField(value, max = 900) {
   return v.length > max ? `${v.slice(0, max)}…` : v;
 }
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };

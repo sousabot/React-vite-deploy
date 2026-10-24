@@ -21,7 +21,7 @@ function getInviteCode() {
   return match ? match[1] : raw;
 }
 
-exports.handler = async () => {
+export const handler = async () => {
   try {
     const code = getInviteCode();
     const url = `https://discord.com/api/v10/invites/${encodeURIComponent(
