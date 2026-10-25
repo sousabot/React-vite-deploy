@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "images": "node scripts/optimize-images.mjs",
-    "og": "node scripts/make-og-image.mjs"
+    "og": "node scripts/make-og-image.mjs",
+    "frame": "node scripts/frame-players.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "^10.5.0",
