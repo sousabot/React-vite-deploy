@@ -45,7 +45,10 @@ function useClips(users, days, first, { enabled = true, filter } = {}) {
         if (!cancelled) setResult({ key, clips: filter ? filter(clips) : clips, error: "" });
       })
       .catch((e) => {
-        if (!cancelled) setResult({ key, clips: [], error: e.message || "Failed to load clips." });
+        console.warn("[clips]", e.message);
+        if (!cancelled) {
+          setResult({ key, clips: [], error: "Clips are unavailable right now. Check back soon, or watch on Twitch." });
+        }
       });
     return () => {
       cancelled = true;

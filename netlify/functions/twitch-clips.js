@@ -32,13 +32,41 @@ function isoFromDaysAgo(days) {
   return d.toISOString();
 }
 
-async function twitchFetch(path, { clientId, token }) {
+// App tokens last ~60 days; reuse one per warm function instance and refresh before expiry.
+let cachedToken = null;
+
+async function getAppToken(clientId, clientSecret, { force = false } = {}) {
+  if (!clientSecret) return process.env.TWITCH_APP_TOKEN || "";
+  if (!force && cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken.value;
+
+  const res = await fetch("https://id.twitch.tv/oauth2/token", {
+    method: "POST",
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "client_credentials",
+    }),
+  });
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data?.access_token) {
+    throw new Error(`Token error: ${data?.message || data?.error || `HTTP ${res.status}`}`);
+  }
+  cachedToken = { value: data.access_token, expiresAt: Date.now() + (data.expires_in || 3600) * 1000 };
+  return cachedToken.value;
+}
+
+async function twitchFetch(path, creds, retried = false) {
   const res = await fetch(`${TWITCH_API}${path}`, {
     headers: {
-      "Client-Id": clientId,
-      Authorization: `Bearer ${token}`,
+      "Client-Id": creds.clientId,
+      Authorization: `Bearer ${creds.token}`,
     },
   });
+
+  if (res.status === 401 && creds.clientSecret && !retried) {
+    creds.token = await getAppToken(creds.clientId, creds.clientSecret, { force: true });
+    return twitchFetch(path, creds, true);
+  }
 
   const text = await res.text();
   let data = null;
@@ -82,12 +110,12 @@ async function getClipsForBroadcaster(broadcasterId, days, first, creds) {
 export const handler = async (event) => {
   try {
     const clientId = process.env.TWITCH_CLIENT_ID;
-    const token = process.env.TWITCH_APP_TOKEN;
+    const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 
-    if (!clientId || !token) {
+    if (!clientId || (!clientSecret && !process.env.TWITCH_APP_TOKEN)) {
       return json(200, {
         clips: [],
-        error: "Missing TWITCH_CLIENT_ID or TWITCH_APP_TOKEN",
+        error: "Missing TWITCH_CLIENT_ID or TWITCH_CLIENT_SECRET",
       });
     }
 
@@ -105,7 +133,7 @@ export const handler = async (event) => {
       return json(200, { clips: [], error: "No users provided" });
     }
 
-    const creds = { clientId, token };
+    const creds = { clientId, clientSecret, token: await getAppToken(clientId, clientSecret) };
 
     // 1) Resolve logins -> ids
     const users = await getUsersByLogins(logins, creds);
