@@ -199,11 +199,11 @@
 
 .spotlight__name {
   font-family: var(--font-display);
-  font-size: clamp(60px, 9vw, 132px);
+  font-size: clamp(48px, 7vw, 104px);
   font-weight: 900;
-  line-height: 0.82;
+  line-height: 0.86;
   text-transform: uppercase;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .spotlight__meta {
