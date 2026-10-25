@@ -107,10 +107,6 @@ export default function AboutPage() {
               <dd>{games}</dd>
             </div>
             <div>
-              <dt className="mono">League</dt>
-              <dd>{SITE.league}</dd>
-            </div>
-            <div>
               <dt className="mono">Motto</dt>
               <dd>{SITE.tagline}</dd>
             </div>

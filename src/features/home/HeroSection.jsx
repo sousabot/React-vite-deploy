@@ -16,7 +16,7 @@ export default function HeroSection({ discordMembers, creatorCount, liveCount })
     { label: "Discord members", value: discordMembers != null ? `${discordMembers.toLocaleString()}+` : "—" },
     { label: "Creators", value: creatorCount },
     { label: "Live now", value: liveCount ?? "…", live: liveCount > 0 },
-    { label: "League", value: SITE.league },
+    { label: "Games", value: "LoL · CS2" },
   ];
 
   return (
@@ -31,7 +31,7 @@ export default function HeroSection({ discordMembers, creatorCount, liveCount })
           <span className="text-orange">compete.</span>
         </motion.h1>
         <motion.p className="lead" {...rise(0.12)}>
-          {SITE.league} roster, creators and a community that shows up. One org, one standard.
+          League of Legends and CS2 rosters, creators and a community that shows up. One org, one standard.
         </motion.p>
         <motion.div className="row" {...rise(0.18)}>
           <a
@@ -62,7 +62,7 @@ export default function HeroSection({ discordMembers, creatorCount, liveCount })
         <img className="hero__logo" src="/logo.png" alt="" />
         <span className="hero__corner hero__corner--tl" />
         <span className="hero__corner hero__corner--br" />
-        <span className="hero__coords mono">GDE // {SITE.league}</span>
+        <span className="hero__coords mono">GDE // LOL · CS2</span>
       </motion.div>
 
       <motion.dl className="hero__stats" {...rise(0.26)}>

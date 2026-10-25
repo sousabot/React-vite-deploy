@@ -14,7 +14,7 @@ export default function SiteFooter() {
         <div className="site-footer__col">
           <Brand />
           <p className="muted" style={{ maxWidth: "38ch" }}>
-            {SITE.tagline} Competitive {SITE.league} roster, creators and a community that shows up.
+            {SITE.tagline} Competitive League of Legends and CS2 rosters, creators and a community that shows up.
           </p>
           <div className="site-footer__heading" style={{ marginTop: 10 }}>
             Newsletter

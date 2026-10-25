@@ -2,7 +2,6 @@ export const SITE = {
   name: "GD Esports",
   tag: "GDE",
   tagline: "Built to compete.",
-  league: "LPLOL",
   url: "https://gdesports.uk",
   email: "socialmediagd25@outlook.com",
   credit: "Sousa Developments",

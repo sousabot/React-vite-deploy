@@ -63,7 +63,7 @@ export const STAFF_DEPARTMENTS = [
       {
         id: "Aleix",
         name: "Aleix",
-        role: "LPLOL MANAGER",
+        role: "LOL MANAGER",
         game: "League of Legends",
         tags: ["Coordinator", "League of Legends"],
         accent: "#ffb000",

@@ -829,48 +829,6 @@ input[type="color"].input {
   border-color: var(--accent);
 }
 
-/* ---------- Ticker ---------- */
-
-.ticker {
-  overflow: hidden;
-  border-block: 1px solid var(--line);
-  background: var(--orange);
-  color: var(--on-orange);
-}
-
-.ticker__track {
-  display: flex;
-  width: max-content;
-  animation: ticker 38s linear infinite;
-}
-
-.ticker__item {
-  display: inline-flex;
-  align-items: center;
-  gap: 28px;
-  padding: 12px 28px 12px 0;
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.ticker__item::after {
-  content: "";
-  width: 10px;
-  height: 10px;
-  background: currentColor;
-  transform: rotate(45deg);
-}
-
-@keyframes ticker {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 /* ---------- CTA band ---------- */
 
 .cta-band {

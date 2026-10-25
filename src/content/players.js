@@ -232,6 +232,6 @@ const CS2_TEAMS = [
  * `announced: false` keeps the roster data but shows "Roster coming soon" instead.
  */
 export const PLAYER_GAMES = [
-  { id: "lol", label: "League of Legends", short: "LoL", league: "LPLOL", announced: false, teams: LOL_TEAMS },
+  { id: "lol", label: "League of Legends", short: "LoL", league: "", announced: false, teams: LOL_TEAMS },
   { id: "cs2", label: "Counter-Strike 2", short: "CS2", league: "", teams: CS2_TEAMS },
 ];
