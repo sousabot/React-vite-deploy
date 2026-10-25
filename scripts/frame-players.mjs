@@ -1,6 +1,7 @@
 // Reframes transparent player cut-outs so everyone has the same size and head height.
 // Trims the empty space, scales the person to a fixed width (or taller if needed to reach
 // the bottom edge), puts the top of the head at the same line and crops to one canvas size.
+// Always writes .webp next to the source (point players.js at the .webp and delete the .png).
 // Safe to re-run on already framed images.
 // Usage: npm run frame -- public/players/cs2
 import { readdir, readFile, writeFile } from "node:fs/promises";
@@ -14,7 +15,7 @@ const PERSON_W = 350;
 const HEAD_TOP = 56;
 
 const dir = path.resolve(process.argv[2] || "public/players/cs2");
-const files = (await readdir(dir)).filter((f) => /\.png$/i.test(f));
+const files = (await readdir(dir)).filter((f) => /\.(png|webp)$/i.test(f));
 
 for (const file of files) {
   const full = path.join(dir, file);
@@ -37,9 +38,9 @@ for (const file of files) {
     create: { width: CANVAS_W, height: CANVAS_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
   })
     .composite([{ input: piece, left: Math.max(0, left), top: HEAD_TOP }])
-    .png({ compressionLevel: 9, adaptiveFiltering: true })
+    .webp({ quality: 82, alphaQuality: 90, effort: 6 })
     .toBuffer();
 
-  await writeFile(full, out);
+  await writeFile(full.replace(/\.png$/i, ".webp"), out);
   console.log(`  ${file.padEnd(18)} ${width}x${height} -> person ${w}x${h}`);
 }

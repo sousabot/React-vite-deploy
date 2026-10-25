@@ -49,6 +49,24 @@ const GAMES = PLAYER_GAMES.map((game) => {
   return { ...game, starters, bench: bench.filter((t) => t.members.length), all };
 });
 
+const warmed = new Set();
+function warmImages(players) {
+  for (const p of players) {
+    if (!p.image || warmed.has(p.image)) continue;
+    warmed.add(p.image);
+    const img = new Image();
+    img.decoding = "async";
+    img.src = p.image;
+  }
+}
+
+// This module is also preloaded in the background from other pages, so start fetching
+// the default roster's photos then.
+if (typeof window !== "undefined") {
+  const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 500));
+  idle(() => warmImages((GAMES.find((g) => g.all.length) || GAMES[0]).all));
+}
+
 function GameTabs({ activeId, onSelect }) {
   return (
     <div className="game-tabs" role="tablist" aria-label="Game">
@@ -92,7 +110,7 @@ function Spotlight({ game, player, index, onStep }) {
               className="spotlight__img"
               src={player.image}
               alt={player.name}
-              decoding="async"
+              fetchPriority="high"
               initial={{ opacity: 0, x: 48 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -48 }}
@@ -206,7 +224,7 @@ function Lineup({ team, activeSlug, onSelect }) {
             aria-pressed={active}
             onClick={() => onSelect(s)}
           >
-            {m.image && <img src={m.image} alt="" loading="lazy" decoding="async" />}
+            {m.image && <img src={m.image} alt="" decoding="async" />}
             <span className="lineup__code mono">{roleCode(m.role)}</span>
             <span className="lineup__name">{m.name}</span>
           </button>
@@ -267,6 +285,10 @@ export default function PlayersPage() {
   const found = game.all.findIndex((p) => p.slug === playerParam);
   const index = found === -1 ? 0 : found;
   const player = game.all[index];
+
+  useEffect(() => {
+    warmImages(game.all);
+  }, [game]);
 
   function select(nextSlug, { scroll = false } = {}) {
     setParams({ game: game.id, player: nextSlug }, { replace: true });
