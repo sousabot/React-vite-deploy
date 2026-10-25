@@ -122,11 +122,107 @@ const LOL_TEAMS = [
 // Member fields: id, name, role, game, number, image (/players/...), initials,
 // and any of twitter, lolpros, faceit, hltv. Roles like "AWPER", "IGL", "ENTRY",
 // "RIFLER", "LURKER", "SUPPORT" get short codes on the page.
+const CS2 = "Counter-Strike 2";
+const CS2_ACCENT = { accent: "#ff6a00", accentRgb: "255,106,0" };
+
 const CS2_TEAMS = [
   {
     id: "cs2",
     label: "COUNTER-STRIKE 2",
-    members: [],
+    members: [
+      {
+        id: "player-cs2-1",
+        name: "GoDellux",
+        role: "ANCHOR",
+        game: CS2,
+        tags: ["Anchor", CS2],
+        ...CS2_ACCENT,
+        initials: "GD",
+        number: "01",
+        image: "/players/cs2/dellux.png",
+      },
+      {
+        id: "player-cs2-2",
+        name: "Mx",
+        role: "IN-GAME LEADER",
+        game: CS2,
+        tags: ["IGL", CS2],
+        ...CS2_ACCENT,
+        initials: "MX",
+        number: "02",
+        image: "/players/cs2/mx.png",
+      },
+      {
+        id: "player-cs2-3",
+        name: "Splitz",
+        role: "RIFLER",
+        game: CS2,
+        tags: ["Rifler", CS2],
+        ...CS2_ACCENT,
+        initials: "SP",
+        number: "03",
+        image: "/players/cs2/splitz.png",
+      },
+      {
+        id: "player-cs2-4",
+        name: "Salvus",
+        role: "ENTRY FRAGGER",
+        game: CS2,
+        tags: ["Entry", CS2],
+        ...CS2_ACCENT,
+        initials: "SA",
+        number: "04",
+        image: "/players/cs2/salvus.png",
+      },
+      {
+        id: "player-cs2-6",
+        name: "Sinatraa",
+        role: "AWPER",
+        game: CS2,
+        tags: ["AWP", CS2],
+        ...CS2_ACCENT,
+        initials: "SI",
+        number: "06",
+        image: "/players/cs2/sinatra.png",
+      },
+    ],
+  },
+  {
+    id: "cs2-sub",
+    label: "CS2 SUBSTITUTES",
+    members: [
+      {
+        id: "player-cs2-sub-1",
+        name: "Just Arab",
+        role: "SUBSTITUTE",
+        game: CS2,
+        tags: ["Substitute", CS2],
+        accent: "#3ba1ff",
+        accentRgb: "59,161,255",
+        initials: "JA",
+        number: "07",
+        image: "/players/cs2/just_arab.png",
+      },
+    ],
+  },
+  {
+    id: "cs2-coach",
+    label: "CS2 COACHING STAFF",
+    members: [
+      {
+        id: "cs2-coach-1",
+        name: "Ricky",
+        role: "HEAD COACH",
+        game: CS2,
+        tags: ["Coach", CS2],
+        accent: "#3ba1ff",
+        accentRgb: "59,161,255",
+        initials: "RI",
+        number: "05",
+        image: "/players/cs2/ricky.png",
+        badge: "COACH",
+      },
+    ],
   },
 ];
 

@@ -26,6 +26,8 @@ const ROLE_CODES = {
   "ENTRY FRAGGER": "ENTRY",
   RIFLER: "RIFLE",
   LURKER: "LURK",
+  ANCHOR: "ANCHOR",
+  SUBSTITUTE: "SUB",
 };
 
 function roleCode(role = "") {
@@ -260,6 +262,7 @@ export default function PlayersPage() {
   const game =
     GAMES.find((g) => g.all.some((p) => p.slug === playerParam)) ||
     GAMES.find((g) => g.id === params.get("game")) ||
+    GAMES.find((g) => g.all.length) ||
     GAMES[0];
   const found = game.all.findIndex((p) => p.slug === playerParam);
   const index = found === -1 ? 0 : found;
